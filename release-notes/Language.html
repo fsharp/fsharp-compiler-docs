@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en" data-root="../">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="F# Language" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/release-notes/Language.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="F# Language">
+    
+    <title>F# Language | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="../img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="../content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="../content/fsdocs-details-set-expanded.js"></script>
+    <link href="../content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="../content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-header active">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="../img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-header active">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="../reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1 data-fsdocs-heading="1"><a name="F-Language" class="anchor" href="#F-Language">F# Language</a></h1>
+<h2 data-fsdocs-heading="2"><a name="Preview" class="anchor" href="#Preview">Preview</a></h2><h3 data-fsdocs-heading="3"><a name="Preview-Added" class="anchor" href="#Preview-Added">Added</a></h3>
+<ul>
+<li><p><strong>Extension members for operators and SRTP constraints</strong> (<a href="https://github.com/fsharp/fslang-design/blob/main/RFCs/FS-1043-extension-members-for-operators-and-srtp-constraints.md">RFC FS-1043</a>, <a href="https://github.com/fsharp/fslang-suggestions/issues/230">fslang-suggestions#230</a>, <a href="https://github.com/dotnet/fsharp/pull/19602">PR #19602</a>): Extension methods now participate in SRTP constraint resolution. This allows defining operators on types you don't own via type extensions:</p>
+<pre><code class="language-fsharp">type System.String with
+    static member (*) (s: string, n: int) = String.replicate n s
+
+let inline multiply (x: ^T) (n: int) = x * n
+let result = multiply &quot;ha&quot; 3  // &quot;hahaha&quot;
+</code></pre>
+<p><strong>Feature flag:</strong> <code>--langversion:preview</code> (feature name: <code>ExtensionConstraintSolutions</code>)</p>
+<p><strong>Includes:</strong></p>
+<ul>
+<li>Extension operators resolve via SRTP constraints (suggestion #230)</li>
+<li>Only <strong>public</strong> members solve SRTP constraints — a <code>private</code>, <code>internal</code>, or <code>protected</code> member (even one visible at the definition site, or exposed via <code>InternalsVisibleTo</code>) is not a valid witness and is rejected at compile time</li>
+<li>Intrinsic members take priority over extension members</li>
+<li>FS1215 warning suppressed when defining extension operators with preview langversion</li>
+<li>Weak resolution disabled for inline code, keeping SRTP constraints generic</li>
+<li><code>[&lt;AllowOverloadOnReturnType&gt;]</code> attribute for defining overloads that differ only by return type (suggestion #820). When applied, return-type information is used during overload resolution to disambiguate call sites.</li>
+<li>Cross-assembly resolution: extension operators defined in referenced assemblies are resolved via SRTP constraints</li>
+<li>Extension members solve SRTP constraints but do <em>not</em> satisfy nominal static abstract interface constraints (IWSAMs). These are orthogonal mechanisms.</li>
+<li>Tuple type extensions using syntactic tuple notation: <code>type ('T1 * 'T2) with</code> for reference tuples and <code>type struct ('T1 * 'T2) with</code> for struct tuples. These are transformed to <code>System.Tuple&lt;'T1,'T2&gt;</code> and <code>System.ValueTuple&lt;'T1,'T2&gt;</code> extensions respectively.</li>
+</ul>
+</li>
+<li><p>Warn (FS3884) when a function or delegate value is used as an interpolated string argument, since it will be formatted via <code>ToString</code> rather than being applied. (<a href="https://github.com/dotnet/fsharp/pull/19289">PR #19289</a>)</p>
+</li>
+<li><p>Added <code>MethodOverloadsCache</code> language feature (preview) that caches overload resolution results for repeated method calls, significantly improving compilation performance. (<a href="https://github.com/dotnet/fsharp/pull/19072">PR #19072</a>)</p>
+</li>
+<li><p>Added <code>ErrorOnMissingSignatureAttribute</code> preview language feature: makes FS3888 (compiler-semantic attribute on the <code>.fs</code> but not on the <code>.fsi</code>) an error instead of a warning. (<a href="https://github.com/dotnet/fsharp/issues/19560">Issue #19560</a>, <a href="https://github.com/dotnet/fsharp/pull/19880">PR #19880</a>)</p>
+</li>
+<li><p>Support common types of <code>NotNullIfNotNullAttribute</code> usage. If a method parameter is marked with <code>NotNullIfNotNullAttribute</code>, the compiler will now honor this attribute and mark the return type as non-null. (<a href="https://github.com/dotnet/fsharp/pull/19977">PR #19977</a>)</p>
+</li>
+<li><p>Spread operator for records (<a href="https://github.com/fsharp/fslang-design/pull/805">RFC FS-1151</a>, <a href="https://github.com/dotnet/fsharp/pull/18927">PR #18927</a>)</p>
+</li>
+<li><p>Added <code>AccessProtectedBaseFieldFromClosure</code> preview language feature: a derived member can now read a <code>protected</code> base-class field from an ordinary closure (lambda, delegate, <code>async</code>/<code>seq</code>/<code>lazy</code>, <code>function</code>, or list/array literal), which previously failed with FS1097 even though direct access compiles. Object expressions remain unsupported — bind the field to a local function or expose it through a member. (<a href="https://github.com/dotnet/fsharp/issues/5302">Issue #5302</a>)</p>
+</li>
+<li><p>Added <code>ImprovedImpliedArgumentNamesPartTwo</code> language feature: when a function with no recoverable parameter names is coerced to a delegate (e.g. a partial application like <code>System.Func&lt;int, int&gt;((+) 1)</code>), the synthesized <code>Invoke</code> parameters take their names from the delegate's own <code>Invoke</code> signature instead of synthetic <code>delegateArg0</code>, <code>delegateArg1</code>, … names. (<a href="https://github.com/dotnet/fsharp/pull/20001">PR #20001</a>)</p>
+</li>
+<li><p>Added a &quot;most concrete&quot; tiebreaker for overload resolution: when several overloads of a method, constructor, or generic-type member are equally applicable, the one with more concrete parameter types is preferred instead of reporting an ambiguity. Requires <code>--langversion:preview</code>. (<a href="https://github.com/fsharp/fslang-design/pull/834">RFC FS-1340</a>, <a href="https://github.com/dotnet/fsharp/pull/19277">PR #19277</a>)</p>
+</li>
+<li><p>Added support for <code>System.Runtime.CompilerServices.OverloadResolutionPriorityAttribute</code> (.NET 9): overloads with a higher priority value are preferred during resolution, matching C#. Requires <code>--langversion:preview</code>. (<a href="https://github.com/fsharp/fslang-design/pull/828">RFC FS-1338</a>, <a href="https://github.com/dotnet/fsharp/pull/19277">PR #19277</a>)</p>
+</li>
+<li><p>Allow constructing a record via its all-fields constructor, e.g. <code>MyRecord(a, b)</code>, with positional or named arguments (<code>RecordConstructorSyntax</code> preview feature). Accessibility matches <code>{ ... }</code> construction. (<a href="https://github.com/fsharp/fslang-suggestions/issues/722">Suggestion #722</a>, <a href="https://github.com/fsharp/fslang-design/blob/main/RFCs/FS-1073-record-constructors.md">RFC FS-1073</a>, <a href="https://github.com/dotnet/fsharp/pull/19974">PR #19974</a>)</p>
+</li>
+</ul>
+<h3 data-fsdocs-heading="4"><a name="Preview-Fixed" class="anchor" href="#Preview-Fixed">Fixed</a></h3>
+<ul>
+<li>Bitwise operators (<code>|||</code>, <code>&amp;&amp;&amp;</code>, <code>^^^</code>) on enums whose underlying type is not an integer type (e.g. <code>char</code>) are now a compile-time error (FS0001, consistent with <code>~~~</code>, <code>&lt;&lt;&lt;</code>, <code>&gt;&gt;&gt;</code>) instead of a runtime <code>NotSupportedException</code>. (<a href="https://github.com/dotnet/fsharp/issues/11785">Issue #11785</a>, <a href="https://github.com/dotnet/fsharp/pull/20322">PR #20322</a>)</li>
+</ul>
+<h3 data-fsdocs-heading="5"><a name="Preview-Changed" class="anchor" href="#Preview-Changed">Changed</a></h3>
+<ul>
+<li>Inline functions now keep SRTP constraints generic instead of eagerly resolving through weak resolution. This changes inferred types for some inline code — see <a href="https://github.com/fsharp/fslang-design/blob/main/RFCs/FS-1043-extension-members-for-operators-and-srtp-constraints.md">RFC FS-1043 compatibility section</a> for details and workarounds.</li>
+</ul>
+
+<h2 data-fsdocs-heading="6"><a name="11.0" class="anchor" href="#11.0">11.0</a></h2><h3 data-fsdocs-heading="7"><a name="11.0-Added" class="anchor" href="#11.0-Added">Added</a></h3>
+<ul>
+<li>Simplify implementation of interface hierarchies with equally named abstract slots: when a derived interface provides a Default Interface Member (DIM) implementation for a base interface slot, F# no longer requires explicit interface declarations for the DIM-covered slot. (<a href="https://github.com/fsharp/fslang-suggestions/issues/1430">Language suggestion #1430</a>, <a href="https://github.com/fsharp/fslang-design/pull/826">RFC FS-1336</a>, <a href="https://github.com/dotnet/fsharp/pull/19241">PR #19241</a>)</li>
+<li>Support <code>#elif</code> preprocessor directive (<a href="https://github.com/fsharp/fslang-suggestions/issues/1370">Language suggestion #1370</a>, <a href="https://github.com/fsharp/fslang-design/blob/main/RFCs/FS-1334-elif-preprocessor-directive.md">RFC FS-1334</a>, <a href="https://github.com/dotnet/fsharp/pull/XXXXX">PR #XXXXX</a>)</li>
+<li>Warn (FS3884) when a function or delegate value is used as an interpolated string argument, since it will be formatted via <code>ToString</code> rather than being applied. (<a href="https://github.com/dotnet/fsharp/pull/19289">PR #19289</a>)</li>
+<li>Added <code>MethodOverloadsCache</code> language feature that caches overload resolution results for repeated method calls, significantly improving compilation performance. (<a href="https://github.com/dotnet/fsharp/pull/19072">PR #19072</a>)</li>
+<li>Added <code>ErrorOnMissingSignatureAttribute</code> language feature: makes FS3888 (compiler-semantic attribute on the <code>.fs</code> but not on the <code>.fsi</code>) an error instead of a warning. (<a href="https://github.com/dotnet/fsharp/issues/19560">Issue #19560</a>, <a href="https://github.com/dotnet/fsharp/pull/19880">PR #19880</a>)</li>
+<li>Support common types of <code>NotNullIfNotNullAttribute</code> usage. If a method parameter is marked with <code>NotNullIfNotNullAttribute</code>, the compiler will now honor this attribute and mark the return type as non-null. (<a href="https://github.com/dotnet/fsharp/pull/19977">PR #19977</a>)</li>
+<li>Spread operator for records (<a href="https://github.com/fsharp/fslang-design/pull/805">RFC FS-1151</a>, <a href="https://github.com/dotnet/fsharp/pull/18927">PR #18927</a>)</li>
+<li>Added <code>AccessProtectedBaseFieldFromClosure</code> language feature: a derived member can now read a <code>protected</code> base-class field from an ordinary closure (lambda, delegate, <code>async</code>/<code>seq</code>/<code>lazy</code>, <code>function</code>, or list/array literal), which previously failed with FS1097 even though direct access compiles. Object expressions remain unsupported — bind the field to a local function or expose it through a member. (<a href="https://github.com/dotnet/fsharp/issues/5302">Issue #5302</a>)</li>
+<li>Added <code>ImprovedImpliedArgumentNamesPartTwo</code> language feature: when a function with no recoverable parameter names is coerced to a delegate (e.g. a partial application like <code>System.Func&lt;int, int&gt;((+) 1)</code>), the synthesized <code>Invoke</code> parameters take their names from the delegate's own <code>Invoke</code> signature instead of synthetic <code>delegateArg0</code>, <code>delegateArg1</code>, … names. (<a href="https://github.com/dotnet/fsharp/pull/20001">PR #20001</a>)</li>
+</ul>
+<h3 data-fsdocs-heading="8"><a name="11.0-Fixed" class="anchor" href="#11.0-Fixed">Fixed</a></h3>
+<h3 data-fsdocs-heading="9"><a name="11.0-Changed" class="anchor" href="#11.0-Changed">Changed</a></h3>
+<ul>
+<li>Lines starting with <code>#:</code> are now ignored (<a href="https://github.com/fsharp/fslang-suggestions/issues/1440">Language suggestion 1440</a>, <a href="https://github.com/fsharp/fslang-design/pull/830">RFC FS-1337</a>, <a href="https://github.com/dotnet/fsharp/pull/20212">PR #20212</a>)</li>
+<li>Direct delegate construction (<a href="https://github.com/dotnet/fsharp/pull/19993">PR #19993</a>)
+<ul>
+<li>A delegate built from a method or function now points straight at that method instead of an intermediate closure, so <code>delegate.Method</code> is the real target and no closure class is generated.</li>
+<li>Two delegates built from the same method and target now compare equal, where the previous closure form produced distinct instances; this also makes <code>Delegate.Remove</code> (and <code>-=</code> on events) match and remove such a delegate that it previously left in place.</li>
+<li>A <code>null</code> instance receiver now faults at delegate construction rather than at the first invoke: an <code>ArgumentException</code> for a non-virtual target (the delegate constructor rejects a null <code>this</code>) or a <code>NullReferenceException</code> for a virtual one (from <code>ldvirtftn</code>), matching how C# builds the same delegate.</li>
+</ul>
+</li>
+</ul>
+
+<h2 data-fsdocs-heading="10"><a name="10.0.200" class="anchor" href="#10.0.200">10.0.200</a></h2><h3 data-fsdocs-heading="11"><a name="10.0.200-Added" class="anchor" href="#10.0.200-Added">Added</a></h3>
+<ul>
+<li>Add <code>--disableLanguageFeature</code> CLI switch and MSBuild property to selectively disable specific F# language features on a per-project basis. (<a href="https://github.com/dotnet/fsharp/pull/19167">PR #19167</a>)</li>
+</ul>
+
+<h2 data-fsdocs-heading="12"><a name="10.0" class="anchor" href="#10.0">10.0</a></h2><h3 data-fsdocs-heading="13"><a name="10.0-Added" class="anchor" href="#10.0-Added">Added</a></h3>
+<ul>
+<li>Better generic unmanaged structs handling. (<a href="https://github.com/fsharp/fslang-suggestions/issues/692">Language suggestion #692</a>, <a href="https://github.com/dotnet/fsharp/pull/12154">PR #12154</a>)</li>
+<li>Deprecate places where <code>seq</code> can be omitted. (<a href="https://github.com/fsharp/fslang-suggestions/issues/1033">Language suggestion #1033</a>, <a href="https://github.com/dotnet/fsharp/pull/17772">PR #17772</a>)</li>
+<li>Added type conversions cache, only enabled for compiler runs (<a href="https://github.com/dotnet/fsharp/pull/17668">PR#17668</a>)</li>
+<li>Support ValueOption + Struct attribute as optional parameter for methods (<a href="https://github.com/fsharp/fslang-suggestions/issues/1136">Language suggestion #1136</a>, <a href="https://github.com/dotnet/fsharp/pull/18098">PR #18098</a>)</li>
+<li>Allow <code>_</code> in <code>use!</code> bindings values (lift FS1228 restriction) (<a href="https://github.com/dotnet/fsharp/pull/18487">PR #18487</a>)</li>
+<li>Warn when <code>unit</code> is passed to an <code>obj</code>-typed argument  (<a href="https://github.com/dotnet/fsharp/pull/18330">PR #18330</a>)</li>
+<li>Fix parsing errors using anonymous records and units of measures (<a href="https://github.com/dotnet/fsharp/pull/18543">PR #18543</a>)</li>
+<li>Scoped Nowarn: added the #warnon compiler directive (<a href="https://github.com/fsharp/fslang-suggestions/issues/278">Language suggestion #278</a>, <a href="https://github.com/fsharp/fslang-design/pull/782">RFC FS-1146 PR</a>, <a href="https://github.com/dotnet/fsharp/pull/18049">PR #18049</a>)</li>
+<li>Allow <code>let!</code>, <code>use!</code>, <code>and!</code> type annotations without requiring parentheses ((<a href="https://github.com/dotnet/fsharp/pull/18508">PR #18508</a> and <a href="https://github.com/dotnet/fsharp/pull/18682">PR #18682</a>))</li>
+<li>Exception names are now validated for illegal characters using the same mechanism as types/modules/namespaces (<a href="https://github.com/dotnet/fsharp/issues/18763">Issue #18763</a>, <a href="https://github.com/dotnet/fsharp/pull/18768">PR #18768</a>)</li>
+<li>Support tail calls in computation expressions (<a href="https://github.com/dotnet/fsharp/pull/18804">PR #18804</a>)</li>
+</ul>
+<h3 data-fsdocs-heading="14"><a name="10.0-Fixed" class="anchor" href="#10.0-Fixed">Fixed</a></h3>
+<ul>
+<li>Warn on uppercase identifiers in patterns. (<a href="https://github.com/dotnet/fsharp/pull/15816">PR #15816</a>)</li>
+<li>Error on invalid declarations in type definitions.(<a href="https://github.com/dotnet/fsharp/issues/10066">Issue #10066</a>, <a href="https://github.com/dotnet/fsharp/pull/18813">PR #18813</a>)</li>
+<li>Fix type erasure logic for <code>nativeptr&lt;'T&gt;</code> overloads to properly preserve element type differences during duplicate member checking. (<a href="https://github.com/dotnet/fsharp/pull/18911">PR #18911</a>)</li>
+</ul>
+<h3 data-fsdocs-heading="15"><a name="10.0-Changed" class="anchor" href="#10.0-Changed">Changed</a></h3>
+<ul>
+<li>Removed parsing support for long-deprecated ML constructs and non-light syntax. (<a href="https://github.com/dotnet/fsharp/pull/19143">PR #19143</a>)</li>
+<li>Released <code>asr</code>, <code>land</code>, <code>lor</code>, <code>lsl</code>, <code>lsr</code> and <code>lxor</code> as usable keywords (note: <code>mod</code> continues to be reserved). (<a href="https://github.com/dotnet/fsharp/pull/19143">PR #19143</a>)</li>
+</ul>
+
+<h2 data-fsdocs-heading="16"><a name="9.0" class="anchor" href="#9.0">9.0</a></h2><h3 data-fsdocs-heading="17"><a name="9.0-Added" class="anchor" href="#9.0-Added">Added</a></h3>
+<ul>
+<li>Speed up <code>for x in xs -&gt; …</code> in list &amp; array comprehensions in certain scenarios. (<a href="https://github.com/dotnet/fsharp/pull/16948">PR #16948</a>)</li>
+<li>Lower integral ranges to fast loops in more cases and optimize list and array construction from ranges. (<a href="https://github.com/dotnet/fsharp/pull/16650">PR #16650</a>, <a href="https://github.com/dotnet/fsharp/pull/16832">PR #16832</a>)</li>
+<li>Support for nullable reference types (<a href="https://github.com/dotnet/fsharp/pull/15181">PR #15181</a>)</li>
+<li>Bidirectional F#/C# interop for 'unmanaged' constraint. (<a href="https://github.com/dotnet/fsharp/pull/12154">PR #12154</a>)</li>
+<li>Make <code>.Is*</code> discriminated union properties visible. (<a href="https://github.com/fsharp/fslang-suggestions/issues/222">Language suggestion #222</a>, <a href="https://github.com/dotnet/fsharp/pull/16341">PR #16341</a>)</li>
+<li>Allow returning bool instead of unit option for partial active patterns. (<a href="https://github.com/fsharp/fslang-suggestions/issues/1041">Language suggestion #1041</a>, <a href="https://github.com/dotnet/fsharp/pull/16473">PR #16473</a>)</li>
+<li>Allow access modifies to auto properties getters and setters (<a href="https://github.com/fsharp/fslang-suggestions/issues/430">Language suggestion #430</a>, <a href="https://github.com/dotnet/fsharp/pull/16687">PR 16687</a>, <a href="https://github.com/dotnet/fsharp/pull/16861">PR 16861</a>, <a href="https://github.com/dotnet/fsharp/pull/17522">PR 17522</a>)</li>
+<li>Allow #nowarn to support the FS prefix on error codes to disable warnings (<a href="https://github.com/dotnet/fsharp/issues/16447">Issue #17206</a>, <a href="https://github.com/dotnet/fsharp/pull/17209">PR #17209</a>)</li>
+<li>Allow ParsedHashDirectives to have argument types other than strings (<a href="https://github.com/dotnet/fsharp/issues/16447">Issue #17240</a>, <a href="https://github.com/dotnet/fsharp/pull/17209">PR #17209</a>)</li>
+<li>Support empty-bodied computation expressions. (<a href="https://github.com/fsharp/fslang-suggestions/issues/1232">Language suggestion #1232</a>, <a href="https://github.com/dotnet/fsharp/pull/17352">PR #17352</a>)</li>
+<li>Allow object expression without overrides. (<a href="https://github.com/fsharp/fslang-suggestions/issues/632">Language suggestion #632</a>, <a href="https://github.com/dotnet/fsharp/pull/17387">PR #17387</a>)</li>
+<li>Enable FSharp 9.0 Language Version (<a href="https://github.com/dotnet/fsharp/issues/17438">Issue #17497</a>), <a href="https://github.com/dotnet/fsharp/pull/17500">PR</a>))</li>
+</ul>
+<h3 data-fsdocs-heading="18"><a name="9.0-Fixed" class="anchor" href="#9.0-Fixed">Fixed</a></h3>
+<ul>
+<li>Allow extension methods without type attribute work for types from imported assemblies. (<a href="https://github.com/dotnet/fsharp/pull/16368">PR #16368</a>)</li>
+<li>Enforce AttributeTargets on let values and functions. (<a href="https://github.com/dotnet/fsharp/pull/16692">PR #16692</a>)</li>
+<li>Enforce AttributeTargets on union case declarations. (<a href="https://github.com/dotnet/fsharp/pull/16764">PR #16764</a>)</li>
+<li>Enforce AttributeTargets on implicit constructors. (<a href="https://github.com/dotnet/fsharp/pull/16845/">PR #16845</a>)</li>
+<li>Enforce AttributeTargets on structs and classes (<a href="https://github.com/dotnet/fsharp/pull/16790">PR #16790</a>)</li>
+<li>Ensure consistent interaction between ``#line<code>and</code>#nowarn` directives (<a href="https://github.com/dotnet/fsharp/pull/17649">PR #17649</a>)</li>
+<li>Revert EnforceAttributeTargets Feature. (<a href="https://github.com/dotnet/fsharp/pull/18005">PR #18005</a>)</li>
+</ul>
+<h3 data-fsdocs-heading="19"><a name="9.0-Changed" class="anchor" href="#9.0-Changed">Changed</a></h3>
+<ul>
+<li>Lower interpolated strings to string concatenation. (<a href="https://github.com/dotnet/fsharp/pull/16556">PR #16556</a>)</li>
+</ul>
+
+<h2 data-fsdocs-heading="20"><a name="8.0" class="anchor" href="#8.0">8.0</a></h2><h3 data-fsdocs-heading="21"><a name="8.0-Fixed" class="anchor" href="#8.0-Fixed">Fixed</a></h3>
+<ul>
+<li>Disallow using base to invoke an abstract base method (<a href="https://github.com/dotnet/fsharp/issues/13926">Issue #13926</a>, <a href="https://github.com/dotnet/fsharp/pull/16773">PR #16773</a>)</li>
+</ul>
+<h3 data-fsdocs-heading="22"><a name="8.0-Added" class="anchor" href="#8.0-Added">Added</a></h3>
+<ul>
+<li><code>while!</code> (<a href="https://github.com/fsharp/fslang-suggestions/issues/1038">Language suggestion #1038</a>, <a href="https://github.com/dotnet/fsharp/pull/14238">PR #14238</a>)</li>
+</ul>
+
+
+        <div popover class="fsdocs-tip" id="fs1">namespace System</div>
+<div popover class="fsdocs-tip" id="fs2">namespace System.IO</div>
+<div popover class="fsdocs-tip" id="fs3">namespace Markdig</div>
+<div popover class="fsdocs-tip" id="fs4">module Common</div>
+<div popover class="fsdocs-tip" id="fs5">val path: string</div>
+<div popover class="fsdocs-tip" id="fs6">type Path =
+  static member ChangeExtension: path: string * extension: string -&gt; string
+  static member Combine: path1: string * path2: string -&gt; string + 4 overloads
+  static member EndsInDirectorySeparator: path: ReadOnlySpan&lt;char&gt; -&gt; bool + 1 overload
+  static member Exists: path: string -&gt; bool
+  static member GetDirectoryName: path: ReadOnlySpan&lt;char&gt; -&gt; ReadOnlySpan&lt;char&gt; + 1 overload
+  static member GetExtension: path: ReadOnlySpan&lt;char&gt; -&gt; ReadOnlySpan&lt;char&gt; + 1 overload
+  static member GetFileName: path: ReadOnlySpan&lt;char&gt; -&gt; ReadOnlySpan&lt;char&gt; + 1 overload
+  static member GetFileNameWithoutExtension: path: ReadOnlySpan&lt;char&gt; -&gt; ReadOnlySpan&lt;char&gt; + 1 overload
+  static member GetFullPath: path: string -&gt; string + 1 overload
+  static member GetInvalidFileNameChars: unit -&gt; char array
+  ...<br /><em>&lt;summary&gt;Performs operations on &lt;see cref=&quot;T:System.String&quot; /&gt; instances that contain file or directory path information. These operations are performed in a cross-platform manner.&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs7">Path.Combine(paths: System.ReadOnlySpan&lt;string&gt;) : string<br />Path.Combine( paths: string array) : string<br />Path.Combine(path1: string, path2: string) : string<br />Path.Combine(path1: string, path2: string, path3: string) : string<br />Path.Combine(path1: string, path2: string, path3: string, path4: string) : string</div>
+<div popover class="fsdocs-tip" id="fs8">val processFolder: path: string -&gt; processFile: (string -&gt; string) -&gt; string<br /><em>&#160;Process all MarkDown files from the given release folder, newest version first</em></div>
+<div popover class="fsdocs-tip" id="fs9">val file: string</div>
+<div popover class="fsdocs-tip" id="fs10">val version: string</div>
+<div popover class="fsdocs-tip" id="fs11">
+Path.GetFileNameWithoutExtension(path: string) : string<br />Path.GetFileNameWithoutExtension(path: System.ReadOnlySpan&lt;char&gt;) : System.ReadOnlySpan&lt;char&gt;</div>
+<div popover class="fsdocs-tip" id="fs12">val content: string</div>
+<div popover class="fsdocs-tip" id="fs13">type File =
+  static member AppendAllBytes: path: string * bytes: byte array -&gt; unit + 1 overload
+  static member AppendAllBytesAsync: path: string * bytes: byte array * ?cancellationToken: CancellationToken -&gt; Task + 1 overload
+  static member AppendAllLines: path: string * contents: string seq -&gt; unit + 1 overload
+  static member AppendAllLinesAsync: path: string * contents: string seq * encoding: Encoding * ?cancellationToken: CancellationToken -&gt; Task + 1 overload
+  static member AppendAllText: path: string * contents: ReadOnlySpan&lt;char&gt; -&gt; unit + 3 overloads
+  static member AppendAllTextAsync: path: string * contents: ReadOnlyMemory&lt;char&gt; * encoding: Encoding * ?cancellationToken: CancellationToken -&gt; Task + 3 overloads
+  static member AppendText: path: string -&gt; StreamWriter
+  static member Copy: sourceFileName: string * destFileName: string -&gt; unit + 1 overload
+  static member Create: path: string -&gt; FileStream + 2 overloads
+  static member CreateSymbolicLink: path: string * pathToTarget: string -&gt; FileSystemInfo
+  ...<br /><em>&lt;summary&gt;Provides static methods for the creation, copying, deletion, moving, and opening of a single file, and aids in the creation of &lt;see cref=&quot;T:System.IO.FileStream&quot; /&gt; objects.&lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs14">File.ReadAllText(path: string) : string<br />File.ReadAllText(path: string, encoding: System.Text.Encoding) : string</div>
+<div popover class="fsdocs-tip" id="fs15">type Markdown =
+  static member Convert: markdown: string * renderer: IMarkdownRenderer * ?pipeline: MarkdownPipeline * ?context: MarkdownParserContext -&gt; obj
+  static member Normalize: markdown: string * ?options: NormalizeOptions * ?pipeline: MarkdownPipeline * ?context: MarkdownParserContext -&gt; string + 1 overload
+  static member Parse: markdown: string * ?trackTrivia: bool -&gt; MarkdownDocument + 1 overload
+  static member ToHtml: markdown: string * ?pipeline: MarkdownPipeline * ?context: MarkdownParserContext -&gt; string + 3 overloads
+  static member ToPlainText: markdown: string * writer: TextWriter * ?pipeline: MarkdownPipeline * ?context: MarkdownParserContext -&gt; MarkdownDocument + 1 overload
+  static member Version: string<br /><em>&lt;summary&gt;
+            Provides methods for parsing a Markdown string to a syntax tree and converting it to other formats.
+            &lt;/summary&gt;</em></div>
+<div popover class="fsdocs-tip" id="fs16">Markdown.ToHtml(document: Syntax.MarkdownDocument, ?pipeline: MarkdownPipeline) : string<br />Markdown.ToHtml(document: Syntax.MarkdownDocument, writer: TextWriter, ?pipeline: MarkdownPipeline) : unit<br />Markdown.ToHtml( markdown: string, ?pipeline: MarkdownPipeline, ?context: MarkdownParserContext) : string<br />Markdown.ToHtml( markdown: string, writer: TextWriter, ?pipeline: MarkdownPipeline, ?context: MarkdownParserContext) : Syntax.MarkdownDocument</div>
+<div popover class="fsdocs-tip" id="fs17">val transformH3: version: string -&gt; input: string -&gt; string<br /><em>&#160;In order for the heading to appear in the page content menu in fsdocs,<br />&#160;they need to follow a specific HTML structure.</em></div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#F-Language">
+      F# Language
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Preview">
+      Preview
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="3">
+    <a href="#Preview-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="4">
+    <a href="#Preview-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="5">
+    <a href="#Preview-Changed">
+      Changed
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="6">
+    <a href="#11.0">
+      11.0
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="7">
+    <a href="#11.0-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="8">
+    <a href="#11.0-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="9">
+    <a href="#11.0-Changed">
+      Changed
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="10">
+    <a href="#10.0.200">
+      10.0.200
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="11">
+    <a href="#10.0.200-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="12">
+    <a href="#10.0">
+      10.0
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="13">
+    <a href="#10.0-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="14">
+    <a href="#10.0-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="15">
+    <a href="#10.0-Changed">
+      Changed
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="16">
+    <a href="#9.0">
+      9.0
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="17">
+    <a href="#9.0-Added">
+      Added
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="18">
+    <a href="#9.0-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="19">
+    <a href="#9.0-Changed">
+      Changed
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="20">
+    <a href="#8.0">
+      8.0
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="21">
+    <a href="#8.0-Fixed">
+      Fixed
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="22">
+    <a href="#8.0-Added">
+      Added
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-heading-6, --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-heading-9, --fsdocs-heading-10, --fsdocs-heading-11, --fsdocs-heading-12, --fsdocs-heading-13, --fsdocs-heading-14, --fsdocs-heading-15, --fsdocs-heading-16, --fsdocs-heading-17, --fsdocs-heading-18, --fsdocs-heading-19, --fsdocs-heading-20, --fsdocs-heading-21, --fsdocs-heading-22, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-heading-6; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="6"] { view-timeline-name: --fsdocs-heading-6; }
+#fsdocs-page-menu [data-fsdocs-heading="6"] { animation-timeline: --fsdocs-heading-6, --fsdocs-heading-7; }
+body:has(#content [data-fsdocs-heading="6"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="6"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="7"] { view-timeline-name: --fsdocs-heading-7; }
+#fsdocs-page-menu [data-fsdocs-heading="7"] { animation-timeline: --fsdocs-heading-7, --fsdocs-heading-8; }
+body:has(#content [data-fsdocs-heading="7"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="7"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="8"] { view-timeline-name: --fsdocs-heading-8; }
+#fsdocs-page-menu [data-fsdocs-heading="8"] { animation-timeline: --fsdocs-heading-8, --fsdocs-heading-9; }
+body:has(#content [data-fsdocs-heading="8"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="8"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="9"] { view-timeline-name: --fsdocs-heading-9; }
+#fsdocs-page-menu [data-fsdocs-heading="9"] { animation-timeline: --fsdocs-heading-9, --fsdocs-heading-10; }
+body:has(#content [data-fsdocs-heading="9"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="9"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="10"] { view-timeline-name: --fsdocs-heading-10; }
+#fsdocs-page-menu [data-fsdocs-heading="10"] { animation-timeline: --fsdocs-heading-10, --fsdocs-heading-11; }
+body:has(#content [data-fsdocs-heading="10"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="10"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="11"] { view-timeline-name: --fsdocs-heading-11; }
+#fsdocs-page-menu [data-fsdocs-heading="11"] { animation-timeline: --fsdocs-heading-11, --fsdocs-heading-12; }
+body:has(#content [data-fsdocs-heading="11"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="11"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="12"] { view-timeline-name: --fsdocs-heading-12; }
+#fsdocs-page-menu [data-fsdocs-heading="12"] { animation-timeline: --fsdocs-heading-12, --fsdocs-heading-13; }
+body:has(#content [data-fsdocs-heading="12"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="12"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="13"] { view-timeline-name: --fsdocs-heading-13; }
+#fsdocs-page-menu [data-fsdocs-heading="13"] { animation-timeline: --fsdocs-heading-13, --fsdocs-heading-14; }
+body:has(#content [data-fsdocs-heading="13"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="13"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="14"] { view-timeline-name: --fsdocs-heading-14; }
+#fsdocs-page-menu [data-fsdocs-heading="14"] { animation-timeline: --fsdocs-heading-14, --fsdocs-heading-15; }
+body:has(#content [data-fsdocs-heading="14"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="14"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="15"] { view-timeline-name: --fsdocs-heading-15; }
+#fsdocs-page-menu [data-fsdocs-heading="15"] { animation-timeline: --fsdocs-heading-15, --fsdocs-heading-16; }
+body:has(#content [data-fsdocs-heading="15"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="15"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="16"] { view-timeline-name: --fsdocs-heading-16; }
+#fsdocs-page-menu [data-fsdocs-heading="16"] { animation-timeline: --fsdocs-heading-16, --fsdocs-heading-17; }
+body:has(#content [data-fsdocs-heading="16"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="16"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="17"] { view-timeline-name: --fsdocs-heading-17; }
+#fsdocs-page-menu [data-fsdocs-heading="17"] { animation-timeline: --fsdocs-heading-17, --fsdocs-heading-18; }
+body:has(#content [data-fsdocs-heading="17"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="17"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="18"] { view-timeline-name: --fsdocs-heading-18; }
+#fsdocs-page-menu [data-fsdocs-heading="18"] { animation-timeline: --fsdocs-heading-18, --fsdocs-heading-19; }
+body:has(#content [data-fsdocs-heading="18"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="18"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="19"] { view-timeline-name: --fsdocs-heading-19; }
+#fsdocs-page-menu [data-fsdocs-heading="19"] { animation-timeline: --fsdocs-heading-19, --fsdocs-heading-20; }
+body:has(#content [data-fsdocs-heading="19"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="19"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="20"] { view-timeline-name: --fsdocs-heading-20; }
+#fsdocs-page-menu [data-fsdocs-heading="20"] { animation-timeline: --fsdocs-heading-20, --fsdocs-heading-21; }
+body:has(#content [data-fsdocs-heading="20"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="20"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="21"] { view-timeline-name: --fsdocs-heading-21; }
+#fsdocs-page-menu [data-fsdocs-heading="21"] { animation-timeline: --fsdocs-heading-21, --fsdocs-heading-22, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="21"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="21"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="22"] { view-timeline-name: --fsdocs-heading-22; }
+#fsdocs-page-menu [data-fsdocs-heading="22"] { animation-timeline: --fsdocs-heading-22, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="22"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="22"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="../content/fsdocs-tips.js"></script>
+<script type="module" src="../content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="../content/fsdocs-details-toggle.js"></script>
+<script type="module" src="../content/fsdocs-theme.js"></script>
+<script type="module" src="../content/fsdocs-search.js"></script>
+<script type="module" src="../content/fsdocs-copy-button.js"></script>
+<script type="module" src="../content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en" data-root="./">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Coding standards" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/coding-standards.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Coding standards">
+    
+    <title>Coding standards | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="./img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="./content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="./content/fsdocs-details-set-expanded.js"></script>
+    <link href="./content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="./content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header active">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+                <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="./reference/index.html">
+    All Namespaces
+  </a>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="./img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header active">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+        <li class="nav-header">
+  API Reference
+</li>             
+<li class="nav-item">
+  <a class="nav-link" href="./reference/index.html">
+    All Namespaces
+  </a>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1 data-fsdocs-heading="1"><a name="Coding-standards-and-idioms" class="anchor" href="#Coding-standards-and-idioms">Coding standards and idioms</a></h1>
+<p>The F# compiler code base is slowly being updated to better coding standards. There is a long way to go.</p>
+<p>The future work includes</p>
+<ul>
+<li>[ ] Consistent use of fantomas formatting across as much of the codebase as feasible</li>
+<li>[ ] Consistent naming conventions</li>
+<li>[ ] Reduction in line length</li>
+<li>[ ] Reduction in single-character identifiers</li>
+<li>[ ] XML documentation for all types, members and cross-module functions</li>
+</ul>
+<h2 data-fsdocs-heading="2"><a name="Abbreviations" class="anchor" href="#Abbreviations">Abbreviations</a></h2>
+<p>The compiler codebase uses various abbreviations. Here are some of the most common ones.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"><p>Abbreviation</p></th>
+<th align="left"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><p><code>ad</code></p></td>
+<td align="left"><p>Accessor domain, meaning the permissions the accessing code has to access other constructs</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>amap</code></p></td>
+<td align="left"><p>Assembly map, saying how to map IL references to F# CCUs</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>arg</code></p></td>
+<td align="left"><p>Argument (parameter)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>argty</code></p></td>
+<td align="left"><p>Argument (parameter) type</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>arginfo</code></p></td>
+<td align="left"><p>Argument (parameter) metadata</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>boxity</code></p></td>
+<td align="left"><p>IL boxity (<code>ILBoxity</code> = <code>AsObject</code> \| <code>AsValue</code>), the IL-level marker distinguishing the reference (boxed) and value-type forms of a type</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>ccont</code></p></td>
+<td align="left"><p>Cancellation continuation in the Async CPS model: <code>OperationCanceledException -&gt; AsyncReturn</code>, invoked when an async computation is cancelled</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>ccu</code></p></td>
+<td align="left"><p>Reference to a compilation unit (<code>CcuThunk</code>): any referenced assembly (F# or otherwise; <code>CcuData.IsFSharp</code> distinguishes), possibly the assembly currently being compiled</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>celem</code></p></td>
+<td align="left"><p>Custom attribute element</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>cenv</code></p></td>
+<td align="left"><p>Compilation environment. Means different things in different contexts, but usually a parameter for a single compilation state object being passed through a set of related functions in a single phase. The compilation state is often mutable.</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>cgbuf</code></p></td>
+<td align="left"><p>Code-generation buffer (<code>CodeGenBuffer</code>): the mutable buffer accumulating IL instructions, locals, exception clauses and sequence points for one method body in IlxGen</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>cloc</code></p></td>
+<td align="left"><p>Compile location (<code>CompileLocation</code>): IL scope + top-level impl name + namespace + enclosing-type path (+ source-file qualified name and range) used to place a generated IL entity</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>cloinfo</code></p></td>
+<td align="left"><p>IL closure information (<code>IlxClosureInfo</code>): the IlxGen descriptor for an emitted F# closure (free variables, formal signature, IL type)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>cont</code></p></td>
+<td align="left"><p>Continuation. In FSharp.Core async, the success continuation <code>cont&lt;'T&gt; = 'T -&gt; AsyncReturn</code> (<code>async.fs</code>). In compiler lowering passes (<code>LowerCalls</code>, <code>LowerComputedCollections</code>, <code>LowerStateMachines</code>), the conventional name for a generic CPS-style callback (typically <code>Expr -&gt; Expr</code> / <code>Expr -&gt; Expr option</code>)</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>cpath</code></p></td>
+<td align="left"><p>Compilation path (<code>CompilationPath</code> = <code>CompPath of ILScopeRef * SyntaxAccess * (string * ModuleOrNamespaceKind) list</code>): the IL scope + access + enclosing module/namespace path (the A.B.C container) for a type or module definition</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>css</code></p></td>
+<td align="left"><p>Constraint solver state.</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>ctok</code></p></td>
+<td align="left"><p>Compilation thread token (<code>CompilationThreadToken</code>): a phantom token witnessing that code runs on the single compilation thread; gates access to the (partially mutable) TAST/<code>TcImports</code> data, type-provider resolution and <code>SourceCodeServices</code>/<code>IncrementalBuild</code> caches</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>ctxt</code></p></td>
+<td align="left"><p>Context (spelled <code>ctxt</code> rather than the more common <code>ctx</code>): in <code>ilread.fs</code> this is an <code>ILMetadataReader</code> threaded through the <code>seekRead*</code> helpers when parsing .NET metadata; elsewhere it can be a different context type (e.g. <code>ExecutionContext</code> in <code>IlxGen.LookupGeneratedValue</code>)</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>csenv</code></p></td>
+<td align="left"><p>Constraint solver environment (<code>ConstraintSolverEnv</code>): the per-call solver context (range, equivalence env, display env, suspicion/trace state). Threaded through every <code>Solve*</code>/<code>Add*</code> helper in <code>ConstraintSolver.fs</code>; distinct from the mutable <code>css</code> (<code>ConstraintSolverState</code>)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>cuspec</code></p></td>
+<td align="left"><p>Compiled-union spec (<code>IlxUnionSpec</code>): the IL-level descriptor of a discriminated union (type ref, generic args, cases) used by EraseUnions</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>denv</code></p></td>
+<td align="left"><p>Display Environment. Parameters guiding the formatting of types</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>dtree</code></p></td>
+<td align="left"><p>Decision tree (<code>DecisionTree</code>, with cases <code>TDSwitch</code>/<code>TDSuccess</code>/<code>TDBind</code>): the compiled pattern-match tree, carried as the <code>decision</code> field of <code>Expr.Match</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>einfo</code></p></td>
+<td align="left"><p>An info object for an event  (whether a .NET event, an F# event or a provided event)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>e</code></p></td>
+<td align="left"><p>Expression</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>econt</code></p></td>
+<td align="left"><p>Exception continuation in the Async CPS model: <code>ExceptionDispatchInfo -&gt; AsyncReturn</code>, invoked when an async computation faults</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>eenv</code></p></td>
+<td align="left"><p>IlxGen emit environment (<code>IlxGenEnv</code>): the threaded code-generation context carrying <code>ValStorage</code> mappings (<code>valsInScope</code>), witnesses-in-scope, type-parameter representation env (<code>tyenv</code>), <code>CompileLocation</code> (<code>cloc</code>), live-locals set and IL-emit flags during IL emission</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>emenv</code></p></td>
+<td align="left"><p>Reflection.Emit / dynamic-assembly emit env (<code>ILDynamicAssemblyEmitEnv</code>, in code spelled <code>emEnv</code>): maps compiler IL refs to live <code>System.Reflection.Emit</code> types/methods/fields (used by FSI dynamic codegen)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>env</code></p></td>
+<td align="left"><p>Environment. Means different things in different contexts, but usually immutable state being passed and adjusted  through a set of related functions in a single phase.</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>eref</code></p></td>
+<td align="left"><p>Entity reference (<code>EntityRef</code>): a reference to a TypedTree <code>Entity</code> (Tycon/Module). Common bindings: <code>let eref = ERefNonLocalPreResolved …</code> (IlxGen), <code>(eref: EntityRef)</code> parameters in TypedTree helpers, the <code>Parent eref</code> case of <code>ParentRef</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fdef</code></p></td>
+<td align="left"><p>IL field definition (<code>ILFieldDef</code>); also commonly spelled <code>fd</code> in AbstractIL helpers — these are synonyms</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>finfo</code></p></td>
+<td align="left"><p>An info object for a field (whether a .NET field or a provided field)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fref</code></p></td>
+<td align="left"><p>A reference to an ILFieldRef Abstract IL node for a field reference. Would normally be modernized to <code>ilFieldRef</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>fspec</code></p></td>
+<td align="left"><p>Field spec — usually an <code>ILFieldSpec</code> in IL emit/read code, also a <code>RecdField</code> (record/class field declaration) in TypedTree code paths. <strong>These are distinct types, not synonyms</strong> — the name collision is historical</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>fvs</code></p></td>
+<td align="left"><p>Free variables (<code>FreeVars</code>): the structured record of variables/typars free in an expression (computed by <code>freeInExpr</code>/<code>accFreevars*</code>), used by DetupleArgs, closure conversion and <code>InnerLambdasToTopLevelFuncs</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>g</code></p></td>
+<td align="left"><p>The TcGlobals value</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>hier</code></p></td>
+<td align="left"><p>Visual Studio hierarchy (<code>IVsHierarchy</code>): the VS shell projection of a project tree (project nodes + items)</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>id</code></p></td>
+<td align="left"><p>Identifier</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>ilg</code></p></td>
+<td align="left"><p>IL globals (<code>ILGlobals</code>): cached well-known IL types/primitives (<code>typ_Object</code>, <code>typ_Int32</code>, …); the AbsIL counterpart of <code>TcGlobals</code>, usually reached as <code>g.ilg</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>itemid</code></p></td>
+<td align="left"><p>Visual Studio item id (<code>VSITEMID</code>, a <code>uint32</code>) identifying a node within an <code>IVsHierarchy</code>, with sentinels <code>VSITEMID_ROOT</code>/<code>_NIL</code>/<code>_SELECTION</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>lid</code></p></td>
+<td align="left"><p>Long Identifier (<code>LongIdent</code> = <code>Ident list</code>); SyntaxTree DU fields conventionally use the full-form synonym <code>longId</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>m</code></p></td>
+<td align="left"><p>A source code <code>range</code> (file-and-position span). Not to be confused with <code>Mark</code>, the IL code-label type in <code>IlxGen</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>mdef</code></p></td>
+<td align="left"><p>Usually an IL method definition (<code>ILMethodDef</code>) being emitted, also frequently spelled <code>md</code> — these are synonyms. In some IlxGen module walks <code>mdef</code> is also a module body (<code>ModuleOrNamespaceContents</code>/<code>ILModuleDef</code>) — distinct types</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>mgbuf</code></p></td>
+<td align="left"><p>Module/assembly generation buffer (the IlxGen <code>AssemblyBuilder</code>): collects type defs, method defs, anonymous-record types and resources for the whole assembly being emitted</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>mimpl</code></p></td>
+<td align="left"><p>In IL emit/morph code, an <code>ILMethodImplDef</code> (an explicit method-implementation override, often for an interface). In the Symbols layer (<code>Symbols/Exprs.fs</code>), the parameter name for a <code>CheckedImplFile</code> (a typed implementation file). <strong>These are distinct types, not synonyms</strong></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>minfo</code></p></td>
+<td align="left"><p>An info object for a method (whether a .NET method, an F# method or a provided method)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>minst</code></p></td>
+<td align="left"><p>Method instantiation — in TypedTree code a <code>TypeInst</code> (<code>TType list</code>) of method type arguments (the per-method analogue of <code>tinst</code>); in AbstractIL method specs an <code>ILGenericArgs</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>mk</code></p></td>
+<td align="left"><p>Means make in old fashioned F#/OCaml coding style</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>modref</code></p></td>
+<td align="left"><p>Module or namespace reference — usually <code>ModuleOrNamespaceRef</code> (an alias for <code>EntityRef</code>, the parallel of <code>tcref</code>/<code>vref</code>); in AbstractIL <code>ILScopeRef.Module</code> patterns it is an <code>ILModuleRef</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>modul</code></p></td>
+<td align="left"><p>In TypedTree contexts a <code>ModuleOrNamespace</code> (the typed structure for a namespace or F# module). In AbstractIL contexts (<code>ilread</code>/<code>ilwrite</code>/<code>ilprint</code>/<code>ilmorph</code>/<code>ilreflect</code>), the same name is used for an <code>ILModuleDef</code> (the IL/CLI module being read or emitted; also spelled <code>ilModule</code>). <strong>These are distinct types, not synonyms</strong></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>mref</code></p></td>
+<td align="left"><p>IL method reference (<code>ILMethodRef</code>): the IL-level identity of an uninstantiated method (declaring type ref, calling convention, name, generic arity, argument types, return type)</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>mspec</code></p></td>
+<td align="left"><p>Usually an <code>ILMethodSpec</code> (IL-level descriptor of an instantiated method) in IL emit code; also <code>ModuleOrNamespace</code> in TypedTree module-binding code (<code>ModuleOrNamespaceBinding.Module(mspec, …)</code>) and related IlxGen module-location helpers. <strong>These are distinct types, not synonyms</strong></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>mty</code></p></td>
+<td align="left"><p>Module type (<code>ModuleOrNamespaceType</code>, also spelled <code>mtyp</code> — these are synonyms): the signature/contents (sub-modules, types, vals) of a module or namespace — used both for the type-checked contents of an implementation and for the declared contents of a signature</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>ncenv</code></p></td>
+<td align="left"><p>Name resolver (<code>NameResolver</code>): the <code>cenv</code>-style state object (globals/amap/infoReader) threaded through name resolution</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>nenv</code></p></td>
+<td align="left"><p>Name resolution environment (<code>NameResolutionEnv</code>): the in-scope name → <code>Item</code> lookup tables active at a program point</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>nleref</code></p></td>
+<td align="left"><p>Non-local entity reference (<code>NonLocalEntityRef of CcuThunk * string[]</code>): an in-memory path-indexed reference into the namespace/module structure of a CCU (often another assembly, but possibly the CCU being compiled)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>nlr</code></p></td>
+<td align="left"><p>Non-local reference — usually <code>NonLocalEntityRef</code> (as the <code>nlr</code> field of <code>EntityRef</code>), occasionally <code>NonLocalValOrMemberRef</code> (the <code>nlr</code> field of <code>ValRef</code>). <strong>Distinct types, not synonyms</strong> — different reference layers</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>pat</code></p></td>
+<td align="left"><p>Pattern, a syntactic AST node representing part of a pattern in a pattern match</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>pc</code></p></td>
+<td align="left"><p>Program counter — the <code>int</code> state label allocated per resumption point in <code>LowerSequences</code>/<code>LowerStateMachines</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>penv</code></p></td>
+<td align="left"><p>Pass environment — a pass-local <code>cenv</code>-style record threaded through an Optimizer pass (e.g. <code>penv</code> in <code>DetupleArgs.fs</code>, <code>RewriteContext</code> in <code>InnerLambdasToTopLevelFuncs.fs</code>)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>pinfo</code></p></td>
+<td align="left"><p>An info object for a property  (whether a .NET property, an F# property or a provided property)</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>plid</code></p></td>
+<td align="left"><p>Partial long identifier (a <code>string list</code>): the dotted prefix typed so far during IDE completion (the "Foo.Bar." path)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>q</code></p></td>
+<td align="left"><p>In FSharp.Core (<code>Linq.fs</code>, <code>Query.fs</code>, query/quotation transforms), an F# quotation value (<code>Quotations.Expr</code> or <code>Quotations.Expr&lt;'T&gt;</code>) being inspected or transformed; occasionally a parser/matcher function in quotation helpers</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>rdt</code></p></td>
+<td align="left"><p>Running Document Table (<code>IVsRunningDocumentTable</code>): the Visual Studio service that tracks all open documents and their buffers</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>reqdty</code></p></td>
+<td align="left"><p>Required type (<code>reqdTy</code>, a <code>TType</code>): the expected/target type flowed into expression type checking</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>rfinfo</code></p></td>
+<td align="left"><p>Record/class field info (<code>RecdFieldInfo</code>): an <code>rfref</code> together with the enclosing type's instantiation (i.e. a field viewed through a concrete type)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>rfref</code></p></td>
+<td align="left"><p>Record or class field  reference, a reference to a Typed Tree node for a record or class field</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>scoref</code></p></td>
+<td align="left"><p>Scope reference (<code>ILScopeRef</code>) for an IL metadata reference: <code>Local</code>, <code>Module</code> of <code>ILModuleRef</code>, <code>Assembly</code> of <code>ILAssemblyRef</code>, or <code>PrimaryAssembly</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>sm</code></p></td>
+<td align="left"><p>Resumable state machine (a <code>byref&lt;ResumableStateMachine&lt;_&gt;&gt;</code>) passed through CE builder methods, tasks and resumable code; also <code>byref&lt;TaskStateMachine&lt;_&gt;&gt;</code> in task-specific paths</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>sp</code></p></td>
+<td align="left"><p>Sequence points or debug points</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>spat</code></p></td>
+<td align="left"><p>Simple Pattern, a syntactic AST node representing part of a pattern in a pattern match</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>tau</code></p></td>
+<td align="left"><p>A type with the "forall" nodes stripped off (i.e. the nodes which represent generic type parameters). Comes from the notation <em>𝛕</em> used in type theory</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>tcaug</code></p></td>
+<td align="left"><p>Type constructor augmentation (<code>TyconAugmentation</code>, accessed via <code>tcref.TypeContents</code>): the mutable bag of interfaces, members and compiler-synthesized overrides (Compare/Equals/Hash) added to a <code>Tycon</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>tcref</code></p></td>
+<td align="left"><p>Type constructor reference (<code>TyconRef</code>, an alias for <code>EntityRef</code>; long-form synonym <code>tyconRef</code> is also used): the parallel of <code>modref</code>/<code>vref</code>/<code>eref</code> for class/record/union/exception/abbreviation/measure type constructors</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>tdef</code></p></td>
+<td align="left"><p>IL type definition (<code>ILTypeDef</code>); also commonly spelled <code>td</code> in AbstractIL helpers — these are synonyms</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>tinst</code></p></td>
+<td align="left"><p>Type instantiation</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>tpenv</code></p></td>
+<td align="left"><p>Type parameter environment, tracks the type parameters in scope during type checking</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>tps</code></p></td>
+<td align="left"><p>Type parameter list (<code>Typars</code> = <code>Typar list</code>; long-form synonym <code>typars</code> is also used): the typars paired with <code>tau</code> in <code>TType_forall(tps, tau)</code> / <code>Expr.TyChoose(tps, …)</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>tpsorig</code></p></td>
+<td align="left"><p>Original typars (spelled <code>tpsorig</code> in code, a <code>Typar list</code>): the user-written typars before freshening/renaming, paired with the copied set (<code>tps</code>)</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>traitinfo</code></p></td>
+<td align="left"><p>Trait constraint info (<code>TraitConstraintInfo</code>, spelled <code>traitInfo</code>): the SRTP "method-like" constraint (support types, name, argument types, return type)</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>tref</code></p></td>
+<td align="left"><p>IL type reference (<code>ILTypeRef</code>): <code>Scope</code> (<code>ILScopeRef</code>) + <code>Enclosing</code> (string list of enclosing type names) + <code>Name</code>. For non-nested types the namespace is encoded in <code>Name</code>; nested types use <code>Enclosing</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>ty</code> (not: <code>typ</code>)</p></td>
+<td align="left"><p>Type, usually a Typed Tree type</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>tycon</code></p></td>
+<td align="left"><p>Type constructor (<code>Tycon</code>, an alias for <code>Entity</code>): a type or exception definition (class/record/union/abbreviation/exception/measure) in the TypedTree; <code>tcref.Deref</code> returns one. Modules and namespaces use the parallel alias <code>ModuleOrNamespace</code></p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>typar</code></p></td>
+<td align="left"><p>Type Parameter</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>tys</code> (not: <code>typs</code>)</p></td>
+<td align="left"><p>List of types, usually Typed Tree types</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>tyvar</code></p></td>
+<td align="left"><p>Type Variable, usually referring to an IL type variable, the compiled form of an F# type parameter</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>ucref</code></p></td>
+<td align="left"><p>Union case reference, a reference to a Typed Tree node for a union case</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>vinfo</code></p></td>
+<td align="left"><p>Value info — in the Optimizer, the abstract value of an expression: <code>ExprValueInfo</code> (the DU with cases <code>UnknownValue</code>/<code>SizeValue</code>/<code>ValValue</code>/<code>TupleValue</code>/<code>RecdValue</code>/<code>UnionCaseValue</code>/<code>ConstValue</code>/<code>CurriedLambdaValue</code>/…) or the per-binding wrapper <code>ValInfo</code> (<code>ValMakesNoCriticalTailcalls</code> + <code>ValExprInfo</code>). <strong>Distinct types, not synonyms</strong> — <code>ValInfo</code> wraps an <code>ExprValueInfo</code></p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>vref</code></p></td>
+<td align="left"><p>Value reference (<code>ValRef</code>; long-form synonym <code>valRef</code> is also used): a reference to a Typed Tree node for a value</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>vspec</code></p></td>
+<td align="left"><p>Val "spec" — a <code>Val</code> (the underlying definition behind a <code>vref</code>, typically obtained via <code>vref.Deref</code>). Often shortened to just <code>v</code> in tight scopes</p></td>
+</tr>
+</tbody>
+</table>
+
+<table>
+<thead>
+<tr class="header">
+<th align="left"><p>Phase Abbreviation</p></th>
+<th align="left"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><p><code>Syn</code></p></td>
+<td align="left"><p>Abstract Syntax Tree</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>Tc</code></p></td>
+<td align="left"><p>Type-checker</p></td>
+</tr>
+<tr class="odd">
+<td align="left"><p><code>IL</code></p></td>
+<td align="left"><p>Abstract  IL = F# representation of .NET IL</p></td>
+</tr>
+<tr class="even">
+<td align="left"><p><code>Ilx</code></p></td>
+<td align="left"><p>Extended Abstract IL = .NET IL plus a couple of constructs that get erased</p></td>
+</tr>
+</tbody>
+</table>
+
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Coding-standards-and-idioms">
+      Coding standards and idioms
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Abbreviations">
+      Abbreviations
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="./content/fsdocs-tips.js"></script>
+<script type="module" src="./content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="./content/fsdocs-details-toggle.js"></script>
+<script type="module" src="./content/fsdocs-theme.js"></script>
+<script type="module" src="./content/fsdocs-search.js"></script>
+<script type="module" src="./content/fsdocs-copy-button.js"></script>
+<script type="module" src="./content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en" data-root="../">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="FSharp.Compiler.Text" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/{{fsdocs-source-basename}}.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="FSharp.Compiler.Text">
+    
+    <title>FSharp.Compiler.Text | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="../img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="../content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="../content/fsdocs-details-set-expanded.js"></script>
+    <link href="../content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="../content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="api-docs">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item active">
+  <span>
+    <a class="nav-link active" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="../">
+            <img alt="Logo" src="../img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item active">
+  <span>
+    <a class="nav-link active" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <div>
+  <h2 id="fsharp-compiler-text" data-fsdocs-heading="1">
+    FSharp.Compiler.Text Namespace
+  </h2>
+  <div class="fsdocs-xmldoc"></div>
+  <table class="table outer-list fsdocs-entity-list">
+    <thead>
+      <tr>
+        <td>
+          Type/Module
+        </td>
+        <td>
+          Description
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="ISourceText">
+              <a href="../reference/fsharp-compiler-text-isourcetext.html" data-fsdocs-nav="">
+                ISourceText
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents an input to the F# compiler
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Facilities/prim-lexing.fsi#L9-9" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.ISourceText\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.ISourceText`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="ISourceTextNew">
+              <a href="../reference/fsharp-compiler-text-isourcetextnew.html" data-fsdocs-nav="">
+                ISourceTextNew
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Just like ISourceText, but with a checksum. Added as a separate type to avoid breaking changes.
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Facilities/prim-lexing.fsi#L43-43" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.ISourceTextNew\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.ISourceTextNew`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Line">
+              <a href="../reference/fsharp-compiler-text-line.html" data-fsdocs-nav="">
+                Line
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Functions related to converting between lines indexed at 0 and 1
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/range.fsi#L282-282" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.Line\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.Line`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Line0">
+              <a href="../reference/fsharp-compiler-text-line0.html" data-fsdocs-nav="">
+                Line0
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a line number when using zero-based line counting (used by Visual Studio)
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/range.fsi#L145-145" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.Line0\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.Line0`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="NavigableTaggedText">
+              <a href="../reference/fsharp-compiler-text-navigabletaggedtext.html" data-fsdocs-nav="">
+                NavigableTaggedText
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 An enhancement to TaggedText in the TaggedText layouts generated by FSharp.Compiler.Service
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Facilities/TextLayoutRender.fsi#L11-11" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.NavigableTaggedText\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.NavigableTaggedText`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="pos">
+              <a href="../reference/fsharp-compiler-text-pos.html" data-fsdocs-nav="">
+                pos
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a position in a file
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/range.fsi#L70-70" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.pos\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.pos`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Position">
+              <a href="../reference/fsharp-compiler-text-positionmodule.html" data-fsdocs-nav="">
+                Position (Module)
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/range.fsi#L154-154" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.PositionModule\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.PositionModule`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Position">
+              <a href="../reference/fsharp-compiler-text-position.html" data-fsdocs-nav="">
+                Position (Type)
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a position in a file
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/range.fsi#L49-49" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.Position\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.Position`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Position01">
+              <a href="../reference/fsharp-compiler-text-position01.html" data-fsdocs-nav="">
+                Position01
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a position using zero-based line counting (used by Visual Studio)
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/range.fsi#L149-149" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.Position01\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.Position01`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Range">
+              <a href="../reference/fsharp-compiler-text-rangemodule.html" data-fsdocs-nav="">
+                Range (Module)
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/range.fsi#L202-202" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.RangeModule\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.RangeModule`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Range">
+              <a href="../reference/fsharp-compiler-text-range.html" data-fsdocs-nav="">
+                Range (Type)
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a range within a file
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/range.fsi#L74-74" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.Range\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.Range`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="range">
+              <a href="../reference/fsharp-compiler-text-range-0.html" data-fsdocs-nav="">
+                range
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a range within a file
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/range.fsi#L136-136" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.range\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.range`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="Range01">
+              <a href="../reference/fsharp-compiler-text-range01.html" data-fsdocs-nav="">
+                Range01
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a range using zero-based line counting (used by Visual Studio)
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/range.fsi#L152-152" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.Range01\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.Range01`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="RichText">
+              <a href="../reference/fsharp-compiler-text-richtext.html" data-fsdocs-nav="">
+                RichText
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents text made of tagged parts, e.g. a diagnostic message in which types, identifiers and
+ punctuation are classified, so that tooling is able to render them with colors.
+
+ Text that carries no classification is represented as a single part tagged TextTag.Text, so that
+ a plain string is always representable and Text is always equal to the original string.
+
+ Two rich texts are equal when they read the same. Classification does not take part in equality,
+ since the places that compare texts - such as deciding whether two types can be told apart in a
+ message - are asking about what reaches the reader.
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Facilities/RichText.fsi#L17-17" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.RichText\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.RichText`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="SourceText">
+              <a href="../reference/fsharp-compiler-text-sourcetext.html" data-fsdocs-nav="">
+                SourceText
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Functions related to ISourceText objects
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Facilities/prim-lexing.fsi#L49-49" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.SourceText\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.SourceText`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="SourceTextNew">
+              <a href="../reference/fsharp-compiler-text-sourcetextnew.html" data-fsdocs-nav="">
+                SourceTextNew
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Facilities/prim-lexing.fsi#L54-54" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.SourceTextNew\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.SourceTextNew`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="TaggedText">
+              <a href="../reference/fsharp-compiler-text-taggedtextmodule.html" data-fsdocs-nav="">
+                TaggedText (Module)
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/sformat.fsi#L112-112" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.TaggedTextModule\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.TaggedTextModule`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="TaggedText">
+              <a href="../reference/fsharp-compiler-text-taggedtext.html" data-fsdocs-nav="">
+                TaggedText (Type)
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents text with a tag
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/sformat.fsi#L75-75" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.TaggedText\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.TaggedText`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="TextTag">
+              <a href="../reference/fsharp-compiler-text-texttag.html" data-fsdocs-nav="">
+                TextTag
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents the tag of some tagged text
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Utilities/sformat.fsi#L37-37" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Text.TextTag\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Text.TextTag`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-2" data-fsdocs-heading="1">
+    <a href="#fsharp-compiler-text" title="FSharp.Compiler.Text Namespace">
+      FSharp.Compiler.Text Namespace
+    </a>
+    <ul class="fsdocs-menu-entries">
+      <li>
+        <a href="../reference/fsharp-compiler-text-isourcetext.html" title="ISourceText">
+          ISourceText
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-isourcetextnew.html" title="ISourceTextNew">
+          ISourceTextNew
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-line.html" title="Line">
+          Line
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-line0.html" title="Line0">
+          Line0
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-navigabletaggedtext.html" title="NavigableTaggedText">
+          NavigableTaggedText
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-pos.html" title="pos">
+          pos
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-positionmodule.html" title="Position (Module)">
+          Position (Module)
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-position.html" title="Position (Type)">
+          Position (Type)
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-position01.html" title="Position01">
+          Position01
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-rangemodule.html" title="Range (Module)">
+          Range (Module)
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-range.html" title="Range (Type)">
+          Range (Type)
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-range-0.html" title="range">
+          range
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-range01.html" title="Range01">
+          Range01
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-richtext.html" title="RichText">
+          RichText
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-sourcetext.html" title="SourceText">
+          SourceText
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-sourcetextnew.html" title="SourceTextNew">
+          SourceTextNew
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-taggedtextmodule.html" title="TaggedText (Module)">
+          TaggedText (Module)
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-taggedtext.html" title="TaggedText (Type)">
+          TaggedText (Type)
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-text-texttag.html" title="TextTag">
+          TextTag
+        </a>
+      </li>
+    </ul>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="../content/fsdocs-tips.js"></script>
+<script type="module" src="../content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="../content/fsdocs-details-toggle.js"></script>
+<script type="module" src="../content/fsdocs-theme.js"></script>
+<script type="module" src="../content/fsdocs-search.js"></script>
+<script type="module" src="../content/fsdocs-copy-button.js"></script>
+<script type="module" src="../content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

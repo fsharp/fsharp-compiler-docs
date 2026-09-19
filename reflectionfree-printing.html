@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en" data-root="./">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Reflection-free printing" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/reflectionfree-printing.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Reflection-free printing">
+    
+    <title>Reflection-free printing | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="./img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="./content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="./content/fsdocs-details-set-expanded.js"></script>
+    <link href="./content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="./content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header active">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="./reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="./img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header active">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="./reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1 data-fsdocs-heading="1"><a name="Simple-vs-Reflection-based-DU-and-Record-printing" class="anchor" href="#Simple-vs-Reflection-based-DU-and-Record-printing">Simple vs Reflection-based DU and Record printing</a></h1>
+<p>This document describes two modes for printing Discriminated Unions (DUs) and Records in F#: a <strong>simple</strong> reflection-free mode that delegates to a <code>string</code>-like operator for printing field values, and a <code>sprintf</code> mode (<code>sprintf "%A"</code>), which uses <strong>reflection</strong> to create output looking like F# code. In this document, the terms <em>simple</em> and <em>reflection</em> are used to distinguish the two modes.</p>
+<p>Without the <code>--reflectionfree</code> flag, the compiler generates a <code>ToString</code> for DUs and Records that calls <code>sprintf "%A"</code>. With the flag, the compiler generates a <code>ToString</code> that uses the simple mode.</p>
+<p>Users can choose between the two modes by 1. use of <code>--reflectionfree</code>, and by 2. calling with a <code>sprintf</code>-type caller or a <code>string</code>-type caller (e.g. the <code>string</code> operator, <code>ToString</code>, or interpolated strings).</p>
+<p>If <code>x</code> is a DU or Record, then output will be simple or reflection-based as follows:
+| | <code>--reflectionfree</code> | no <code>--reflectionfree</code> |
+|---|---|---|
+| <code>string x</code> | simple | reflection |
+| <code>x.ToString()</code> | simple | reflection |
+| <code>$"{x}"</code> | simple | reflection |
+| <code>sprintf "%A" x</code> | disallowed (would be reflection) | reflection |</p>
+<p>As such, the current default reflection <code>ToString</code> generation forces reflection formatting on all callers. On the other hand, generating simple <code>ToString</code> output means that the records and DUs are printed with simple or reflection formatting depending on whether the caller is of simple or reflection affinity. The <code>--reflectionfree</code> flag combines this property with a ban on <code>sprintf</code> to prevent the reflection mode from being used.</p>
+<p>In addition to user-defined types, the FSharp.Core <code>option</code> type uses simple printing, while other types either have no <code>ToString</code> or use some other format.</p>
+<h2 data-fsdocs-heading="2"><a name="Behaviour-definitions" class="anchor" href="#Behaviour-definitions">Behaviour: definitions</a></h2>
+<p>In simple printing, field values are printed with <code>string</code>-type formatting, more precisely <code>anyToStringShowingNull</code>. No line breaks are inserted.</p>
+<ul>
+<li><strong>Record</strong>: <code>{ Name1 = value1; Name2 = value2 }</code>.</li>
+<li><strong>Anonymous record</strong>: the same, but with <code>{|</code> and <code>|}</code>.</li>
+<li><strong>Union</strong>: A case with no fields renders as just its name. A case with fields renders as <code>CaseName(value1, value2)</code>.</li>
+</ul>
+<p><code>[&lt;Struct&gt;]</code> records and unions, and struct anonymous records, render identically to their reference-type forms.</p>
+<p>A type that supplies its own <code>ToString</code> override keeps it, with no <code>ToString</code> generated for it (either simple or reflection).</p>
+<p>Reflection-mode printing is described in <a href="https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/plaintext-formatting">plain text formatting</a>.</p>
+<h2 data-fsdocs-heading="3"><a name="Behavioural-differences" class="anchor" href="#Behavioural-differences">Behavioural differences</a></h2>
+<h3 data-fsdocs-heading="4"><a name="Differences-in-field-rendering" class="anchor" href="#Differences-in-field-rendering">Differences in field rendering</a></h3>
+<p>The following differences between <code>string</code> and <code>sprintf "%A"</code> carry over directly into differences in field rendering between simple and reflection printing:</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>F# value</p></th>
+<th><p>simple (<code>anyToStringShowingNull</code>)</p></th>
+<th><p>reflection (<code>sprintf "%A"</code>)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>string field <code>"hi"</code></p></td>
+<td><p><code>hi</code></p></td>
+<td><p><code>"hi"</code></p></td>
+</tr>
+<tr class="even">
+<td><p>char field <code>'a'</code></p></td>
+<td><p><code>a</code></p></td>
+<td><p><code>'a'</code></p></td>
+</tr>
+<tr class="odd">
+<td><p>float <code>5.0</code></p></td>
+<td><p><code>5</code></p></td>
+<td><p><code>5.0</code></p></td>
+</tr>
+<tr class="even">
+<td><p><code>250uy</code> / <code>42n</code> / <code>1.5M</code></p></td>
+<td><p><code>250</code> / <code>42</code> / <code>1.5</code></p></td>
+<td><p><code>250uy</code> / <code>42n</code> / <code>1.5M</code></p></td>
+</tr>
+<tr class="odd">
+<td><p>option field <code>None</code></p></td>
+<td><p><code>null</code></p></td>
+<td><p><code>None</code></p></td>
+</tr>
+<tr class="even">
+<td><p>array field <code>[\|1;2;3\|]</code></p></td>
+<td><p><code>System.Int32[]</code></p></td>
+<td><p><code>[\|1; 2; 3\|]</code></p></td>
+</tr>
+<tr class="odd">
+<td><p>unit field <code>()</code></p></td>
+<td><p><code>null</code></p></td>
+<td><p><code>()</code></p></td>
+</tr>
+</tbody>
+</table>
+
+<p>The overall differences here are:
+- Simple printing converts to strings, while reflection printing is more bi-directional, often generating compilable F# code.
+- F# types that have null representation (<code>unit</code>, <code>option</code>, and in general types with <code>AllowNullLiteral</code> or <code>UseNullAsTrueValue</code>) are printed as <code>null</code> in simple printing, while reflection printing uses a more F#-like representation.</p>
+<h3 data-fsdocs-heading="5"><a name="Other-differences" class="anchor" href="#Other-differences">Other differences</a></h3>
+<p>These differences are in the printing of the record or DU itself rather than of its fields:</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>F# value</p></th>
+<th><p>simple (<code>string</code>)</p></th>
+<th><p>reflection (<code>sprintf "%A"</code>)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>B 5</code> (single field)</p></td>
+<td><p><code>B(5)</code></p></td>
+<td><p><code>B 5</code></p></td>
+</tr>
+<tr class="even">
+<td><p><code>C (3, 4)</code> (two fields)</p></td>
+<td><p><code>C(3, 4)</code></p></td>
+<td><p><code>C (3, 4)</code></p></td>
+</tr>
+<tr class="odd">
+<td><p>record <code>{ X = 1; Y = 2 }</code></p></td>
+<td><p><code>{ X = 1; Y = 2 }</code></p></td>
+<td><p><code>{ X = 1</code>⏎<code>Y = 2 }</code></p></td>
+</tr>
+<tr class="even">
+<td><p><code>[&lt;StructuredFormatDisplay("Custom&lt;{X}&gt;")&gt;]</code></p></td>
+<td><p><code>{ X = 5 }</code></p></td>
+<td><p><code>Custom&lt;5&gt;</code></p></td>
+</tr>
+</tbody>
+</table>
+
+<p>The overall differences here are:
+- Simple printing always brackets a case's fields and never pads, while reflection printing omits brackets for a single non-tuple field and inserts a space before them otherwise.
+- Simple printing uses a single line (unless a field's own rendering contains breaks), while reflection printing breaks records and nested values across lines with indentation.
+- <code>StructuredFormatDisplay</code> is ignored in simple printing and honoured in reflection printing.</p>
+<h2 data-fsdocs-heading="6"><a name="Recursion-and-depth" class="anchor" href="#Recursion-and-depth">Recursion and depth</a></h2>
+<p>Rendering recurses into nested records and unions. Deep nesting is guarded by <code>RuntimeHelpers.EnsureSufficientExecutionStack</code>, raising a catchable <code>InsufficientExecutionStackException</code> rather than <code>StackOverflowException</code>; cycles (which require mutation to construct) still overflow, as <code>option</code> and <code>list</code> do.</p>
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Simple-vs-Reflection-based-DU-and-Record-printing">
+      Simple vs Reflection-based DU and Record printing
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Behaviour-definitions">
+      Behaviour: definitions
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="3">
+    <a href="#Behavioural-differences">
+      Behavioural differences
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="4">
+    <a href="#Differences-in-field-rendering">
+      Differences in field rendering
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="5">
+    <a href="#Other-differences">
+      Other differences
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="6">
+    <a href="#Recursion-and-depth">
+      Recursion and depth
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-heading-6, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-heading-6, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="6"] { view-timeline-name: --fsdocs-heading-6; }
+#fsdocs-page-menu [data-fsdocs-heading="6"] { animation-timeline: --fsdocs-heading-6, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="6"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="6"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="./content/fsdocs-tips.js"></script>
+<script type="module" src="./content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="./content/fsdocs-details-toggle.js"></script>
+<script type="module" src="./content/fsdocs-theme.js"></script>
+<script type="module" src="./content/fsdocs-search.js"></script>
+<script type="module" src="./content/fsdocs-copy-button.js"></script>
+<script type="module" src="./content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

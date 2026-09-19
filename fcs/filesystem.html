@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en" data-root="../">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="IFileSystem" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/fcs/filesystem.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="IFileSystem">
+    
+    <title>IFileSystem | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="../img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="../content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="../content/fsdocs-details-set-expanded.js"></script>
+    <link href="../content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="../content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header active">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="../img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header active">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1 data-fsdocs-heading="1"><a name="Compiler-Services-Virtualized-File-System" class="anchor" href="#Compiler-Services-Virtualized-File-System">Compiler Services: Virtualized File System</a></h1>
+<p>The <code>FSharp.Compiler.Service</code> component has a global variable
+representing the file system. By setting this variable you can host the compiler in situations where a file system
+is not available.</p>
+<blockquote>
+<p><strong>NOTE:</strong> The FSharp.Compiler.Service API is subject to change when later versions of the nuget package are published.</p>
+</blockquote>
+<h2 data-fsdocs-heading="2"><a name="Setting-the-FileSystem" class="anchor" href="#Setting-the-FileSystem">Setting the FileSystem</a></h2>
+<p>In the example below, we set the file system to an implementation which reads from disk</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="pp">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+
+<span class="k">open</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="id">IO</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="3" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="4" class="id">Text</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="5" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="6" class="id">Compiler</span><span class="pn">.</span><span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="7" class="id">CodeAnalysis</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="8" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="9" class="id">Compiler</span><span class="pn">.</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="10" class="id">IO</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="11" class="id">defaultFileSystem</span> <span class="o">=</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="12" class="mv">FileSystem</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="13" class="id">fileName1</span> <span class="o">=</span> <span class="s">@&quot;c:\mycode\test1.fs&quot;</span> <span class="c">// note, the path doesn&#39;t exist</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="14" class="id">fileName2</span> <span class="o">=</span> <span class="s">@&quot;c:\mycode\test2.fs&quot;</span> <span class="c">// note, the path doesn&#39;t exist</span>
+
+<span class="k">type</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="15" class="rt">MyFileSystem</span><span class="pn">(</span><span class="pn">)</span> <span class="o">=</span>
+    <span class="k">let</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="16" class="fn">file1</span> <span class="o">=</span>
+        <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module File1</span>
+
+<span class="s">let A = 1&quot;&quot;&quot;</span>
+
+    <span class="k">let</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="17" class="fn">file2</span> <span class="o">=</span>
+        <span class="s">&quot;&quot;&quot;</span>
+<span class="s">module File2</span>
+<span class="s">let B = File1.A + File1.A&quot;&quot;&quot;</span>
+
+    <span class="k">let</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="18" class="fn">files</span> <span class="o">=</span>
+        <span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="19" class="fn">dict</span> <span class="pn">[</span> <span class="pn">(</span><span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="20" class="id">fileName1</span><span class="pn">,</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="21" class="fn">file1</span><span class="pn">)</span>
+               <span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="22" class="id">fileName2</span><span class="pn">,</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="23" class="fn">file2</span><span class="pn">)</span> <span class="pn">]</span>
+
+    <span class="k">interface</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="24" class="if">IFileSystem</span> <span class="k">with</span>
+        <span class="c">// Implement the service to open files for reading and writing</span>
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">OpenFileForReadShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="25" class="fn">fileName</span><span class="pn">,</span> <span class="o">?</span><span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="26" class="fn">useMemoryMappedFile</span><span class="pn">:</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="27" class="vt">bool</span><span class="pn">,</span> <span class="o">?</span><span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="28" class="fn">shouldShadowCopy</span><span class="pn">:</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="29" class="vt">bool</span><span class="pn">)</span> <span class="o">=</span>
+            <span class="k">match</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="30" class="fn">files</span><span class="pn">.</span><span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="31" class="id">TryGetValue</span> <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="32" class="fn">fileName</span> <span class="k">with</span>
+            <span class="pn">|</span> <span class="k">true</span><span class="pn">,</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="33" class="fn">text</span> <span class="k">-&gt;</span> <span class="k">new</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="34" class="d">MemoryStream</span><span class="pn">(</span><span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="35" class="rt">Encoding</span><span class="pn">.</span><span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="36" class="id">UTF8</span><span class="pn">.</span><span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="37" class="id">GetBytes</span><span class="pn">(</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="38" class="fn">text</span><span class="pn">)</span><span class="pn">)</span> <span class="o">:&gt;</span> <span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="39" class="d">Stream</span>
+            <span class="pn">|</span> <span class="id">_</span> <span class="k">-&gt;</span>
+                <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="40" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="41" class="id">OpenFileForReadShim</span><span class="pn">(</span>
+                    <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="42" class="fn">fileName</span><span class="pn">,</span>
+                    <span class="o">?</span><span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="43" class="fn">useMemoryMappedFile</span> <span class="o">=</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="44" class="fn">useMemoryMappedFile</span><span class="pn">,</span>
+                    <span class="o">?</span><span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="45" class="fn">shouldShadowCopy</span> <span class="o">=</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="46" class="fn">shouldShadowCopy</span>
+                <span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">OpenFileForWriteShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="47" class="fn">fileName</span><span class="pn">,</span> <span class="o">?</span><span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="48" class="fn">fileMode</span><span class="pn">:</span> <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="49" class="en">FileMode</span><span class="pn">,</span> <span class="o">?</span><span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="50" class="fn">fileAccess</span><span class="pn">:</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="51" class="en">FileAccess</span><span class="pn">,</span> <span class="o">?</span><span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="52" class="fn">fileShare</span><span class="pn">:</span> <span data-fsdocs-tip="fs35" data-fsdocs-tip-unique="53" class="en">FileShare</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="54" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs36" data-fsdocs-tip-unique="55" class="id">OpenFileForWriteShim</span><span class="pn">(</span>
+                <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="56" class="fn">fileName</span><span class="pn">,</span>
+                <span class="o">?</span><span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="57" class="fn">fileMode</span> <span class="o">=</span> <span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="58" class="fn">fileMode</span><span class="pn">,</span>
+                <span class="o">?</span><span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="59" class="fn">fileAccess</span> <span class="o">=</span> <span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="60" class="fn">fileAccess</span><span class="pn">,</span>
+                <span class="o">?</span><span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="61" class="fn">fileShare</span> <span class="o">=</span> <span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="62" class="fn">fileShare</span>
+            <span class="pn">)</span>
+
+        <span class="c">// Implement the service related to file existence and deletion</span>
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">FileExistsShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="63" class="fn">fileName</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="64" class="fn">files</span><span class="pn">.</span><span data-fsdocs-tip="fs37" data-fsdocs-tip-unique="65" class="id">ContainsKey</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="66" class="fn">fileName</span><span class="pn">)</span>
+            <span class="o">||</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="67" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs38" data-fsdocs-tip-unique="68" class="id">FileExistsShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="69" class="fn">fileName</span><span class="pn">)</span>
+
+        <span class="c">// Implement the service related to temporary paths and file time stamps</span>
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">GetTempPathShim</span><span class="pn">(</span><span class="pn">)</span> <span class="o">=</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="70" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs39" data-fsdocs-tip-unique="71" class="id">GetTempPathShim</span><span class="pn">(</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">GetLastWriteTimeShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="72" class="fn">fileName</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="73" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs40" data-fsdocs-tip-unique="74" class="id">GetLastWriteTimeShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="75" class="fn">fileName</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">GetFullPathShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="76" class="fn">fileName</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="77" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs41" data-fsdocs-tip-unique="78" class="id">GetFullPathShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="79" class="fn">fileName</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">IsInvalidPathShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="80" class="fn">fileName</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="81" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs42" data-fsdocs-tip-unique="82" class="id">IsInvalidPathShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="83" class="fn">fileName</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">IsPathRootedShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="84" class="fn">fileName</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="85" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs43" data-fsdocs-tip-unique="86" class="id">IsPathRootedShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="87" class="fn">fileName</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">FileDeleteShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="88" class="fn">fileName</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="89" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs44" data-fsdocs-tip-unique="90" class="id">FileDeleteShim</span><span class="pn">(</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="91" class="fn">fileName</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="prop">AssemblyLoader</span> <span class="o">=</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="92" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs45" data-fsdocs-tip-unique="93" class="id">AssemblyLoader</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">GetFullFilePathInDirectoryShim</span> <span data-fsdocs-tip="fs46" data-fsdocs-tip-unique="94" class="fn">dir</span> <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="95" class="fn">fileName</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="96" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs47" data-fsdocs-tip-unique="97" class="id">GetFullFilePathInDirectoryShim</span> <span data-fsdocs-tip="fs46" data-fsdocs-tip-unique="98" class="fn">dir</span> <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="99" class="fn">fileName</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">NormalizePathShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="100" class="fn">path</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="101" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs49" data-fsdocs-tip-unique="102" class="id">NormalizePathShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="103" class="fn">path</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">GetDirectoryNameShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="104" class="fn">path</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="105" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="106" class="id">GetDirectoryNameShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="107" class="fn">path</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">GetCreationTimeShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="108" class="fn">path</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="109" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs51" data-fsdocs-tip-unique="110" class="id">GetCreationTimeShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="111" class="fn">path</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">CopyShim</span><span class="pn">(</span><span data-fsdocs-tip="fs52" data-fsdocs-tip-unique="112" class="fn">src</span><span class="pn">,</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="113" class="fn">dest</span><span class="pn">,</span> <span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="114" class="fn">overwrite</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="115" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs55" data-fsdocs-tip-unique="116" class="id">CopyShim</span><span class="pn">(</span><span data-fsdocs-tip="fs52" data-fsdocs-tip-unique="117" class="fn">src</span><span class="pn">,</span> <span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="118" class="fn">dest</span><span class="pn">,</span> <span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="119" class="fn">overwrite</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">DirectoryCreateShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="120" class="fn">path</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="121" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs56" data-fsdocs-tip-unique="122" class="id">DirectoryCreateShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="123" class="fn">path</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">DirectoryExistsShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="124" class="fn">path</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="125" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs57" data-fsdocs-tip-unique="126" class="id">DirectoryExistsShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="127" class="fn">path</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">DirectoryDeleteShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="128" class="fn">path</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="129" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="130" class="id">DirectoryDeleteShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="131" class="fn">path</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">EnumerateFilesShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="132" class="fn">path</span><span class="pn">,</span> <span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="133" class="fn">pattern</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="134" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs60" data-fsdocs-tip-unique="135" class="id">EnumerateFilesShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="136" class="fn">path</span><span class="pn">,</span> <span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="137" class="fn">pattern</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">EnumerateDirectoriesShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="138" class="fn">path</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="139" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs61" data-fsdocs-tip-unique="140" class="id">EnumerateDirectoriesShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="141" class="fn">path</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="fn">IsStableFileHeuristic</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="142" class="fn">path</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="143" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs62" data-fsdocs-tip-unique="144" class="id">IsStableFileHeuristic</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="145" class="fn">path</span><span class="pn">)</span>
+
+        <span class="k">member</span> <span data-fsdocs-tip="fs63" data-fsdocs-tip-unique="146" class="fn">this</span><span class="pn">.</span><span class="fn">ChangeExtensionShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="147" class="fn">path</span><span class="pn">,</span> <span data-fsdocs-tip="fs64" data-fsdocs-tip-unique="148" class="fn">extension</span><span class="pn">)</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="149" class="id">defaultFileSystem</span><span class="pn">.</span><span data-fsdocs-tip="fs65" data-fsdocs-tip-unique="150" class="id">ChangeExtensionShim</span><span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="151" class="fn">path</span><span class="pn">,</span> <span data-fsdocs-tip="fs64" data-fsdocs-tip-unique="152" class="fn">extension</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs66" data-fsdocs-tip-unique="153" class="id">myFileSystem</span> <span class="o">=</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="154" class="fn">MyFileSystem</span><span class="pn">(</span><span class="pn">)</span>
+<span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="155" class="mv">FileSystem</span> <span class="k">&lt;-</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="156" class="fn">MyFileSystem</span><span class="pn">(</span><span class="pn">)</span>
+</code></pre></div>
+<h2 data-fsdocs-heading="3"><a name="Doing-a-compilation-with-the-FileSystem" class="anchor" href="#Doing-a-compilation-with-the-FileSystem">Doing a compilation with the FileSystem</a></h2>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs67" data-fsdocs-tip-unique="157" class="id">checker</span> <span class="o">=</span> <span data-fsdocs-tip="fs68" data-fsdocs-tip-unique="158" class="rt">FSharpChecker</span><span class="pn">.</span><span data-fsdocs-tip="fs69" data-fsdocs-tip-unique="159" class="id">Create</span><span class="pn">(</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs70" data-fsdocs-tip-unique="160" class="id">projectOptions</span> <span class="o">=</span>
+    <span class="k">let</span> <span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="161" class="fn">sysLib</span> <span data-fsdocs-tip="fs72" data-fsdocs-tip-unique="162" class="fn">nm</span> <span class="o">=</span>
+        <span class="k">if</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="163" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="164" class="rt">Environment</span><span class="pn">.</span><span data-fsdocs-tip="fs74" data-fsdocs-tip-unique="165" class="id">OSVersion</span><span class="pn">.</span><span data-fsdocs-tip="fs75" data-fsdocs-tip-unique="166" class="id">Platform</span> <span class="o">=</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="167" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs76" data-fsdocs-tip-unique="168" class="en">PlatformID</span><span class="pn">.</span><span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="169" class="id">Win32NT</span> <span class="k">then</span> <span class="c">// file references only valid on Windows</span>
+            <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="170" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="171" class="rt">Environment</span><span class="pn">.</span><span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="172" class="id">GetFolderPath</span><span class="pn">(</span><span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="173" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="174" class="rt">Environment</span><span class="pn">.</span><span data-fsdocs-tip="fs79" data-fsdocs-tip-unique="175" class="en">SpecialFolder</span><span class="pn">.</span><span data-fsdocs-tip="fs80" data-fsdocs-tip-unique="176" class="id">ProgramFilesX86</span><span class="pn">)</span>
+            <span class="o">+</span> <span class="s">@&quot;\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\&quot;</span>
+            <span class="o">+</span> <span data-fsdocs-tip="fs72" data-fsdocs-tip-unique="177" class="fn">nm</span>
+            <span class="o">+</span> <span class="s">&quot;.dll&quot;</span>
+        <span class="k">else</span>
+            <span class="k">let</span> <span data-fsdocs-tip="fs81" data-fsdocs-tip-unique="178" class="fn">sysDir</span> <span class="o">=</span>
+                <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="179" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs82" data-fsdocs-tip-unique="180" class="id">Runtime</span><span class="pn">.</span><span data-fsdocs-tip="fs83" data-fsdocs-tip-unique="181" class="id">InteropServices</span><span class="pn">.</span><span data-fsdocs-tip="fs84" data-fsdocs-tip-unique="182" class="rt">RuntimeEnvironment</span><span class="pn">.</span><span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="183" class="id">GetRuntimeDirectory</span><span class="pn">(</span><span class="pn">)</span>
+
+            <span class="k">let</span> <span class="pn">(</span><span class="o">++</span><span class="pn">)</span> <span data-fsdocs-tip="fs86" data-fsdocs-tip-unique="184" class="fn">a</span> <span data-fsdocs-tip="fs87" data-fsdocs-tip-unique="185" class="fn">b</span> <span class="o">=</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="186" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="187" class="id">IO</span><span class="pn">.</span><span data-fsdocs-tip="fs88" data-fsdocs-tip-unique="188" class="rt">Path</span><span class="pn">.</span><span data-fsdocs-tip="fs89" data-fsdocs-tip-unique="189" class="id">Combine</span><span class="pn">(</span><span data-fsdocs-tip="fs86" data-fsdocs-tip-unique="190" class="fn">a</span><span class="pn">,</span> <span data-fsdocs-tip="fs87" data-fsdocs-tip-unique="191" class="fn">b</span><span class="pn">)</span>
+            <span data-fsdocs-tip="fs81" data-fsdocs-tip-unique="192" class="fn">sysDir</span> <span class="o">++</span> <span data-fsdocs-tip="fs72" data-fsdocs-tip-unique="193" class="fn">nm</span> <span class="o">+</span> <span class="s">&quot;.dll&quot;</span>
+
+    <span class="k">let</span> <span data-fsdocs-tip="fs90" data-fsdocs-tip-unique="194" class="fn">fsCore4300</span> <span class="pn">(</span><span class="pn">)</span> <span class="o">=</span>
+        <span class="k">if</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="195" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="196" class="rt">Environment</span><span class="pn">.</span><span data-fsdocs-tip="fs74" data-fsdocs-tip-unique="197" class="id">OSVersion</span><span class="pn">.</span><span data-fsdocs-tip="fs75" data-fsdocs-tip-unique="198" class="id">Platform</span> <span class="o">=</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="199" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs76" data-fsdocs-tip-unique="200" class="en">PlatformID</span><span class="pn">.</span><span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="201" class="id">Win32NT</span> <span class="k">then</span> <span class="c">// file references only valid on Windows</span>
+            <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="202" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="203" class="rt">Environment</span><span class="pn">.</span><span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="204" class="id">GetFolderPath</span><span class="pn">(</span><span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="205" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="206" class="rt">Environment</span><span class="pn">.</span><span data-fsdocs-tip="fs79" data-fsdocs-tip-unique="207" class="en">SpecialFolder</span><span class="pn">.</span><span data-fsdocs-tip="fs80" data-fsdocs-tip-unique="208" class="id">ProgramFilesX86</span><span class="pn">)</span>
+            <span class="o">+</span> <span class="s">@&quot;\Reference Assemblies\Microsoft\FSharp\.NETFramework\v4.0\4.3.0.0\FSharp.Core.dll&quot;</span>
+        <span class="k">else</span>
+            <span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="209" class="fn">sysLib</span> <span class="s">&quot;FSharp.Core&quot;</span>
+
+    <span class="k">let</span> <span data-fsdocs-tip="fs91" data-fsdocs-tip-unique="210" class="fn">allFlags</span> <span class="o">=</span>
+        <span class="pn">[|</span> <span class="s">&quot;--simpleresolution&quot;</span>
+           <span class="s">&quot;--noframework&quot;</span>
+           <span class="s">&quot;--debug:full&quot;</span>
+           <span class="s">&quot;--define:DEBUG&quot;</span>
+           <span class="s">&quot;--optimize-&quot;</span>
+           <span class="s">&quot;--doc:test.xml&quot;</span>
+           <span class="s">&quot;--warn:3&quot;</span>
+           <span class="s">&quot;--fullpaths&quot;</span>
+           <span class="s">&quot;--flaterrors&quot;</span>
+           <span class="s">&quot;--target:library&quot;</span>
+           <span class="k">let</span> <span data-fsdocs-tip="fs92" data-fsdocs-tip-unique="211" class="fn">references</span> <span class="o">=</span>
+               <span class="pn">[</span> <span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="212" class="fn">sysLib</span> <span class="s">&quot;mscorlib&quot;</span>
+                 <span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="213" class="fn">sysLib</span> <span class="s">&quot;System&quot;</span>
+                 <span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="214" class="fn">sysLib</span> <span class="s">&quot;System.Core&quot;</span>
+                 <span data-fsdocs-tip="fs90" data-fsdocs-tip-unique="215" class="fn">fsCore4300</span> <span class="pn">(</span><span class="pn">)</span> <span class="pn">]</span>
+
+           <span class="k">for</span> <span data-fsdocs-tip="fs93" data-fsdocs-tip-unique="216" class="fn">r</span> <span class="k">in</span> <span data-fsdocs-tip="fs92" data-fsdocs-tip-unique="217" class="fn">references</span> <span class="k">do</span>
+               <span class="s">&quot;-r:&quot;</span> <span class="o">+</span> <span data-fsdocs-tip="fs93" data-fsdocs-tip-unique="218" class="fn">r</span> <span class="pn">|]</span>
+
+    <span class="pn">{</span> <span class="prop">ProjectFileName</span> <span class="o">=</span> <span class="s">@&quot;c:\mycode\compilation.fsproj&quot;</span> <span class="c">// Make a name that is unique in this directory.</span>
+      <span class="prop">ProjectId</span> <span class="o">=</span> <span data-fsdocs-tip="fs94" data-fsdocs-tip-unique="219" class="uc">None</span>
+      <span class="prop">SourceFiles</span> <span class="o">=</span> <span class="pn">[|</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="220" class="id">fileName1</span><span class="pn">;</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="221" class="id">fileName2</span> <span class="pn">|]</span>
+      <span class="prop">OriginalLoadReferences</span> <span class="o">=</span> <span class="pn">[</span><span class="pn">]</span>
+      <span class="prop">Stamp</span> <span class="o">=</span> <span data-fsdocs-tip="fs94" data-fsdocs-tip-unique="222" class="uc">None</span>
+      <span class="prop">OtherOptions</span> <span class="o">=</span> <span data-fsdocs-tip="fs91" data-fsdocs-tip-unique="223" class="fn">allFlags</span>
+      <span class="prop">ReferencedProjects</span> <span class="o">=</span> <span class="pn">[|</span><span class="pn">|]</span>
+      <span class="prop">IsIncompleteTypeCheckEnvironment</span> <span class="o">=</span> <span class="k">false</span>
+      <span class="prop">UseScriptResolutionRules</span> <span class="o">=</span> <span class="k">true</span>
+      <span class="prop">LoadTime</span> <span class="o">=</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="224" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs95" data-fsdocs-tip-unique="225" class="vt">DateTime</span><span class="pn">.</span><span data-fsdocs-tip="fs96" data-fsdocs-tip-unique="226" class="id">Now</span> <span class="c">// Note using &#39;Now&#39; forces reloading</span>
+      <span class="prop">UnresolvedReferences</span> <span class="o">=</span> <span data-fsdocs-tip="fs94" data-fsdocs-tip-unique="227" class="uc">None</span> <span class="pn">}</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs97" data-fsdocs-tip-unique="228" class="id">results</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs67" data-fsdocs-tip-unique="229" class="id">checker</span><span class="pn">.</span><span data-fsdocs-tip="fs98" data-fsdocs-tip-unique="230" class="id">ParseAndCheckProject</span><span class="pn">(</span><span data-fsdocs-tip="fs70" data-fsdocs-tip-unique="231" class="id">projectOptions</span><span class="pn">)</span>
+    <span class="o">|&gt;</span> <span data-fsdocs-tip="fs99" data-fsdocs-tip-unique="232" class="rt">Async</span><span class="pn">.</span><span data-fsdocs-tip="fs100" data-fsdocs-tip-unique="233" class="id">RunSynchronously</span>
+
+<span data-fsdocs-tip="fs97" data-fsdocs-tip-unique="234" class="id">results</span><span class="pn">.</span><span data-fsdocs-tip="fs101" data-fsdocs-tip-unique="235" class="id">Diagnostics</span>
+<span data-fsdocs-tip="fs97" data-fsdocs-tip-unique="236" class="id">results</span><span class="pn">.</span><span data-fsdocs-tip="fs102" data-fsdocs-tip-unique="237" class="prop">AssemblySignature</span><span class="pn">.</span><span data-fsdocs-tip="fs103" data-fsdocs-tip-unique="238" class="prop">Entities</span><span class="pn">.</span><span data-fsdocs-tip="fs104" data-fsdocs-tip-unique="239" class="id">Count</span> <span class="c">//2</span>
+
+<span data-fsdocs-tip="fs97" data-fsdocs-tip-unique="240" class="id">results</span><span class="pn">.</span><span data-fsdocs-tip="fs102" data-fsdocs-tip-unique="241" class="prop">AssemblySignature</span><span class="pn">.</span><span data-fsdocs-tip="fs103" data-fsdocs-tip-unique="242" class="id">Entities</span><span class="pn">.</span><span class="pn">[</span><span class="n">0</span><span class="pn">]</span>
+    <span class="pn">.</span><span class="prop">MembersFunctionsAndValues</span>
+    <span class="pn">.</span><span class="id">Count</span>
+
+<span data-fsdocs-tip="fs97" data-fsdocs-tip-unique="243" class="id">results</span><span class="pn">.</span><span data-fsdocs-tip="fs102" data-fsdocs-tip-unique="244" class="prop">AssemblySignature</span><span class="pn">.</span><span data-fsdocs-tip="fs103" data-fsdocs-tip-unique="245" class="id">Entities</span><span class="pn">.</span><span class="pn">[</span><span class="n">0</span><span class="pn">]</span>
+    <span class="pn">.</span><span class="id">MembersFunctionsAndValues</span><span class="pn">.</span><span class="pn">[</span><span class="n">0</span><span class="pn">]</span>
+    <span class="pn">.</span><span class="id">DisplayName</span>
+</code></pre></div>
+<h2 data-fsdocs-heading="4"><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
+<p>In this tutorial, we've seen how to globally customize the view of the file system used by the FSharp.Compiler.Service
+component.</p>
+<p>At the time of writing, the following System.IO operations are not considered part of the virtualized file system API.
+Future iterations on the compiler service implementation may add these to the API.</p>
+<ul>
+<li>Path.Combine</li>
+<li>Path.DirectorySeparatorChar</li>
+<li>Path.GetDirectoryName</li>
+<li>Path.GetFileName</li>
+<li>Path.GetFileNameWithoutExtension</li>
+<li>Path.HasExtension</li>
+<li>Path.GetRandomFileName (used only in generation compiled win32 resources in assemblies)</li>
+</ul>
+<p><strong>NOTE:</strong> Several operations in the <code>SourceCodeServices</code> API accept the contents of a file to parse
+or check as a parameter, in addition to a file name. In these cases, the file name is only used for
+error reporting.</p>
+<p><strong>NOTE:</strong> Type provider components do not use the virtualized file system.</p>
+<p><strong>NOTE:</strong> The compiler service may use MSBuild for assembly resolutions unless <code>--simpleresolution</code> is
+provided. When using the <code>FileSystem</code> API you will normally want to specify <code>--simpleresolution</code> as one
+of your compiler flags. Also specify <code>--noframework</code>.  You will need to supply explicit resolutions of all
+referenced .NET assemblies.</p>
+
+        <div popover class="fsdocs-tip" id="fs1"><span class="k">namespace</span> <span class="m">System</span></div>
+<div popover class="fsdocs-tip" id="fs2"><span class="k">namespace</span> <span class="m">System.IO</span></div>
+<div popover class="fsdocs-tip" id="fs3"><span class="k">namespace</span> <span class="m">System.Text</span></div>
+<div popover class="fsdocs-tip" id="fs4">Multiple items<br /><span class="k">namespace</span> <span class="m">FSharp</span><br /><br />--------------------<br /><span class="k">namespace</span> <span class="m">Microsoft.FSharp</span></div>
+<div popover class="fsdocs-tip" id="fs5"><span class="k">namespace</span> <span class="m">FSharp.Compiler</span></div>
+<div popover class="fsdocs-tip" id="fs6"><span class="k">namespace</span> <span class="m">FSharp.Compiler.CodeAnalysis</span></div>
+<div popover class="fsdocs-tip" id="fs7"><span class="k">namespace</span> <span class="m">FSharp.Compiler.IO</span></div>
+<div popover class="fsdocs-tip" id="fs8"><span class="k">val</span> <span class="fn">defaultFileSystem</span><span class="pn">:</span> <span class="if">IFileSystem</span></div>
+<div popover class="fsdocs-tip" id="fs9"><em>The global hook into the file system</em><br /><span class="k">val</span> <span class="k">mutable</span> <span class="fn">FileSystem</span><span class="pn">:</span> <span class="if">IFileSystem</span></div>
+<div popover class="fsdocs-tip" id="fs10"><span class="k">val</span> <span class="fn">fileName1</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs11"><span class="k">val</span> <span class="fn">fileName2</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs12">Multiple items<br /><span class="k">type</span> <span class="rt">MyFileSystem</span> <span class="o">=</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IFileSystem</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">MyFileSystem</span><br /><br />--------------------<br /><span class="k">new</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">MyFileSystem</span></div>
+<div popover class="fsdocs-tip" id="fs13"><span class="k">val</span> <span class="id">file1</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs14"><span class="k">val</span> <span class="id">file2</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs15"><span class="k">val</span> <span class="id">files</span><span class="pn">:</span> <span class="m">System.Collections.Generic.</span><span class="if">IDictionary</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">,</span><span class="rt">string</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs16"><span class="k">val</span> <span class="fn">dict</span><span class="pn">:</span> <span class="id">keyValuePairs</span><span class="pn">:</span> <span class="pn">(</span><span class="ta">&#39;Key</span> <span class="pn">*</span> <span class="ta">&#39;Value</span><span class="pn">)</span> <span class="rt">seq</span> <span class="pn">-&gt;</span> <span class="m">System.Collections.Generic.</span><span class="if">IDictionary</span><span class="pn">&lt;</span><span class="ta">&#39;Key</span><span class="pn">,</span><span class="ta">&#39;Value</span><span class="pn">&gt;</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">equality</span><span class="pn">)</span></div>
+<div popover class="fsdocs-tip" id="fs17"><em>Represents a shim for the file system</em><br /><span class="k">type</span> <span class="if">IFileSystem</span> <span class="o">=</span><br />&#160;&#160;<span class="k">abstract</span> <span class="fn">ChangeExtensionShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="id">extension</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">abstract</span> <span class="fn">CopyShim</span><span class="pn">:</span> <span class="id">src</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="id">dest</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="id">overwrite</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">abstract</span> <span class="fn">DirectoryCreateShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">abstract</span> <span class="fn">DirectoryDeleteShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">abstract</span> <span class="fn">DirectoryExistsShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">abstract</span> <span class="fn">EnumerateDirectoriesShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">seq</span><br />&#160;&#160;<span class="k">abstract</span> <span class="fn">EnumerateFilesShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="id">pattern</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">seq</span><br />&#160;&#160;<span class="k">abstract</span> <span class="fn">FileDeleteShim</span><span class="pn">:</span> <span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">abstract</span> <span class="fn">FileExistsShim</span><span class="pn">:</span> <span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">abstract</span> <span class="fn">GetCreationTimeShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs18"><span class="k">val</span> <span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs19"><span class="k">val</span> <span class="id">useMemoryMappedFile</span><span class="pn">:</span> <span class="vt">bool</span> <span class="rt">option</span></div>
+<div popover class="fsdocs-tip" id="fs20"><span class="k">type</span> bool <span class="o">=</span> <span class="m">System.</span><span class="vt">Boolean</span></div>
+<div popover class="fsdocs-tip" id="fs21"><span class="k">val</span> <span class="id">shouldShadowCopy</span><span class="pn">:</span> <span class="vt">bool</span> <span class="rt">option</span></div>
+<div popover class="fsdocs-tip" id="fs22"><span class="m">System.Collections.Generic.</span><span class="if">IDictionary</span><span class="pn">.</span><span class="fn">TryGetValue</span><span class="pn">(</span><span class="id">key</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">byref</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">bool</span></div>
+<div popover class="fsdocs-tip" id="fs23"><span class="k">val</span> <span class="id">text</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs24">Multiple items<br /><em>Creates a stream whose backing store is memory.</em><br /><span class="k">type</span> <span class="rt">MemoryStream</span> <span class="o">=</span><br />&#160;&#160;<span class="k">inherit</span> <span class="rt">Stream</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 6 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">BeginRead</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">buffer</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">offset</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">callback</span><span class="pn">:</span> <span class="rt">AsyncCallback</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="if">IAsyncResult</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">BeginWrite</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">buffer</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">offset</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">callback</span><span class="pn">:</span> <span class="rt">AsyncCallback</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="if">IAsyncResult</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">CopyTo</span><span class="pn">:</span> <span class="id">destination</span><span class="pn">:</span> <span class="rt">Stream</span> <span class="o">*</span> <span class="id">bufferSize</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">CopyToAsync</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">destination</span><span class="pn">:</span> <span class="rt">Stream</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">bufferSize</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">cancellationToken</span><span class="pn">:</span> <span class="vt">CancellationToken</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Task</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">EndRead</span><span class="pn">:</span> <span class="id">asyncResult</span><span class="pn">:</span> <span class="if">IAsyncResult</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">EndWrite</span><span class="pn">:</span> <span class="id">asyncResult</span><span class="pn">:</span> <span class="if">IAsyncResult</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Flush</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">FlushAsync</span><span class="pn">:</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="vt">CancellationToken</span> <span class="pn">-&gt;</span> <span class="rt">Task</span><br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="rt">MemoryStream</span><span class="pn">(</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">MemoryStream</span><br /><span class="rt">MemoryStream</span><span class="pn">(</span><span class="id">buffer</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">MemoryStream</span><br /><span class="rt">MemoryStream</span><span class="pn">(</span><span class="id">capacity</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">MemoryStream</span><br /><span class="rt">MemoryStream</span><span class="pn">(</span><span class="id">buffer</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span><span class="pn">,</span> <span class="id">writable</span><span class="pn">:</span> <span class="vt">bool</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">MemoryStream</span><br /><span class="rt">MemoryStream</span><span class="pn">(</span><span class="id">buffer</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span><span class="pn">,</span> <span class="id">index</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">MemoryStream</span><br /><span class="rt">MemoryStream</span><span class="pn">(</span><span class="id">buffer</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span><span class="pn">,</span> <span class="id">index</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">writable</span><span class="pn">:</span> <span class="vt">bool</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">MemoryStream</span><br /><span class="rt">MemoryStream</span><span class="pn">(</span><span class="id">buffer</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span><span class="pn">,</span> <span class="id">index</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">writable</span><span class="pn">:</span> <span class="vt">bool</span><span class="pn">,</span> <span class="id">publiclyVisible</span><span class="pn">:</span> <span class="vt">bool</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">MemoryStream</span></div>
+<div popover class="fsdocs-tip" id="fs25"><em>Represents a character encoding.</em><br /><span class="k">type</span> <span class="rt">Encoding</span> <span class="o">=</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">ICloneable</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Clone</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">obj</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Equals</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetByteCount</span><span class="pn">:</span> <span class="id">chars</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span> + 5 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetBytes</span><span class="pn">:</span> <span class="id">chars</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">charCount</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">bytes</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">byteCount</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span> + 7 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetCharCount</span><span class="pn">:</span> <span class="id">bytes</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span> + 3 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetChars</span><span class="pn">:</span> <span class="id">bytes</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">byteCount</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">chars</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">charCount</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span> + 4 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetDecoder</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">Decoder</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetEncoder</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">Encoder</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetHashCode</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs26"><em>Gets an encoding for the UTF-8 format.<br /><br />returns: An encoding for the UTF-8 format.</em><br />property <span class="rt">Encoding</span><span class="pn">.</span><span class="prop">UTF8</span><span class="pn">:</span> <span class="rt">Encoding</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs27"><span class="pn">(</span><span class="k">extension</span><span class="pn">)</span> <span class="rt">Encoding</span><span class="pn">.</span><span class="fn">GetBytes</span><span class="pn">(</span><span class="id">chars</span><span class="pn">:</span> <span class="rt">inref</span><span class="pn">&lt;</span><span class="m">System.Buffers.</span><span class="vt">ReadOnlySequence</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">Encoding</span><span class="pn">.</span><span class="fn">GetBytes</span><span class="pn">(</span><span class="id">s</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">Encoding</span><span class="pn">.</span><span class="fn">GetBytes</span><span class="pn">(</span><span class="id">chars</span><span class="pn">:</span> <span class="vt">char</span> <span class="rt">array</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="pn">(</span><span class="k">extension</span><span class="pn">)</span> <span class="rt">Encoding</span><span class="pn">.</span><span class="fn">GetBytes</span><span class="pn">(</span><span class="id">chars</span><span class="pn">:</span> <span class="rt">inref</span><span class="pn">&lt;</span><span class="m">System.Buffers.</span><span class="vt">ReadOnlySequence</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">writer</span><span class="pn">:</span> <span class="m">System.Buffers.</span><span class="if">IBufferWriter</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">int64</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="pn">(</span><span class="k">extension</span><span class="pn">)</span> <span class="rt">Encoding</span><span class="pn">.</span><span class="fn">GetBytes</span><span class="pn">(</span><span class="id">chars</span><span class="pn">:</span> <span class="rt">inref</span><span class="pn">&lt;</span><span class="m">System.Buffers.</span><span class="vt">ReadOnlySequence</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">bytes</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">Span</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">int</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="pn">(</span><span class="k">extension</span><span class="pn">)</span> <span class="rt">Encoding</span><span class="pn">.</span><span class="fn">GetBytes</span><span class="pn">(</span><span class="id">chars</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">writer</span><span class="pn">:</span> <span class="m">System.Buffers.</span><span class="if">IBufferWriter</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">int64</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">Encoding</span><span class="pn">.</span><span class="fn">GetBytes</span><span class="pn">(</span><span class="id">chars</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">bytes</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">Span</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">int</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">Encoding</span><span class="pn">.</span><span class="fn">GetBytes</span><span class="pn">(</span><span class="id">s</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">index</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">Encoding</span><span class="pn">.</span><span class="fn">GetBytes</span><span class="pn">(</span><span class="id">chars</span><span class="pn">:</span> <span class="vt">char</span> <span class="rt">array</span><span class="pn">,</span> <span class="id">index</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">Encoding</span><span class="pn">.</span><span class="fn">GetBytes</span><span class="pn">(</span><span class="id">chars</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">charCount</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">bytes</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">byteCount</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">int</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em></div>
+<div popover class="fsdocs-tip" id="fs28"><em>Provides a generic view of a sequence of bytes. This is an abstract class.</em><br /><span class="k">type</span> <span class="rt">Stream</span> <span class="o">=</span><br />&#160;&#160;<span class="k">inherit</span> <span class="rt">MarshalByRefObject</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IAsyncDisposable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IDisposable</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">BeginRead</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">buffer</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">offset</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">callback</span><span class="pn">:</span> <span class="rt">AsyncCallback</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="if">IAsyncResult</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">BeginWrite</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">buffer</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">offset</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">callback</span><span class="pn">:</span> <span class="rt">AsyncCallback</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="if">IAsyncResult</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Close</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">CopyTo</span><span class="pn">:</span> <span class="id">destination</span><span class="pn">:</span> <span class="rt">Stream</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">CopyToAsync</span><span class="pn">:</span> <span class="id">destination</span><span class="pn">:</span> <span class="rt">Stream</span> <span class="pn">-&gt;</span> <span class="rt">Task</span> + 3 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">Dispose</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">DisposeAsync</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">ValueTask</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs29"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">OpenFileForReadShim</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">filePath</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">useMemoryMappedFile</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">shouldShadowCopy</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Stream</span></div>
+<div popover class="fsdocs-tip" id="fs30"><span class="k">val</span> <span class="id">fileMode</span><span class="pn">:</span> <span class="en">FileMode</span> <span class="rt">option</span></div>
+<div popover class="fsdocs-tip" id="fs31"><em>Specifies how the operating system should open a file.</em><br /><span class="k">type</span> <span class="vt">FileMode</span> <span class="o">=</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">CreateNew</span> <span class="o">=</span> <span class="n">1</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Create</span> <span class="o">=</span> <span class="n">2</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Open</span> <span class="o">=</span> <span class="n">3</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">OpenOrCreate</span> <span class="o">=</span> <span class="n">4</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Truncate</span> <span class="o">=</span> <span class="n">5</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Append</span> <span class="o">=</span> <span class="n">6</span></div>
+<div popover class="fsdocs-tip" id="fs32"><span class="k">val</span> <span class="id">fileAccess</span><span class="pn">:</span> <span class="en">FileAccess</span> <span class="rt">option</span></div>
+<div popover class="fsdocs-tip" id="fs33"><em>Defines constants for read, write, or read/write access to a file.</em><br /><span class="k">type</span> <span class="vt">FileAccess</span> <span class="o">=</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Read</span> <span class="o">=</span> <span class="n">1</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Write</span> <span class="o">=</span> <span class="n">2</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">ReadWrite</span> <span class="o">=</span> <span class="n">3</span></div>
+<div popover class="fsdocs-tip" id="fs34"><span class="k">val</span> <span class="id">fileShare</span><span class="pn">:</span> <span class="en">FileShare</span> <span class="rt">option</span></div>
+<div popover class="fsdocs-tip" id="fs35"><em>Contains constants for controlling the kind of access other operations can have to the same file.</em><br /><span class="k">type</span> <span class="vt">FileShare</span> <span class="o">=</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">None</span> <span class="o">=</span> <span class="n">0</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Read</span> <span class="o">=</span> <span class="n">1</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Write</span> <span class="o">=</span> <span class="n">2</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">ReadWrite</span> <span class="o">=</span> <span class="n">3</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Delete</span> <span class="o">=</span> <span class="n">4</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Inheritable</span> <span class="o">=</span> <span class="n">16</span></div>
+<div popover class="fsdocs-tip" id="fs36"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">OpenFileForWriteShim</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">filePath</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fileMode</span><span class="pn">:</span> <span class="en">FileMode</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fileAccess</span><span class="pn">:</span> <span class="en">FileAccess</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">fileShare</span><span class="pn">:</span> <span class="en">FileShare</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Stream</span></div>
+<div popover class="fsdocs-tip" id="fs37"><span class="m">System.Collections.Generic.</span><span class="if">IDictionary</span><span class="pn">.</span><span class="fn">ContainsKey</span><span class="pn">(</span><span class="id">key</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">bool</span></div>
+<div popover class="fsdocs-tip" id="fs38"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">FileExistsShim</span><span class="pn">:</span> <span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">bool</span></div>
+<div popover class="fsdocs-tip" id="fs39"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">GetTempPathShim</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs40"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">GetLastWriteTimeShim</span><span class="pn">:</span> <span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="m">System.</span><span class="vt">DateTime</span></div>
+<div popover class="fsdocs-tip" id="fs41"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">GetFullPathShim</span><span class="pn">:</span> <span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs42"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">IsInvalidPathShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">bool</span></div>
+<div popover class="fsdocs-tip" id="fs43"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">IsPathRootedShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">bool</span></div>
+<div popover class="fsdocs-tip" id="fs44"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">FileDeleteShim</span><span class="pn">:</span> <span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs45">property <span class="if">IFileSystem</span><span class="pn">.</span><span class="prop">AssemblyLoader</span><span class="pn">:</span> <span class="if">IAssemblyLoader</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs46"><span class="k">val</span> <span class="id">dir</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs47"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">GetFullFilePathInDirectoryShim</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">dir</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;<span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs48"><span class="k">val</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs49"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">NormalizePathShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs50"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">GetDirectoryNameShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs51"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">GetCreationTimeShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="m">System.</span><span class="vt">DateTime</span></div>
+<div popover class="fsdocs-tip" id="fs52"><span class="k">val</span> <span class="id">src</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs53"><span class="k">val</span> <span class="id">dest</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs54"><span class="k">val</span> <span class="id">overwrite</span><span class="pn">:</span> <span class="vt">bool</span></div>
+<div popover class="fsdocs-tip" id="fs55"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">CopyShim</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">src</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">dest</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">overwrite</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs56"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">DirectoryCreateShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs57"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">DirectoryExistsShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">bool</span></div>
+<div popover class="fsdocs-tip" id="fs58"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">DirectoryDeleteShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs59"><span class="k">val</span> <span class="id">pattern</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs60"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">EnumerateFilesShim</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">pattern</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">string</span> <span class="rt">seq</span></div>
+<div popover class="fsdocs-tip" id="fs61"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">EnumerateDirectoriesShim</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">seq</span></div>
+<div popover class="fsdocs-tip" id="fs62"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">IsStableFileHeuristic</span><span class="pn">:</span> <span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">bool</span></div>
+<div popover class="fsdocs-tip" id="fs63"><span class="k">val</span> <span class="id">this</span><span class="pn">:</span> <span class="rt">MyFileSystem</span></div>
+<div popover class="fsdocs-tip" id="fs64"><span class="k">val</span> <span class="id">extension</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs65"><span class="k">abstract</span> <span class="if">IFileSystem</span><span class="pn">.</span><span class="fn">ChangeExtensionShim</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">extension</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs66"><span class="k">val</span> <span class="fn">myFileSystem</span><span class="pn">:</span> <span class="rt">MyFileSystem</span></div>
+<div popover class="fsdocs-tip" id="fs67"><span class="k">val</span> <span class="fn">checker</span><span class="pn">:</span> <span class="rt">FSharpChecker</span></div>
+<div popover class="fsdocs-tip" id="fs68"><em>Used to parse and check F# source code.</em><br /><span class="k">type</span> FSharpChecker <span class="o">=</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">CheckFileInProject</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">parseResults</span><span class="pn">:</span> <span class="rt">FSharpParseFileResults</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">fileVersion</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">sourceText</span><span class="pn">:</span> <span class="if">ISourceText</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">options</span><span class="pn">:</span> <span class="rt">FSharpProjectOptions</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">userOpName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Async</span><span class="pn">&lt;</span><span class="rt">FSharpCheckFileAnswer</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">ClearCache</span><span class="pn">:</span> <span class="id">options</span><span class="pn">:</span> <span class="rt">FSharpProjectOptions</span> <span class="rt">seq</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">userOpName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">ClearLanguageServiceRootCachesAndCollectAndFinalizeAllTransients</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">unit</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Compile</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">argv</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">array</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">userOpName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Async</span><span class="pn">&lt;</span><span class="rt">FSharpDiagnostic</span> <span class="rt">array</span> <span class="pn">*</span> <span class="rt">exn</span> <span class="rt">option</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">FindBackgroundReferencesInFile</span><span class="pn">:</span> <span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="id">options</span><span class="pn">:</span> <span class="rt">FSharpProjectOptions</span> <span class="pn">*</span> <span class="id">symbol</span><span class="pn">:</span> <span class="rt">FSharpSymbol</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">canInvalidateProject</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">fastCheck</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">userOpName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="vt">range</span> <span class="rt">seq</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetBackgroundCheckResultsForFileInProject</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">options</span><span class="pn">:</span> <span class="rt">FSharpProjectOptions</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">userOpName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Async</span><span class="pn">&lt;</span><span class="rt">FSharpParseFileResults</span> <span class="pn">*</span> <span class="rt">FSharpCheckFileResults</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetBackgroundParseResultsForFileInProject</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">options</span><span class="pn">:</span> <span class="rt">FSharpProjectOptions</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">userOpName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Async</span><span class="pn">&lt;</span><span class="rt">FSharpParseFileResults</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetBackgroundSemanticClassificationForFile</span><span class="pn">:</span> <span class="id">fileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="id">options</span><span class="pn">:</span> <span class="rt">FSharpProjectOptions</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">userOpName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="rt">SemanticClassificationView</span> <span class="rt">option</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetParsingOptionsFromCommandLineArgs</span><span class="pn">:</span> <span class="id">sourceFiles</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">list</span> <span class="pn">*</span> <span class="id">argv</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">list</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">isInteractive</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">isEditing</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="rt">FSharpParsingOptions</span> <span class="pn">*</span> <span class="rt">FSharpDiagnostic</span> <span class="rt">list</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetParsingOptionsFromProjectOptions</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">options</span><span class="pn">:</span> <span class="rt">FSharpProjectOptions</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">FSharpParsingOptions</span> <span class="pn">*</span> <span class="rt">FSharpDiagnostic</span> <span class="rt">list</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs69"><span class="k">static</span> <span class="k">member</span> <span class="rt">FSharpChecker</span><span class="pn">.</span><span class="fn">Create</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">projectCacheSize</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">keepAssemblyContents</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">keepAllBackgroundResolutions</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">legacyReferenceResolver</span><span class="pn">:</span> <span class="rt">LegacyReferenceResolver</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">tryGetMetadataSnapshot</span><span class="pn">:</span> <span class="m">FSharp.Compiler.AbstractIL.ILBinaryReader.</span><span class="rt">ILReaderTryGetMetadataSnapshot</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">suggestNamesForErrors</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">keepAllBackgroundSymbolUses</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">enableBackgroundItemKeyStoreAndSemanticClassification</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">enablePartialTypeChecking</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">parallelReferenceResolution</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">shareImportedAssemblies</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">captureIdentifiersWhenParsing</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">documentSource</span><span class="pn">:</span> <span class="rt">DocumentSource</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">useTransparentCompiler</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">transparentCompilerCacheSizes</span><span class="pn">:</span> <span class="m">TransparentCompiler.</span><span class="rt">CacheSizes</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">FSharpChecker</span></div>
+<div popover class="fsdocs-tip" id="fs70"><span class="k">val</span> <span class="fn">projectOptions</span><span class="pn">:</span> <span class="rt">FSharpProjectOptions</span></div>
+<div popover class="fsdocs-tip" id="fs71"><span class="k">val</span> <span class="fn">sysLib</span><span class="pn">:</span> <span class="id">nm</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs72"><span class="k">val</span> <span class="id">nm</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs73"><em>Provides information about, and means to manipulate, the current environment and platform. This class cannot be inherited.</em><br /><span class="k">type</span> <span class="rt">Environment</span> <span class="o">=</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Exit</span><span class="pn">:</span> <span class="id">exitCode</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ExpandEnvironmentVariables</span><span class="pn">:</span> <span class="id">name</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">FailFast</span><span class="pn">:</span> <span class="id">message</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetCommandLineArgs</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">array</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetEnvironmentVariable</span><span class="pn">:</span> <span class="id">variable</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetEnvironmentVariables</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="if">IDictionary</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetFolderPath</span><span class="pn">:</span> <span class="id">folder</span><span class="pn">:</span> <span class="en">SpecialFolder</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetLogicalDrives</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span> <span class="rt">array</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">SetEnvironmentVariable</span><span class="pn">:</span> <span class="id">variable</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="prop">CommandLine</span><span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs74"><em>Gets the current platform identifier and version number.<br /><br />returns: The platform identifier and version number.</em><br />property <span class="m">System.</span><span class="rt">Environment</span><span class="pn">.</span><span class="prop">OSVersion</span><span class="pn">:</span> <span class="m">System.</span><span class="rt">OperatingSystem</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs75"><em>Gets a PlatformID enumeration value that identifies the operating system platform.<br /><br />returns: One of the PlatformID values.</em><br />property <span class="m">System.</span><span class="rt">OperatingSystem</span><span class="pn">.</span><span class="prop">Platform</span><span class="pn">:</span> <span class="m">System.</span><span class="en">PlatformID</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs76"><em>Identifies the operating system, or platform, supported by an assembly.</em><br /><span class="k">type</span> <span class="vt">PlatformID</span> <span class="o">=</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Win32S</span> <span class="o">=</span> <span class="n">0</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Win32Windows</span> <span class="o">=</span> <span class="n">1</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Win32NT</span> <span class="o">=</span> <span class="n">2</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">WinCE</span> <span class="o">=</span> <span class="n">3</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Unix</span> <span class="o">=</span> <span class="n">4</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Xbox</span> <span class="o">=</span> <span class="n">5</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">MacOSX</span> <span class="o">=</span> <span class="n">6</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Other</span> <span class="o">=</span> <span class="n">7</span></div>
+<div popover class="fsdocs-tip" id="fs77">field <span class="m">System.</span><span class="en">PlatformID</span><span class="pn">.</span><span class="prop">Win32NT</span><span class="pn">:</span> <span class="m">System.</span><span class="en">PlatformID</span> <span class="o">=</span> <span class="n">2</span></div>
+<div popover class="fsdocs-tip" id="fs78"><span class="m">System.</span><span class="rt">Environment</span><span class="pn">.</span><span class="fn">GetFolderPath</span><span class="pn">(</span><span class="id">folder</span><span class="pn">:</span> <span class="m">System.Environment.</span><span class="en">SpecialFolder</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br /><span class="m">System.</span><span class="rt">Environment</span><span class="pn">.</span><span class="fn">GetFolderPath</span><span class="pn">(</span><span class="id">folder</span><span class="pn">:</span> <span class="m">System.Environment.</span><span class="en">SpecialFolder</span><span class="pn">,</span> <span class="id">option</span><span class="pn">:</span> <span class="m">System.Environment.</span><span class="en">SpecialFolderOption</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs79"><em>Specifies enumerated Constant Special Item ID List (CSIDL) values used to retrieve directory paths to system special folders.</em><br /><span class="k">type</span> <span class="vt">SpecialFolder</span> <span class="o">=</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Desktop</span> <span class="o">=</span> <span class="n">0</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Programs</span> <span class="o">=</span> <span class="n">2</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">MyDocuments</span> <span class="o">=</span> <span class="n">5</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Personal</span> <span class="o">=</span> <span class="n">5</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Favorites</span> <span class="o">=</span> <span class="n">6</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Startup</span> <span class="o">=</span> <span class="n">7</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">Recent</span> <span class="o">=</span> <span class="n">8</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">SendTo</span> <span class="o">=</span> <span class="n">9</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">StartMenu</span> <span class="o">=</span> <span class="n">11</span><br />&#160;&#160;<span class="rt">Literal</span><span class="pn">&gt;]</span><br />&#160;&#160;<span class="pn">|</span> <span class="en">MyMusic</span> <span class="o">=</span> <span class="n">13</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs80">field <span class="m">System.Environment.</span><span class="en">SpecialFolder</span><span class="pn">.</span><span class="prop">ProgramFilesX86</span><span class="pn">:</span> <span class="m">System.Environment.</span><span class="en">SpecialFolder</span> <span class="o">=</span> <span class="n">42</span></div>
+<div popover class="fsdocs-tip" id="fs81"><span class="k">val</span> <span class="id">sysDir</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs82"><span class="k">namespace</span> <span class="m">System.Runtime</span></div>
+<div popover class="fsdocs-tip" id="fs83"><span class="k">namespace</span> <span class="m">System.Runtime.InteropServices</span></div>
+<div popover class="fsdocs-tip" id="fs84"><em>Provides a collection of  methods that return information about the common language runtime environment.</em><br /><span class="k">type</span> <span class="rt">RuntimeEnvironment</span> <span class="o">=</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">FromGlobalAccessCache</span><span class="pn">:</span> <span class="id">a</span><span class="pn">:</span> <span class="rt">Assembly</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetRuntimeDirectory</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetRuntimeInterfaceAsIntPtr</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">clsid</span><span class="pn">:</span> <span class="vt">Guid</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">riid</span><span class="pn">:</span> <span class="vt">Guid</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="vt">nativeint</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetRuntimeInterfaceAsObject</span><span class="pn">:</span> <span class="id">clsid</span><span class="pn">:</span> <span class="vt">Guid</span> <span class="o">*</span> <span class="id">riid</span><span class="pn">:</span> <span class="vt">Guid</span> <span class="pn">-&gt;</span> <span class="rt">obj</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetSystemVersion</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="prop">SystemConfigurationFile</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs85"><span class="m">System.Runtime.InteropServices.</span><span class="rt">RuntimeEnvironment</span><span class="pn">.</span><span class="fn">GetRuntimeDirectory</span><span class="pn">(</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs86"><span class="k">val</span> <span class="id">a</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs87"><span class="k">val</span> <span class="id">b</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs88"><em>Performs operations on String instances that contain file or directory path information. These operations are performed in a cross-platform manner.</em><br /><span class="k">type</span> <span class="rt">Path</span> <span class="o">=</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ChangeExtension</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">extension</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Combine</span><span class="pn">:</span> <span class="id">path1</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">path2</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 4 overloads<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">EndsInDirectorySeparator</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Exists</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetDirectoryName</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetExtension</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetFileName</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetFileNameWithoutExtension</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetFullPath</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetInvalidFileNameChars</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">char</span> <span class="rt">array</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs89"><span class="rt">Path</span><span class="pn">.</span><span class="fn">Combine</span><span class="pn">(</span><span class="id">paths</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br /><span class="rt">Path</span><span class="pn">.</span><span class="fn">Combine</span><span class="pn">(</span> <span class="id">paths</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">array</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br /><span class="rt">Path</span><span class="pn">.</span><span class="fn">Combine</span><span class="pn">(</span><span class="id">path1</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path2</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br /><span class="rt">Path</span><span class="pn">.</span><span class="fn">Combine</span><span class="pn">(</span><span class="id">path1</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path2</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path3</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br /><span class="rt">Path</span><span class="pn">.</span><span class="fn">Combine</span><span class="pn">(</span><span class="id">path1</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path2</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path3</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">path4</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs90"><span class="k">val</span> <span class="fn">fsCore4300</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs91"><span class="k">val</span> <span class="id">allFlags</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">array</span></div>
+<div popover class="fsdocs-tip" id="fs92"><span class="k">val</span> <span class="id">references</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">list</span></div>
+<div popover class="fsdocs-tip" id="fs93"><span class="k">val</span> <span class="id">r</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs94">union case <span class="rt">Option</span><span class="pn">.</span><span class="uc">None</span><span class="pn">:</span> <span class="rt">Option</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs95">Multiple items<br /><em>Represents an instant in time, typically expressed as a date and time of day.</em><br /><span class="k">type</span> <span class="vt">DateTime</span> <span class="o">=</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="id">date</span><span class="pn">:</span> <span class="vt">DateOnly</span> <span class="o">*</span> <span class="id">time</span><span class="pn">:</span> <span class="vt">TimeOnly</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 16 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">Add</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">TimeSpan</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddDays</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddHours</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddMicroseconds</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddMilliseconds</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddMinutes</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddMonths</span><span class="pn">:</span> <span class="id">months</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddSeconds</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddTicks</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">int64</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="m">System.</span><span class="vt">DateTime</span> <span class="pn">()</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="m">System.</span><span class="vt">DateTime</span><span class="pn">(</span><span class="id">ticks</span><span class="pn">:</span> <span class="vt">int64</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.</span><span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="m">System.</span><span class="vt">DateTime</span><span class="pn">(</span><span class="id">date</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">DateOnly</span><span class="pn">,</span> <span class="id">time</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">TimeOnly</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.</span><span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="m">System.</span><span class="vt">DateTime</span><span class="pn">(</span><span class="id">ticks</span><span class="pn">:</span> <span class="vt">int64</span><span class="pn">,</span> <span class="id">kind</span><span class="pn">:</span> <span class="m">System.</span><span class="en">DateTimeKind</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.</span><span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="m">System.</span><span class="vt">DateTime</span><span class="pn">(</span><span class="id">date</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">DateOnly</span><span class="pn">,</span> <span class="id">time</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">TimeOnly</span><span class="pn">,</span> <span class="id">kind</span><span class="pn">:</span> <span class="m">System.</span><span class="en">DateTimeKind</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.</span><span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="m">System.</span><span class="vt">DateTime</span><span class="pn">(</span><span class="id">year</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">month</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">day</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.</span><span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="m">System.</span><span class="vt">DateTime</span><span class="pn">(</span><span class="id">year</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">month</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">day</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">calendar</span><span class="pn">:</span> <span class="m">System.Globalization.</span><span class="rt">Calendar</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.</span><span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="m">System.</span><span class="vt">DateTime</span><span class="pn">(</span><span class="id">year</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">month</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">day</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">hour</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">minute</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">second</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.</span><span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="m">System.</span><span class="vt">DateTime</span><span class="pn">(</span><span class="id">year</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">month</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">day</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">hour</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">minute</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">second</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">kind</span><span class="pn">:</span> <span class="m">System.</span><span class="en">DateTimeKind</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.</span><span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="m">System.</span><span class="vt">DateTime</span><span class="pn">(</span><span class="id">year</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">month</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">day</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">hour</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">minute</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">second</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">calendar</span><span class="pn">:</span> <span class="m">System.Globalization.</span><span class="rt">Calendar</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.</span><span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em></div>
+<div popover class="fsdocs-tip" id="fs96"><em>Gets a DateTime object that is set to the current date and time on this computer, expressed as the local time.<br /><br />returns: An object whose value is the current local date and time.</em><br />property <span class="m">System.</span><span class="vt">DateTime</span><span class="pn">.</span><span class="prop">Now</span><span class="pn">:</span> <span class="m">System.</span><span class="vt">DateTime</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs97"><span class="k">val</span> <span class="fn">results</span><span class="pn">:</span> <span class="rt">FSharpCheckProjectResults</span></div>
+<div popover class="fsdocs-tip" id="fs98"><span class="k">member</span> <span class="rt">FSharpChecker</span><span class="pn">.</span><span class="fn">ParseAndCheckProject</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">projectSnapshot</span><span class="pn">:</span> <span class="rt">FSharpProjectSnapshot</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">userOpName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Async</span><span class="pn">&lt;</span><span class="rt">FSharpCheckProjectResults</span><span class="pn">&gt;</span><br /><span class="k">member</span> <span class="rt">FSharpChecker</span><span class="pn">.</span><span class="fn">ParseAndCheckProject</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">options</span><span class="pn">:</span> <span class="rt">FSharpProjectOptions</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">userOpName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Async</span><span class="pn">&lt;</span><span class="rt">FSharpCheckProjectResults</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs99">Multiple items<br /><span class="k">type</span> Async <span class="o">=</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AsBeginEnd</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">computation</span><span class="pn">:</span> <span class="pn">(</span><span class="ta">&#39;Arg</span> <span class="pn">-&gt;</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">(</span><span class="ta">&#39;Arg</span> <span class="pn">*</span> <span class="rt">AsyncCallback</span> <span class="pn">*</span> <span class="rt">objnull</span> <span class="pn">-&gt;</span> <span class="if">IAsyncResult</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">(</span><span class="if">IAsyncResult</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">(</span><span class="if">IAsyncResult</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AwaitEvent</span><span class="pn">:</span> <span class="id">event</span><span class="pn">:</span> <span class="if">IEvent</span><span class="pn">&lt;</span><span class="ta">&#39;Del</span><span class="pn">,</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">cancelAction</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">-&gt;</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">delegate</span> <span class="k">and</span> <span class="ta">&#39;Del</span> <span class="o">:&gt;</span> <span class="rt">Delegate</span> <span class="k">and</span> <span class="ta">&#39;Del</span><span class="pn">:</span> <span class="k">not null</span><span class="pn">)</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AwaitIAsyncResult</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">iar</span><span class="pn">:</span> <span class="if">IAsyncResult</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">millisecondsTimeout</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Async</span><span class="pn">&lt;</span><span class="vt">bool</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AwaitTask</span><span class="pn">:</span> <span class="id">task</span><span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AwaitWaitHandle</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">waitHandle</span><span class="pn">:</span> <span class="rt">WaitHandle</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">millisecondsTimeout</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Async</span><span class="pn">&lt;</span><span class="vt">bool</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">CancelDefaultToken</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Catch</span><span class="pn">:</span> <span class="id">computation</span><span class="pn">:</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="rt">Choice</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">,</span><span class="rt">exn</span><span class="pn">&gt;</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Choice</span><span class="pn">:</span> <span class="id">computations</span><span class="pn">:</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="ta">&#39;T</span> <span class="rt">option</span><span class="pn">&gt;</span> <span class="rt">seq</span> <span class="pn">-&gt;</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="ta">&#39;T</span> <span class="rt">option</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">FromBeginEnd</span><span class="pn">:</span> <span class="id">beginAction</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">AsyncCallback</span> <span class="pn">*</span> <span class="rt">objnull</span> <span class="pn">-&gt;</span> <span class="if">IAsyncResult</span><span class="pn">)</span> <span class="pn">*</span> <span class="id">endAction</span><span class="pn">:</span> <span class="pn">(</span><span class="if">IAsyncResult</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">cancelAction</span><span class="pn">:</span> <span class="pn">(</span><span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">-&gt;</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> + 3 overloads<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">FromContinuations</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">callback</span><span class="pn">:</span> <span class="pn">(</span><span class="pn">(</span><span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">(</span><span class="rt">exn</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">*</span> <span class="pn">(</span><span class="rt">OperationCanceledException</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><span class="pn">)</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Async</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="k">type</span> Async<span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs100"><span class="k">static</span> <span class="k">member</span> <span class="rt">Async</span><span class="pn">.</span><span class="fn">RunSynchronously</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">computation</span><span class="pn">:</span> <span class="rt">Async</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">timeout</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">System.Threading.</span><span class="vt">CancellationToken</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs101"><em>The errors returned by processing the project</em><br />property <span class="rt">FSharpCheckProjectResults</span><span class="pn">.</span><span class="prop">Diagnostics</span><span class="pn">:</span> <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span> <span class="rt">array</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs102"><em>Get a view of the overall signature of the assembly. Only valid to use if HasCriticalErrors is false.</em><br />property <span class="rt">FSharpCheckProjectResults</span><span class="pn">.</span><span class="prop">AssemblySignature</span><span class="pn">:</span> <span class="m">FSharp.Compiler.Symbols.</span><span class="rt">FSharpAssemblySignature</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs103"><em>The (non-nested) module and type definitions in this signature</em><br />property <span class="m">FSharp.Compiler.Symbols.</span><span class="rt">FSharpAssemblySignature</span><span class="pn">.</span><span class="prop">Entities</span><span class="pn">:</span> <span class="m">System.Collections.Generic.</span><span class="if">IList</span><span class="pn">&lt;</span><span class="m">FSharp.Compiler.Symbols.</span><span class="rt">FSharpEntity</span><span class="pn">&gt;</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs104"><em>Gets the number of elements contained in the ICollection`1.<br /><br />returns: The number of elements contained in the ICollection`1.</em><br />property <span class="m">System.Collections.Generic.</span><span class="if">ICollection</span><span class="pn">.</span><span class="prop">Count</span><span class="pn">:</span> <span class="vt">int</span> <span class="k">with</span> get</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Compiler-Services-Virtualized-File-System">
+      Compiler Services: Virtualized File System
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Setting-the-FileSystem">
+      Setting the FileSystem
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="3">
+    <a href="#Doing-a-compilation-with-the-FileSystem">
+      Doing a compilation with the FileSystem
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="4">
+    <a href="#Summary">
+      Summary
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="../content/fsdocs-tips.js"></script>
+<script type="module" src="../content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="../content/fsdocs-details-toggle.js"></script>
+<script type="module" src="../content/fsdocs-theme.js"></script>
+<script type="module" src="../content/fsdocs-search.js"></script>
+<script type="module" src="../content/fsdocs-copy-button.js"></script>
+<script type="module" src="../content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

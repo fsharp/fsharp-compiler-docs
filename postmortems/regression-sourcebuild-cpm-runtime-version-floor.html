@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" data-root="../">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Source-build CPM runtime version floor" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Source-build CPM runtime version floor">
+    
+    <title>Source-build CPM runtime version floor | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="../img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="../content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="../content/fsdocs-details-set-expanded.js"></script>
+    <link href="../content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="../content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header active">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="../img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header active">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1 data-fsdocs-heading="1"><a name="Regression-renamed-CPM-runtime-package-pins-broke-VMR-source-build" class="anchor" href="#Regression-renamed-CPM-runtime-package-pins-broke-VMR-source-build">Regression: renamed CPM runtime-package pins broke VMR source-build</a></h1>
+<h2 data-fsdocs-heading="2"><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
+<p>To satisfy CPM transitive pinning, the central versions of the dotnet/runtime packages that MSBuild and Roslyn pull (<code>System.Collections.Immutable</code>, <code>System.Reflection.Metadata</code>, <code>System.Composition</code>, <code>System.Diagnostics.DiagnosticSource</code>, <code>System.Security.Cryptography.Xml</code>) were routed through computed <code>$(System*CentralVersion)</code> properties with a version floor, instead of the darc-named <code>$(System*Version)</code> properties. Source-build injects live runtime versions by overriding the darc-named properties, so the renamed, eagerly-floored pins froze at the floor value and the override never reached CPM. In the .NET 11 RC1 VMR the floor demanded <code>10.0.10</code> while source-build supplied the live <code>10.0.9</code>, producing prebuilt packages and <code>NU1109</code> downgrade errors that blocked the fsharp forward-flow (dotnet/dotnet#8413, #8414, #8415). Caught at the VMR source-only gate; it never shipped.</p>
+<h2 data-fsdocs-heading="3"><a name="Error-Manifestation" class="anchor" href="#Error-Manifestation">Error Manifestation</a></h2>
+<p>The <code>VMR Source-Only Build SB_CentOSStream10_Online_MsftSdk_x64</code> leg failed two ways.</p>
+<p>Prebuilt detection:</p>
+<div class="fsdocs-snippet"><pre class="fssnip"><code lang="text">eng/finish-source-only.proj(141,5): error : Prebuilt packages are not allowed in source-only builds.
+Detected 1 prebuilt package(s):
+ - System.Diagnostics.DiagnosticSource.10.0.10
+</code></pre></div>
+<p>And, once the floor was partially relaxed, a downgrade in <code>fsc</code>/<code>fsi</code>:</p>
+<div class="fsdocs-snippet"><pre class="fssnip"><code lang="text">error NU1109: Detected package downgrade: System.Collections.Immutable from 10.0.10 to centrally defined 10.0.9.
+  fsi -&gt; Microsoft.Build.Framework 18.11.0-1.26417.9 -&gt; System.Collections.Immutable (&gt;= 10.0.10)
+  fsi -&gt; System.Collections.Immutable (&gt;= 10.0.9)
+</code></pre></div>
+<p>fsharp's own PR/CI legs were green throughout — the failure appeared only downstream in dotnet/dotnet.</p>
+<h2 data-fsdocs-heading="4"><a name="Root-Cause" class="anchor" href="#Root-Cause">Root Cause</a></h2>
+<p>fsharp declares these <code>System.*</code> packages in <code>eng/Version.Details.xml</code> with an empty <code>&lt;Sha&gt;</code> and the note <em>"Necessary for source-build. This allows the live version of the package to be used by source-build."</em> When the VMR builds fsharp it passes <code>/p:DotNetPackageVersionPropsPath=…/PackageVersions.fsharp.props</code>, a generated file that <strong>unconditionally overrides the darc-named properties</strong> — <code>$(SystemCollectionsImmutableVersion)</code>, etc. — with the live runtime version it just source-built. Whatever CPM reads must be that exact property for the override to take effect.</p>
+<p>The CPM-transitive-pinning work introduced an indirection instead:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="c">&lt;!-- eng/Versions.props (removed) --&gt;</span>
+<span class="k">&lt;</span><span class="i">SystemCollectionsImmutableCentralVersion</span><span class="k">&gt;</span>$(SystemCollectionsImmutableVersion)<span class="k">&lt;/</span><span class="i">SystemCollectionsImmutableCentralVersion</span><span class="k">&gt;</span>
+<span class="k">&lt;</span><span class="i">SystemCollectionsImmutableCentralVersion</span>
+    <span class="o">Condition</span><span class="k">="...VersionLessThan($(SystemCollectionsImmutableVersion), $(SystemRuntimeCentralFloorVersion))"</span><span class="k">&gt;</span>
+  $(SystemRuntimeCentralFloorVersion)   <span class="c">&lt;!-- floor, e.g. 10.0.10 --&gt;</span>
+<span class="k">&lt;/</span><span class="i">SystemCollectionsImmutableCentralVersion</span><span class="k">&gt;</span>
+</code></pre></div>
+<p><code>eng/Packages.props</code> then pinned <code>Version="$(SystemCollectionsImmutableCentralVersion)"</code>. Two mistakes combined:</p>
+<ol>
+<li><strong>Rename.</strong> Source-build overrides <code>$(SystemCollectionsImmutableVersion)</code>, not <code>$(...CentralVersion)</code>. The alias is a different property that source-build has no knowledge of.</li>
+<li><strong>Eager floor.</strong> <code>$(...CentralVersion)</code> is computed once, before arcade imports <code>PackageVersions.fsharp.props</code>, and is <code>max(flowed, floor)</code>. Even in source-build it evaluated to the floor.</li>
+</ol>
+<p>So the central pin froze at the floor (<code>10.0.10</code>). Source-build only produces the live runtime (<code>10.0.9</code>), which cannot satisfy a <code>10.0.10</code> pin from within the source tree, so restore reached an external feed → prebuilt; and where the graph also carried a <code>10.0.9</code> constraint, <code>NU1109</code> downgrade.</p>
+<p>The violated assumption: <strong>a source-build "live version" package must be consumed through the exact darc-named <code>$(System*Version)</code> property; any renamed or computed intermediate silently defeats the override.</strong> roslyn's <code>eng/Packages.props</code> does the correct thing — it references <code>$(SystemCollectionsImmutableVersion)</code> directly.</p>
+<h2 data-fsdocs-heading="5"><a name="Why-It-Escaped" class="anchor" href="#Why-It-Escaped">Why It Escaped</a></h2>
+<p>fsharp's PR/CI restores are allowed to pull from nuget.org, where <code>10.0.10</code> exists. The floored pin resolved cleanly there, so every fsharp leg — including its own <code>Source-Build (Managed)</code> legs — was green. The only environment that rejects an out-of-tree package is the VMR source-<strong>only</strong> prebuilt gate (<code>SB_CentOSStream10_Online_MsftSdk_x64</code>), which fsharp CI does not run. The defect was therefore structurally invisible until the change forward-flowed into dotnet/dotnet, roughly a day later.</p>
+<p>It also recurred: the same source-build/runtime coherency was fought three times — the MSBuild pin (#20073), the CPM floor (#20084, extended by #20100), and the MSBuild unpin (#20278) — before the direct-property pattern fixed it.</p>
+<h2 data-fsdocs-heading="6"><a name="Fix" class="anchor" href="#Fix">Fix</a></h2>
+<p><a href="https://github.com/dotnet/fsharp/pull/20290">#20290</a>: reference <code>$(System*Version)</code> directly in <code>eng/Packages.props</code> (matching roslyn), delete the <code>$(...CentralVersion)</code>/<code>SystemRuntimeCentralFloorVersion</code> scaffolding from <code>eng/Versions.props</code>, and declare the packages at <code>10.0.10</code> in <code>eng/Version.Details.{xml,props}</code> so product/PR restore meets the MSBuild 18.11 / Roslyn 5.11 transitive minimum. In source-build, <code>PackageVersions.fsharp.props</code> overrides those same properties down to the live runtime version, so the pin always tracks what the VMR actually builds. Verified by feeding a simulated <code>PackageVersions.fsharp.props</code> through <code>/p:DotNetPackageVersionPropsPath</code>: with the fix CPM resolves the injected <code>10.0.9</code>; with the old alias it stayed frozen at <code>10.0.10</code>.</p>
+<h2 data-fsdocs-heading="7"><a name="Timeline" class="anchor" href="#Timeline">Timeline</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Date (2026)</p></th>
+<th><p>PR</p></th>
+<th><p>Event</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>08-04</p></td>
+<td><p>#20084</p></td>
+<td><p>CPM + transitive pinning introduces <code>$(System*CentralVersion)</code> + floor (latent).</p></td>
+</tr>
+<tr class="even">
+<td><p>08-13</p></td>
+<td><p>#20073</p></td>
+<td><p>MSBuild pinned at <code>18.10.0-1.26370.18</code> (kept net10 assets for the then-net10 product).</p></td>
+</tr>
+<tr class="odd">
+<td><p>08-18</p></td>
+<td><p>#20100</p></td>
+<td><p>Floor extended to the Roslyn-pulled <code>System.*</code> packages.</p></td>
+</tr>
+<tr class="even">
+<td><p>08-18</p></td>
+<td><p>#20278</p></td>
+<td><p>MSBuild unpinned to <code>18.11</code> line; floor bumped to <code>10.0.10</code>, expanded to 5 packages.</p></td>
+</tr>
+<tr class="odd">
+<td><p>08-19</p></td>
+<td><p>dotnet/dotnet#8413/#8414/#8415</p></td>
+<td><p>Forward-flow source-only build fails: prebuilt <code>DiagnosticSource 10.0.10</code> + <code>NU1109</code>.</p></td>
+</tr>
+<tr class="even">
+<td><p>08-19</p></td>
+<td><p>#20290</p></td>
+<td><p>Direct <code>$(System*Version)</code>, floor removed, declared <code>10.0.10</code>.</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="8"><a name="Prevention" class="anchor" href="#Prevention">Prevention</a></h2>
+<p><code>.github/instructions/EngVersioning.instructions.md</code> scoped to <code>eng/Packages.props</code>, <code>eng/Versions.props</code>, and <code>eng/Version.Details.{xml,props}</code> encodes the rule: consume source-build "live version" packages through the darc-named <code>$(System*Version)</code> property directly; never route them through a renamed or computed central alias/floor. When a transitive consumer (MSBuild, Roslyn) needs a higher minimum than the flowed baseline, raise the declared version in <code>eng/Version.Details.*</code> rather than adding a floor — source-build overrides it back down to the live runtime version. fsharp CI cannot reproduce the VMR source-only prebuilt gate, so these files must be reasoned about against source-build, not just a green PR restore.</p>
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Regression-renamed-CPM-runtime-package-pins-broke-VMR-source-build">
+      Regression: renamed CPM runtime-package pins broke VMR source-build
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Summary">
+      Summary
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="3">
+    <a href="#Error-Manifestation">
+      Error Manifestation
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="4">
+    <a href="#Root-Cause">
+      Root Cause
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="5">
+    <a href="#Why-It-Escaped">
+      Why It Escaped
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="6">
+    <a href="#Fix">
+      Fix
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="7">
+    <a href="#Timeline">
+      Timeline
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="8">
+    <a href="#Prevention">
+      Prevention
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-heading-6, --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-heading-6; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="6"] { view-timeline-name: --fsdocs-heading-6; }
+#fsdocs-page-menu [data-fsdocs-heading="6"] { animation-timeline: --fsdocs-heading-6, --fsdocs-heading-7; }
+body:has(#content [data-fsdocs-heading="6"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="6"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="7"] { view-timeline-name: --fsdocs-heading-7; }
+#fsdocs-page-menu [data-fsdocs-heading="7"] { animation-timeline: --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="7"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="7"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="8"] { view-timeline-name: --fsdocs-heading-8; }
+#fsdocs-page-menu [data-fsdocs-heading="8"] { animation-timeline: --fsdocs-heading-8, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="8"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="8"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="../content/fsdocs-tips.js"></script>
+<script type="module" src="../content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="../content/fsdocs-details-toggle.js"></script>
+<script type="module" src="../content/fsdocs-theme.js"></script>
+<script type="module" src="../content/fsdocs-search.js"></script>
+<script type="module" src="../content/fsdocs-copy-button.js"></script>
+<script type="module" src="../content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en" data-root="../">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Tutorial: Hosted execution" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/fcs/interactive.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Tutorial: Hosted execution">
+    
+    <title>Tutorial: Hosted execution | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="../img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="../content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="../content/fsdocs-details-set-expanded.js"></script>
+    <link href="../content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="../content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header active">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="../img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header active">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1 data-fsdocs-heading="1"><a name="Interactive-Service-Embedding-F-Interactive" class="anchor" href="#Interactive-Service-Embedding-F-Interactive">Interactive Service: Embedding F# Interactive</a></h1>
+<p>This tutorial demonstrates how to embed F# interactive in your application. F# interactive
+is an interactive scripting environment that compiles F# code into highly efficient IL code
+and executes it on the fly. The F# interactive service allows you to embed F# evaluation in
+your application.</p>
+<blockquote>
+<p><strong>NOTE:</strong> There is a number of options for embedding F# Interactive. The easiest one is to use the
+<code>fsi.exe</code> process and communicate with it using standard input and standard output. In this
+tutorial, we look at calling F# Interactive directly through .NET API. However, if you have
+no control over the input, it is a good idea to run F# interactive in a separate process.
+One reason is that there is no way to handle <code>StackOverflowException</code> and so a poorly written
+script can terminate the host process. <strong>Remember that while calling F# Interactive through .NET API,
+<code>--shadowcopyreferences</code> option will be ignored</strong>. For detailed discussion, please take a look at
+<a href="https://github.com/fsharp/FSharp.Compiler.Service/issues/292">this thread</a>.
+<strong>NOTE:</strong> If <code>FsiEvaluationSession.Create</code> fails with an error saying that <code>FSharp.Core.dll</code> cannot be found,
+add the <code>FSharp.Core.sigdata</code> and <code>FSharp.Core.optdata</code> files. More info <a href="https://fsharp.github.io/fsharp-compiler-docs/fcs/corelib.html">here</a>.</p>
+</blockquote>
+<p>However, the F# interactive service is still useful, because you might want to wrap it in your
+own executable that is then executed (and communicates with the rest of your application), or
+if you only need to execute a limited subset of F# code (e.g. generated by your own DSL).</p>
+<h2 data-fsdocs-heading="2"><a name="Starting-the-F-interactive" class="anchor" href="#Starting-the-F-interactive">Starting the F# interactive</a></h2>
+<p>First, we need to reference the libraries that contain the F# interactive service:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="pp">#r</span> <span class="s">&quot;FSharp.Compiler.Service.dll&quot;</span>
+
+<span class="k">open</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="id">Compiler</span><span class="pn">.</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="3" class="id">Interactive</span><span class="pn">.</span><span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="4" class="m">Shell</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="5" class="id">FSharp</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="6" class="id">Compiler</span><span class="pn">.</span><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="7" class="id">Tokenization</span>
+</code></pre></div>
+<p>To communicate with F# interactive, we need to create streams that represent input and
+output. We will use those later to read the output printed as a result of evaluating some
+F# code that prints:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="8" class="id">System</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="9" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="10" class="id">IO</span>
+<span class="k">open</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="11" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="12" class="id">Text</span>
+
+<span class="c">// Initialize output and input streams</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="13" class="id">sbOut</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="14" class="rt">StringBuilder</span><span class="pn">(</span><span class="pn">)</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="15" class="id">sbErr</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="16" class="rt">StringBuilder</span><span class="pn">(</span><span class="pn">)</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="17" class="d">inStream</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="18" class="d">StringReader</span><span class="pn">(</span><span class="s">&quot;&quot;</span><span class="pn">)</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="19" class="d">outStream</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="20" class="d">StringWriter</span><span class="pn">(</span><span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="21" class="id">sbOut</span><span class="pn">)</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="22" class="d">errStream</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="23" class="d">StringWriter</span><span class="pn">(</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="24" class="id">sbErr</span><span class="pn">)</span>
+
+<span class="c">// Build command line arguments &amp; start FSI session</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="25" class="id">argv</span> <span class="o">=</span> <span class="pn">[|</span> <span class="s">&quot;C:\\fsi.exe&quot;</span> <span class="pn">|]</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="26" class="id">allArgs</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="27" class="m">Array</span><span class="pn">.</span><span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="28" class="id">append</span> <span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="29" class="id">argv</span> <span class="pn">[|</span> <span class="s">&quot;--noninteractive&quot;</span> <span class="pn">|]</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="30" class="id">fsiConfig</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="31" class="d">FsiEvaluationSession</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="32" class="id">GetDefaultConfiguration</span><span class="pn">(</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="33" class="d">fsiSession</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="34" class="d">FsiEvaluationSession</span><span class="pn">.</span><span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="35" class="id">Create</span><span class="pn">(</span><span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="36" class="id">fsiConfig</span><span class="pn">,</span> <span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="37" class="id">allArgs</span><span class="pn">,</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="38" class="d">inStream</span><span class="pn">,</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="39" class="d">outStream</span><span class="pn">,</span> <span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="40" class="d">errStream</span><span class="pn">)</span>
+</code></pre></div>
+<h2 data-fsdocs-heading="3"><a name="Evaluating-and-executing-code" class="anchor" href="#Evaluating-and-executing-code">Evaluating and executing code</a></h2>
+<p>The F# interactive service exposes several methods that can be used for evaluation. The first
+is <code>EvalExpression</code> which evaluates an expression and returns its result. The result contains
+the returned value (as <code>obj</code>) and the statically inferred type of the value:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// Evaluate expression &amp; return the result</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="41" class="fn">evalExpression</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="42" class="fn">text</span> <span class="o">=</span>
+    <span class="k">match</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="43" class="d">fsiSession</span><span class="pn">.</span><span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="44" class="id">EvalExpression</span><span class="pn">(</span><span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="45" class="fn">text</span><span class="pn">)</span> <span class="k">with</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="46" class="uc">Some</span> <span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="47" class="fn">value</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="48" class="fn">printfn</span> <span class="s">&quot;</span><span class="pf">%A</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="49" class="fn">value</span><span class="pn">.</span><span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="50" class="id">ReflectionValue</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="51" class="uc">None</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="52" class="fn">printfn</span> <span class="s">&quot;Got no result!&quot;</span>
+</code></pre></div>
+<p>This takes a string as an argument and evaluates (i.e. executes) it as F# code.</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="53" class="fn">evalExpression</span> <span class="s">&quot;42+1&quot;</span> <span class="c">// prints &#39;43&#39;</span>
+</code></pre></div>
+<p>This can be used in a strongly typed way as follows:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">/// Evaluate expression &amp; return the result, strongly typed</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="54" class="fn">evalExpressionTyped</span><span class="pn">&lt;</span><span class="ta">&#39;</span><span data-fsdocs-tip="fs35" data-fsdocs-tip-unique="55" class="id">T</span><span class="pn">&gt;</span> <span class="pn">(</span><span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="56" class="fn">text</span><span class="pn">)</span> <span class="o">=</span>
+    <span class="k">match</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="57" class="d">fsiSession</span><span class="pn">.</span><span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="58" class="id">EvalExpression</span><span class="pn">(</span><span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="59" class="fn">text</span><span class="pn">)</span> <span class="k">with</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="60" class="uc">Some</span> <span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="61" class="fn">value</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="62" class="fn">value</span><span class="pn">.</span><span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="63" class="id">ReflectionValue</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs36" data-fsdocs-tip-unique="64" class="fn">unbox</span><span class="pn">&lt;</span><span class="ta">&#39;</span><span data-fsdocs-tip="fs35" data-fsdocs-tip-unique="65" class="id">T</span><span class="pn">&gt;</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="66" class="uc">None</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs37" data-fsdocs-tip-unique="67" class="fn">failwith</span> <span class="s">&quot;Got no result!&quot;</span>
+
+<span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="68" class="fn">evalExpressionTyped</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs38" data-fsdocs-tip-unique="69" class="vt">int</span><span class="pn">&gt;</span> <span class="s">&quot;42+1&quot;</span> <span class="c">// gives &#39;43&#39;</span>
+</code></pre></div>
+<p>The <code>EvalInteraction</code> method can be used to evaluate side-effectful operations
+such as printing, declarations, or other interactions that are not valid F# expressions, but can be entered in
+the F# Interactive console. Such commands include <code>#time "on"</code> (and other directives), <code>open System</code>
+all declarations and other top-level statements. The code
+does not require <code>;;</code> at the end. Just enter the code that you want to execute:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="70" class="d">fsiSession</span><span class="pn">.</span><span data-fsdocs-tip="fs39" data-fsdocs-tip-unique="71" class="id">EvalInteraction</span> <span class="s">&quot;printfn \&quot;bye\&quot;&quot;</span>
+</code></pre></div>
+<p>The <code>EvalScript</code> method allows to evaluate a complete .fsx script.</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs40" data-fsdocs-tip-unique="72" class="rt">File</span><span class="pn">.</span><span data-fsdocs-tip="fs41" data-fsdocs-tip-unique="73" class="id">WriteAllText</span><span class="pn">(</span><span class="s">&quot;sample.fsx&quot;</span><span class="pn">,</span> <span class="s">&quot;let twenty = 10 + 10&quot;</span><span class="pn">)</span>
+<span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="74" class="d">fsiSession</span><span class="pn">.</span><span data-fsdocs-tip="fs42" data-fsdocs-tip-unique="75" class="id">EvalScript</span> <span class="s">&quot;sample.fsx&quot;</span>
+</code></pre></div>
+<h2 data-fsdocs-heading="4"><a name="Catching-errors" class="anchor" href="#Catching-errors">Catching errors</a></h2>
+<p><code>EvalExpression</code>, <code>EvalInteraction</code> and <code>EvalScript</code> are awkward if the
+code has type checking warnings or errors, or if evaluation fails with an exception.
+In these cases you can use <code>EvalExpressionNonThrowing</code>, <code>EvalInteractionNonThrowing</code>
+and <code>EvalScriptNonThrowing</code>. These return a tuple of a result and an array of <code>FSharpDiagnostic</code> values.
+These represent the errors and warnings. The result part is a <code>Choice&lt;_,_&gt;</code> between an actual
+result and an exception.</p>
+<p>The result part of <code>EvalExpression</code> and <code>EvalExpressionNonThrowing</code> is an optional <code>FSharpValue</code>.
+If that value is not present then it just indicates that the expression didn't have a tangible
+result that could be represented as a .NET object.  This situation shouldn't actually
+occur for any normal input expressions, and only for primitives used in libraries.</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs40" data-fsdocs-tip-unique="76" class="rt">File</span><span class="pn">.</span><span data-fsdocs-tip="fs41" data-fsdocs-tip-unique="77" class="id">WriteAllText</span><span class="pn">(</span><span class="s">&quot;sample.fsx&quot;</span><span class="pn">,</span> <span class="s">&quot;let twenty = &#39;a&#39; + 10.0&quot;</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs43" data-fsdocs-tip-unique="78" class="id">result</span><span class="pn">,</span> <span data-fsdocs-tip="fs44" data-fsdocs-tip-unique="79" class="id">warnings</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="80" class="d">fsiSession</span><span class="pn">.</span><span data-fsdocs-tip="fs45" data-fsdocs-tip-unique="81" class="id">EvalScriptNonThrowing</span> <span class="s">&quot;sample.fsx&quot;</span>
+
+<span class="c">// show the result</span>
+<span class="k">match</span> <span data-fsdocs-tip="fs43" data-fsdocs-tip-unique="82" class="id">result</span> <span class="k">with</span>
+<span class="pn">|</span> <span data-fsdocs-tip="fs46" data-fsdocs-tip-unique="83" class="uc">Choice1Of2</span> <span class="pn">(</span><span class="pn">)</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="84" class="fn">printfn</span> <span class="s">&quot;checked and executed ok&quot;</span>
+<span class="pn">|</span> <span data-fsdocs-tip="fs47" data-fsdocs-tip-unique="85" class="uc">Choice2Of2</span> <span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="86" class="fn">exn</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="87" class="fn">printfn</span> <span class="s">&quot;execution exception: </span><span class="pf">%s</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="88" class="fn">exn</span><span class="pn">.</span><span data-fsdocs-tip="fs49" data-fsdocs-tip-unique="89" class="id">Message</span>
+</code></pre></div>
+<p>Gives:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">execution</span> <span class="k">exception</span><span class="pn">:</span> <span class="id">Operation</span> <span class="id">could</span> <span class="id">not</span> <span class="id">be</span> <span class="id">completed</span> <span class="id">due</span> <span class="k">to</span> <span class="id">earlier</span> <span class="id">error</span>
+</code></pre></div>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// show the errors and warnings</span>
+<span class="k">for</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="90" class="fn">w</span> <span class="k">in</span> <span data-fsdocs-tip="fs44" data-fsdocs-tip-unique="91" class="id">warnings</span> <span class="k">do</span>
+    <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="92" class="fn">printfn</span> <span class="s">&quot;Warning </span><span class="pf">%s</span><span class="s"> at </span><span class="pf">%d</span><span class="s">,</span><span class="pf">%d</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="93" class="fn">w</span><span class="pn">.</span><span data-fsdocs-tip="fs51" data-fsdocs-tip-unique="94" class="id">Message</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="95" class="fn">w</span><span class="pn">.</span><span data-fsdocs-tip="fs52" data-fsdocs-tip-unique="96" class="id">StartLine</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="97" class="fn">w</span><span class="pn">.</span><span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="98" class="id">StartColumn</span>
+</code></pre></div>
+<p>Gives:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="id">Warning</span> <span class="id">The</span> <span class="k">type</span> <span class="id">&#39;</span><span class="id">float&#39;</span> <span class="id">does</span> <span class="id">not</span> <span class="k">match</span> <span class="id">the</span> <span class="k">type</span> <span class="id">&#39;</span><span class="id">char&#39;</span> <span class="id">at</span> <span class="n">1</span><span class="pn">,</span><span class="n">19</span>
+<span class="id">Warning</span> <span class="id">The</span> <span class="k">type</span> <span class="id">&#39;</span><span class="id">float&#39;</span> <span class="id">does</span> <span class="id">not</span> <span class="k">match</span> <span class="id">the</span> <span class="k">type</span> <span class="id">&#39;</span><span class="id">char&#39;</span> <span class="id">at</span> <span class="n">1</span><span class="pn">,</span><span class="n">17</span>
+</code></pre></div>
+<p>For expressions:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="99" class="fn">evalExpressionTyped2</span><span class="pn">&lt;</span><span class="ta">&#39;</span><span data-fsdocs-tip="fs35" data-fsdocs-tip-unique="100" class="id">T</span><span class="pn">&gt;</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="101" class="fn">text</span> <span class="o">=</span>
+    <span class="k">let</span> <span data-fsdocs-tip="fs55" data-fsdocs-tip-unique="102" class="fn">res</span><span class="pn">,</span> <span data-fsdocs-tip="fs56" data-fsdocs-tip-unique="103" class="fn">warnings</span> <span class="o">=</span>
+        <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="104" class="d">fsiSession</span><span class="pn">.</span><span data-fsdocs-tip="fs57" data-fsdocs-tip-unique="105" class="id">EvalExpressionNonThrowing</span><span class="pn">(</span><span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="106" class="fn">text</span><span class="pn">)</span>
+
+    <span class="k">for</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="107" class="fn">w</span> <span class="k">in</span> <span data-fsdocs-tip="fs56" data-fsdocs-tip-unique="108" class="fn">warnings</span> <span class="k">do</span>
+        <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="109" class="fn">printfn</span> <span class="s">&quot;Warning </span><span class="pf">%s</span><span class="s"> at </span><span class="pf">%d</span><span class="s">,</span><span class="pf">%d</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="110" class="fn">w</span><span class="pn">.</span><span data-fsdocs-tip="fs51" data-fsdocs-tip-unique="111" class="id">Message</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="112" class="fn">w</span><span class="pn">.</span><span data-fsdocs-tip="fs52" data-fsdocs-tip-unique="113" class="id">StartLine</span> <span data-fsdocs-tip="fs50" data-fsdocs-tip-unique="114" class="fn">w</span><span class="pn">.</span><span data-fsdocs-tip="fs53" data-fsdocs-tip-unique="115" class="id">StartColumn</span>
+
+    <span class="k">match</span> <span data-fsdocs-tip="fs55" data-fsdocs-tip-unique="116" class="fn">res</span> <span class="k">with</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs46" data-fsdocs-tip-unique="117" class="uc">Choice1Of2</span> <span class="pn">(</span><span data-fsdocs-tip="fs29" data-fsdocs-tip-unique="118" class="uc">Some</span> <span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="119" class="fn">value</span><span class="pn">)</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs30" data-fsdocs-tip-unique="120" class="fn">value</span><span class="pn">.</span><span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="121" class="id">ReflectionValue</span> <span class="o">|&gt;</span> <span data-fsdocs-tip="fs36" data-fsdocs-tip-unique="122" class="fn">unbox</span><span class="pn">&lt;</span><span class="ta">&#39;</span><span data-fsdocs-tip="fs35" data-fsdocs-tip-unique="123" class="id">T</span><span class="pn">&gt;</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs46" data-fsdocs-tip-unique="124" class="uc">Choice1Of2</span> <span data-fsdocs-tip="fs33" data-fsdocs-tip-unique="125" class="uc">None</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs37" data-fsdocs-tip-unique="126" class="fn">failwith</span> <span class="s">&quot;null or no result&quot;</span>
+    <span class="pn">|</span> <span data-fsdocs-tip="fs47" data-fsdocs-tip-unique="127" class="uc">Choice2Of2</span> <span class="pn">(</span><span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="128" class="fn">exn</span><span class="pn">:</span> <span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="129" class="rt">exn</span><span class="pn">)</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs37" data-fsdocs-tip-unique="130" class="fn">failwith</span> <span class="pn">(</span><span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="131" class="fn">sprintf</span> <span class="s">&quot;exception </span><span class="pf">%s</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs48" data-fsdocs-tip-unique="132" class="fn">exn</span><span class="pn">.</span><span data-fsdocs-tip="fs49" data-fsdocs-tip-unique="133" class="id">Message</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs54" data-fsdocs-tip-unique="134" class="fn">evalExpressionTyped2</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs38" data-fsdocs-tip-unique="135" class="vt">int</span><span class="pn">&gt;</span> <span class="s">&quot;42+1&quot;</span> <span class="c">// gives &#39;43&#39;</span>
+</code></pre></div>
+<h2 data-fsdocs-heading="5"><a name="Executing-in-parallel" class="anchor" href="#Executing-in-parallel">Executing in parallel</a></h2>
+<p>By default the code passed to <code>EvalExpression</code> is executed immediately. To execute in parallel, submit a computation that starts a task:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="136" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs59" data-fsdocs-tip-unique="137" class="id">Threading</span><span class="pn">.</span><span data-fsdocs-tip="fs60" data-fsdocs-tip-unique="138" class="id">Tasks</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs61" data-fsdocs-tip-unique="139" class="id">sampleLongRunningExpr</span> <span class="o">=</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">async {</span>
+<span class="s">    // The code of what you want to run</span>
+<span class="s">    do System.Threading.Thread.Sleep 5000</span>
+<span class="s">    return 10</span>
+<span class="s">}</span>
+<span class="s">  |&gt; Async.StartAsTask&quot;&quot;&quot;</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs62" data-fsdocs-tip-unique="140" class="d">task1</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="141" class="fn">evalExpressionTyped</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs63" data-fsdocs-tip-unique="142" class="d">Task</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs38" data-fsdocs-tip-unique="143" class="vt">int</span><span class="pn">&gt;</span><span class="pn">&gt;</span> <span class="pn">(</span><span data-fsdocs-tip="fs61" data-fsdocs-tip-unique="144" class="id">sampleLongRunningExpr</span><span class="pn">)</span>
+
+<span class="k">let</span> <span data-fsdocs-tip="fs64" data-fsdocs-tip-unique="145" class="d">task2</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs34" data-fsdocs-tip-unique="146" class="fn">evalExpressionTyped</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs63" data-fsdocs-tip-unique="147" class="d">Task</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs38" data-fsdocs-tip-unique="148" class="vt">int</span><span class="pn">&gt;</span><span class="pn">&gt;</span> <span class="pn">(</span><span data-fsdocs-tip="fs61" data-fsdocs-tip-unique="149" class="id">sampleLongRunningExpr</span><span class="pn">)</span>
+</code></pre></div>
+<p>Both computations have now started.  You can now fetch the results:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs62" data-fsdocs-tip-unique="150" class="d">task1</span><span class="pn">.</span><span data-fsdocs-tip="fs65" data-fsdocs-tip-unique="151" class="id">Result</span> <span class="c">// gives the result after completion (up to 5 seconds)</span>
+<span data-fsdocs-tip="fs64" data-fsdocs-tip-unique="152" class="d">task2</span><span class="pn">.</span><span data-fsdocs-tip="fs65" data-fsdocs-tip-unique="153" class="id">Result</span> <span class="c">// gives the result after completion (up to 5 seconds)</span>
+</code></pre></div>
+<h2 data-fsdocs-heading="6"><a name="Type-checking-in-the-evaluation-context" class="anchor" href="#Type-checking-in-the-evaluation-context">Type checking in the evaluation context</a></h2>
+<p>Let's assume you have a situation where you would like to typecheck code
+in the context of the F# Interactive scripting session. For example, you first
+evaluate a declaration:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="154" class="d">fsiSession</span><span class="pn">.</span><span data-fsdocs-tip="fs39" data-fsdocs-tip-unique="155" class="id">EvalInteraction</span> <span class="s">&quot;let xxx = 1 + 1&quot;</span>
+</code></pre></div>
+<p>Now you want to typecheck the partially complete code <code>xxx + xx</code></p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs66" data-fsdocs-tip-unique="156" class="id">parseResults</span><span class="pn">,</span> <span data-fsdocs-tip="fs67" data-fsdocs-tip-unique="157" class="id">checkResults</span><span class="pn">,</span> <span data-fsdocs-tip="fs68" data-fsdocs-tip-unique="158" class="id">checkProjectResults</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="159" class="d">fsiSession</span><span class="pn">.</span><span data-fsdocs-tip="fs69" data-fsdocs-tip-unique="160" class="id">ParseAndCheckInteraction</span><span class="pn">(</span><span class="s">&quot;xxx + xx&quot;</span><span class="pn">)</span>
+</code></pre></div>
+<p>The <code>parseResults</code> and <code>checkResults</code> have types <code>ParseFileResults</code> and <code>CheckFileResults</code>
+explained in <a href="editor.html">Editor</a>. You can, for example, look at the type errors in the code:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span data-fsdocs-tip="fs67" data-fsdocs-tip-unique="161" class="id">checkResults</span><span class="pn">.</span><span data-fsdocs-tip="fs70" data-fsdocs-tip-unique="162" class="prop">Diagnostics</span><span class="pn">.</span><span data-fsdocs-tip="fs71" data-fsdocs-tip-unique="163" class="id">Length</span> <span class="c">// 1</span>
+</code></pre></div>
+<p>The code is checked with respect to the logical type context available in the F# interactive session
+based on the declarations executed so far.</p>
+<p>You can also request declaration list information, tooltip text and symbol resolution:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// get a tooltip</span>
+<span data-fsdocs-tip="fs67" data-fsdocs-tip-unique="164" class="id">checkResults</span><span class="pn">.</span><span data-fsdocs-tip="fs72" data-fsdocs-tip-unique="165" class="id">GetToolTip</span><span class="pn">(</span><span class="n">1</span><span class="pn">,</span> <span class="n">2</span><span class="pn">,</span> <span class="s">&quot;xxx + xx&quot;</span><span class="pn">,</span> <span class="pn">[</span> <span class="s">&quot;xxx&quot;</span> <span class="pn">]</span><span class="pn">,</span> <span data-fsdocs-tip="fs73" data-fsdocs-tip-unique="166" class="m">FSharpTokenTag</span><span class="pn">.</span><span data-fsdocs-tip="fs74" data-fsdocs-tip-unique="167" class="id">IDENT</span><span class="pn">)</span>
+
+<span data-fsdocs-tip="fs67" data-fsdocs-tip-unique="168" class="id">checkResults</span><span class="pn">.</span><span data-fsdocs-tip="fs75" data-fsdocs-tip-unique="169" class="id">GetSymbolUseAtLocation</span><span class="pn">(</span><span class="n">1</span><span class="pn">,</span> <span class="n">2</span><span class="pn">,</span> <span class="s">&quot;xxx + xx&quot;</span><span class="pn">,</span> <span class="pn">[</span> <span class="s">&quot;xxx&quot;</span> <span class="pn">]</span><span class="pn">)</span> <span class="c">// symbol xxx</span>
+</code></pre></div>
+<h2 data-fsdocs-heading="7"><a name="The-fsi-object" class="anchor" href="#The-fsi-object">The 'fsi' object</a></h2>
+<p>If you want your scripting code to be able to access the 'fsi' object, you should pass in an implementation of this object explicitly.
+Normally the one from FSharp.Compiler.Interactive.Settings.dll is used.</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs76" data-fsdocs-tip-unique="170" class="id">fsiConfig2</span> <span class="o">=</span>
+    <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="171" class="d">FsiEvaluationSession</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="172" class="id">GetDefaultConfiguration</span><span class="pn">(</span><span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="173" class="d">fsiSession</span><span class="pn">)</span>
+</code></pre></div>
+<h2 data-fsdocs-heading="8"><a name="Collectible-code-generation" class="anchor" href="#Collectible-code-generation">Collectible code generation</a></h2>
+<p>Evaluating code in using FsiEvaluationSession generates a .NET dynamic assembly and uses other resources.
+You can make generated code collectible by passing <code>collectible=true</code>.  However, code will only
+be collected if there are no outstanding object references involving types, for example
+<code>FsiValue</code> objects returned by <code>EvalExpression</code>, and you must have disposed the <code>FsiEvaluationSession</code>.
+See also <a href="https://learn.microsoft.com/previous-versions/dotnet/netframework-4.0/dd554932(v=vs.100)#restrictions">Restrictions on Collectible Assemblies</a>.</p>
+<p>The example below shows the creation of 200 evaluation sessions. Note that <code>collectible=true</code> and
+<code>use session = ...</code> are both used.</p>
+<p>If collectible code is working correctly,
+overall resource usage will not increase linearly as the evaluation progresses.</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span data-fsdocs-tip="fs77" data-fsdocs-tip-unique="174" class="fn">collectionTest</span> <span class="pn">(</span><span class="pn">)</span> <span class="o">=</span>
+
+    <span class="k">for</span> <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="175" class="fn">i</span> <span class="k">in</span> <span class="n">1</span> <span class="o">..</span> <span class="n">200</span> <span class="k">do</span>
+        <span class="k">let</span> <span data-fsdocs-tip="fs79" data-fsdocs-tip-unique="176" class="fn">defaultArgs</span> <span class="o">=</span>
+            <span class="pn">[|</span> <span class="s">&quot;fsi.exe&quot;</span>
+               <span class="s">&quot;--noninteractive&quot;</span>
+               <span class="s">&quot;--nologo&quot;</span>
+               <span class="s">&quot;--gui-&quot;</span> <span class="pn">|]</span>
+
+        <span class="k">use</span> <span data-fsdocs-tip="fs80" data-fsdocs-tip-unique="177" class="d">inStream</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="178" class="d">StringReader</span><span class="pn">(</span><span class="s">&quot;&quot;</span><span class="pn">)</span>
+        <span class="k">use</span> <span data-fsdocs-tip="fs81" data-fsdocs-tip-unique="179" class="d">outStream</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="180" class="d">StringWriter</span><span class="pn">(</span><span class="pn">)</span>
+        <span class="k">use</span> <span data-fsdocs-tip="fs82" data-fsdocs-tip-unique="181" class="d">errStream</span> <span class="o">=</span> <span class="k">new</span> <span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="182" class="d">StringWriter</span><span class="pn">(</span><span class="pn">)</span>
+
+        <span class="k">let</span> <span data-fsdocs-tip="fs83" data-fsdocs-tip-unique="183" class="fn">fsiConfig</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="184" class="d">FsiEvaluationSession</span><span class="pn">.</span><span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="185" class="id">GetDefaultConfiguration</span><span class="pn">(</span><span class="pn">)</span>
+
+        <span class="k">use</span> <span data-fsdocs-tip="fs84" data-fsdocs-tip-unique="186" class="d">session</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="187" class="d">FsiEvaluationSession</span><span class="pn">.</span><span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="188" class="id">Create</span><span class="pn">(</span><span data-fsdocs-tip="fs83" data-fsdocs-tip-unique="189" class="fn">fsiConfig</span><span class="pn">,</span> <span data-fsdocs-tip="fs79" data-fsdocs-tip-unique="190" class="fn">defaultArgs</span><span class="pn">,</span> <span data-fsdocs-tip="fs80" data-fsdocs-tip-unique="191" class="d">inStream</span><span class="pn">,</span> <span data-fsdocs-tip="fs81" data-fsdocs-tip-unique="192" class="d">outStream</span><span class="pn">,</span> <span data-fsdocs-tip="fs82" data-fsdocs-tip-unique="193" class="d">errStream</span><span class="pn">,</span> <span class="fn">collectible</span> <span class="o">=</span> <span class="k">true</span><span class="pn">)</span>
+
+        <span data-fsdocs-tip="fs84" data-fsdocs-tip-unique="194" class="d">session</span><span class="pn">.</span><span data-fsdocs-tip="fs39" data-fsdocs-tip-unique="195" class="id">EvalInteraction</span><span class="pn">(</span><span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="196" class="fn">sprintf</span> <span class="s">&quot;type D = { v : int }&quot;</span><span class="pn">)</span>
+
+        <span class="k">let</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="197" class="fn">v</span> <span class="o">=</span>
+            <span data-fsdocs-tip="fs84" data-fsdocs-tip-unique="198" class="d">session</span><span class="pn">.</span><span data-fsdocs-tip="fs28" data-fsdocs-tip-unique="199" class="id">EvalExpression</span><span class="pn">(</span><span data-fsdocs-tip="fs58" data-fsdocs-tip-unique="200" class="fn">sprintf</span> <span class="s">&quot;{ v = 42 * </span><span class="pf">%d</span><span class="s"> }&quot;</span> <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="201" class="fn">i</span><span class="pn">)</span>
+
+        <span data-fsdocs-tip="fs31" data-fsdocs-tip-unique="202" class="fn">printfn</span> <span class="s">&quot;iteration </span><span class="pf">%d</span><span class="s">, result = </span><span class="pf">%A</span><span class="s">&quot;</span> <span data-fsdocs-tip="fs78" data-fsdocs-tip-unique="203" class="fn">i</span> <span data-fsdocs-tip="fs85" data-fsdocs-tip-unique="204" class="fn">v</span><span class="pn">.</span><span data-fsdocs-tip="fs86" data-fsdocs-tip-unique="205" class="prop">Value</span><span class="pn">.</span><span data-fsdocs-tip="fs32" data-fsdocs-tip-unique="206" class="id">ReflectionValue</span>
+
+<span class="c">// collectionTest()  &lt;-- run the test like this</span>
+</code></pre></div>
+
+        <div popover class="fsdocs-tip" id="fs1">Multiple items<br /><span class="k">namespace</span> <span class="m">FSharp</span><br /><br />--------------------<br /><span class="k">namespace</span> <span class="m">Microsoft.FSharp</span></div>
+<div popover class="fsdocs-tip" id="fs2"><span class="k">namespace</span> <span class="m">FSharp.Compiler</span></div>
+<div popover class="fsdocs-tip" id="fs3"><span class="k">namespace</span> <span class="m">FSharp.Compiler.Interactive</span></div>
+<div popover class="fsdocs-tip" id="fs4"><span class="k">module</span> <span class="m">Shell</span><br />from FSharp.Compiler.Interactive</div>
+<div popover class="fsdocs-tip" id="fs5"><span class="k">namespace</span> <span class="m">FSharp.Compiler.Tokenization</span></div>
+<div popover class="fsdocs-tip" id="fs6"><span class="k">namespace</span> <span class="m">System</span></div>
+<div popover class="fsdocs-tip" id="fs7"><span class="k">namespace</span> <span class="m">System.IO</span></div>
+<div popover class="fsdocs-tip" id="fs8"><span class="k">namespace</span> <span class="m">System.Text</span></div>
+<div popover class="fsdocs-tip" id="fs9"><span class="k">val</span> <span class="fn">sbOut</span><span class="pn">:</span> <span class="rt">StringBuilder</span></div>
+<div popover class="fsdocs-tip" id="fs10">Multiple items<br /><em>Represents a mutable string of characters. This class cannot be inherited.</em><br /><span class="k">type</span> <span class="rt">StringBuilder</span> <span class="o">=</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">ISerializable</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 5 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">Append</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="rt">StringBuilder</span> + 25 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">AppendFormat</span><span class="pn">:</span> <span class="id">provider</span><span class="pn">:</span> <span class="if">IFormatProvider</span> <span class="o">*</span> <span class="id">format</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">arg0</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="rt">StringBuilder</span> + 14 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">AppendJoin</span><span class="pn">:</span> <span class="id">separator</span><span class="pn">:</span> <span class="vt">char</span> <span class="o">*</span> <span class="id">values</span><span class="pn">:</span> <span class="rt">obj</span> <span class="rt">array</span> <span class="pn">-&gt;</span> <span class="rt">StringBuilder</span> + 9 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">AppendLine</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">StringBuilder</span> + 3 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">Clear</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">StringBuilder</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">CopyTo</span><span class="pn">:</span> <span class="id">sourceIndex</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">destination</span><span class="pn">:</span> <span class="vt">char</span> <span class="rt">array</span> <span class="o">*</span> <span class="id">destinationIndex</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">EnsureCapacity</span><span class="pn">:</span> <span class="id">capacity</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Equals</span><span class="pn">:</span> <span class="id">span</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 1 overload<br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="rt">StringBuilder</span><span class="pn">(</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringBuilder</span><br /><span class="rt">StringBuilder</span><span class="pn">(</span><span class="id">capacity</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringBuilder</span><br /><span class="rt">StringBuilder</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringBuilder</span><br /><span class="rt">StringBuilder</span><span class="pn">(</span><span class="id">capacity</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">maxCapacity</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringBuilder</span><br /><span class="rt">StringBuilder</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">capacity</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringBuilder</span><br /><span class="rt">StringBuilder</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">startIndex</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">length</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">capacity</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringBuilder</span></div>
+<div popover class="fsdocs-tip" id="fs11"><span class="k">val</span> <span class="fn">sbErr</span><span class="pn">:</span> <span class="rt">StringBuilder</span></div>
+<div popover class="fsdocs-tip" id="fs12"><span class="k">val</span> <span class="fn">inStream</span><span class="pn">:</span> <span class="rt">StringReader</span></div>
+<div popover class="fsdocs-tip" id="fs13">Multiple items<br /><em>Implements a TextReader that reads from a string.</em><br /><span class="k">type</span> <span class="rt">StringReader</span> <span class="o">=</span><br />&#160;&#160;<span class="k">inherit</span> <span class="rt">TextReader</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="id">s</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Close</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Peek</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Read</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">int</span> + 2 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">ReadAsync</span><span class="pn">:</span> <span class="id">buffer</span><span class="pn">:</span> <span class="vt">char</span> <span class="rt">array</span> <span class="o">*</span> <span class="id">index</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="vt">int</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">ReadBlock</span><span class="pn">:</span> <span class="id">buffer</span><span class="pn">:</span> <span class="vt">Span</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">ReadBlockAsync</span><span class="pn">:</span> <span class="id">buffer</span><span class="pn">:</span> <span class="vt">char</span> <span class="rt">array</span> <span class="o">*</span> <span class="id">index</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="vt">int</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">ReadLine</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">ReadLineAsync</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="rt">StringReader</span><span class="pn">(</span><span class="id">s</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringReader</span></div>
+<div popover class="fsdocs-tip" id="fs14"><span class="k">val</span> <span class="fn">outStream</span><span class="pn">:</span> <span class="rt">StringWriter</span></div>
+<div popover class="fsdocs-tip" id="fs15">Multiple items<br /><em>Implements a TextWriter for writing information to a string. The information is stored in an underlying StringBuilder.</em><br /><span class="k">type</span> <span class="rt">StringWriter</span> <span class="o">=</span><br />&#160;&#160;<span class="k">inherit</span> <span class="rt">TextWriter</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 3 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">Close</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">FlushAsync</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">Task</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetStringBuilder</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">StringBuilder</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">ToString</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Write</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">char</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 4 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">WriteAsync</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">char</span> <span class="pn">-&gt;</span> <span class="rt">Task</span> + 4 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">WriteLine</span><span class="pn">:</span> <span class="id">buffer</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">WriteLineAsync</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">char</span> <span class="pn">-&gt;</span> <span class="rt">Task</span> + 4 overloads<br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="rt">StringWriter</span><span class="pn">(</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringWriter</span><br /><span class="rt">StringWriter</span><span class="pn">(</span><span class="id">formatProvider</span><span class="pn">:</span> <span class="if">IFormatProvider</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringWriter</span><br /><span class="rt">StringWriter</span><span class="pn">(</span><span class="id">sb</span><span class="pn">:</span> <span class="rt">StringBuilder</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringWriter</span><br /><span class="rt">StringWriter</span><span class="pn">(</span><span class="id">sb</span><span class="pn">:</span> <span class="rt">StringBuilder</span><span class="pn">,</span> <span class="id">formatProvider</span><span class="pn">:</span> <span class="if">IFormatProvider</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">StringWriter</span></div>
+<div popover class="fsdocs-tip" id="fs16"><span class="k">val</span> <span class="fn">errStream</span><span class="pn">:</span> <span class="rt">StringWriter</span></div>
+<div popover class="fsdocs-tip" id="fs17"><span class="k">val</span> <span class="fn">argv</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">array</span></div>
+<div popover class="fsdocs-tip" id="fs18"><span class="k">val</span> <span class="fn">allArgs</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">array</span></div>
+<div popover class="fsdocs-tip" id="fs19"><em>Provides methods for creating, manipulating, searching, and sorting arrays, thereby serving as the base class for all arrays in the common language runtime.</em><br /><span class="k">type</span> <span class="rt">Array</span> <span class="o">=</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">ICollection</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IEnumerable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IList</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IStructuralComparable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IStructuralEquatable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">ICloneable</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Clone</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">obj</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">CopyTo</span><span class="pn">:</span> <span class="id">array</span><span class="pn">:</span> <span class="rt">Array</span> <span class="o">*</span> <span class="id">index</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetEnumerator</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="if">IEnumerator</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetLength</span><span class="pn">:</span> <span class="id">dimension</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs20"><span class="k">val</span> <span class="fn">append</span><span class="pn">:</span> <span class="id">array1</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="rt">array</span> <span class="pn">-&gt;</span> <span class="id">array2</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="rt">array</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span> <span class="rt">array</span></div>
+<div popover class="fsdocs-tip" id="fs21"><span class="k">val</span> <span class="fn">fsiConfig</span><span class="pn">:</span> <span class="rt">FsiEvaluationSessionHostConfig</span></div>
+<div popover class="fsdocs-tip" id="fs22"><em>Represents an F# Interactive evaluation session.</em><br /><span class="k">type</span> <span class="rt">FsiEvaluationSession</span> <span class="o">=</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IDisposable</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddBoundValue</span><span class="pn">:</span> <span class="id">name</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">EvalExpression</span><span class="pn">:</span> <span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">FsiValue</span> <span class="rt">option</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">EvalExpressionNonThrowing</span><span class="pn">:</span> <span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">Choice</span><span class="pn">&lt;</span><span class="rt">FsiValue</span> <span class="rt">option</span><span class="pn">,</span><span class="rt">exn</span><span class="pn">&gt;</span> <span class="pn">*</span> <span class="rt">FSharpDiagnostic</span> <span class="rt">array</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">EvalInteraction</span><span class="pn">:</span> <span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">cancellationToken</span><span class="pn">:</span> <span class="vt">CancellationToken</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">EvalInteractionNonThrowing</span><span class="pn">:</span> <span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span> <span class="pn">?</span><span class="id">cancellationToken</span><span class="pn">:</span> <span class="vt">CancellationToken</span> <span class="pn">-&gt;</span> <span class="rt">Choice</span><span class="pn">&lt;</span><span class="rt">FsiValue</span> <span class="rt">option</span><span class="pn">,</span><span class="rt">exn</span><span class="pn">&gt;</span> <span class="pn">*</span> <span class="rt">FSharpDiagnostic</span> <span class="rt">array</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">EvalScript</span><span class="pn">:</span> <span class="id">filePath</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">EvalScriptNonThrowing</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">filePath</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Choice</span><span class="pn">&lt;</span><span class="rt">unit</span><span class="pn">,</span><span class="rt">exn</span><span class="pn">&gt;</span> <span class="pn">*</span> <span class="rt">FSharpDiagnostic</span> <span class="rt">array</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">FormatValue</span><span class="pn">:</span> <span class="id">reflectionValue</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">*</span> <span class="id">reflectionType</span><span class="pn">:</span> <span class="rt">Type</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetBoundValues</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">FsiBoundValue</span> <span class="rt">list</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs23"><span class="k">static</span> <span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">GetDefaultConfiguration</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="rt">unit</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">FsiEvaluationSessionHostConfig</span><br /><span class="k">static</span> <span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">GetDefaultConfiguration</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">fsiObj</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">FsiEvaluationSessionHostConfig</span><br /><span class="k">static</span> <span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">GetDefaultConfiguration</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">fsiObj</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">useFsiAuxLib</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">FsiEvaluationSessionHostConfig</span></div>
+<div popover class="fsdocs-tip" id="fs24"><span class="k">val</span> <span class="fn">fsiSession</span><span class="pn">:</span> <span class="rt">FsiEvaluationSession</span></div>
+<div popover class="fsdocs-tip" id="fs25"><span class="k">static</span> <span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">Create</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">fsiConfig</span><span class="pn">:</span> <span class="rt">FsiEvaluationSessionHostConfig</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">argv</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">array</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">inReader</span><span class="pn">:</span> <span class="rt">TextReader</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">outWriter</span><span class="pn">:</span> <span class="rt">TextWriter</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">errorWriter</span><span class="pn">:</span> <span class="rt">TextWriter</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">collectible</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">legacyReferenceResolver</span><span class="pn">:</span> <span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">LegacyReferenceResolver</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">FsiEvaluationSession</span></div>
+<div popover class="fsdocs-tip" id="fs26"><em>&#160;Evaluate expression &amp; return the result</em><br /><span class="k">val</span> <span class="fn">evalExpression</span><span class="pn">:</span> <span class="id">text</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs27"><span class="k">val</span> <span class="id">text</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs28"><span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">EvalExpression</span><span class="pn">:</span> <span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">FsiValue</span> <span class="rt">option</span><br /><span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">EvalExpression</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">scriptFileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">FsiValue</span> <span class="rt">option</span></div>
+<div popover class="fsdocs-tip" id="fs29">union case <span class="rt">Option</span><span class="pn">.</span><span class="uc">Some</span><span class="pn">:</span> <span class="prop">Value</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="rt">Option</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs30"><span class="k">val</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">FsiValue</span></div>
+<div popover class="fsdocs-tip" id="fs31"><span class="k">val</span> <span class="fn">printfn</span><span class="pn">:</span> <span class="id">format</span><span class="pn">:</span> <span class="m">Printf.</span><span class="rt">TextWriterFormat</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs32"><em>The value, as an object</em><br />property <span class="rt">FsiValue</span><span class="pn">.</span><span class="prop">ReflectionValue</span><span class="pn">:</span> <span class="rt">objnull</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs33">union case <span class="rt">Option</span><span class="pn">.</span><span class="uc">None</span><span class="pn">:</span> <span class="rt">Option</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs34"><em>&#160;Evaluate expression &amp; return the result, strongly typed</em><br /><span class="k">val</span> <span class="fn">evalExpressionTyped</span><span class="pn">:</span> <span class="id">text</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs35"><span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs36"><span class="k">val</span> <span class="fn">unbox</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">objnull</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs37"><span class="k">val</span> <span class="fn">failwith</span><span class="pn">:</span> <span class="id">message</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs38">Multiple items<br /><span class="k">val</span> <span class="fn">int</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="vt">int</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="fn">op_Explicit</span><span class="pn">)</span><br /><br />--------------------<br /><span class="k">type</span> int <span class="o">=</span> <span class="vt">int32</span><br /><br />--------------------<br /><span class="k">type</span> int<span class="pn">&lt;</span><span class="ta">&#39;Measure</span><span class="pn">&gt;</span> <span class="o">=</span><br />&#160;&#160;<span class="vt">int</span></div>
+<div popover class="fsdocs-tip" id="fs39"><span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">EvalInteraction</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">Threading.</span><span class="vt">CancellationToken</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">unit</span><br /><span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">EvalInteraction</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">scriptFileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">Threading.</span><span class="vt">CancellationToken</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs40"><em>Provides static methods for the creation, copying, deletion, moving, and opening of a single file, and aids in the creation of FileStream objects.</em><br /><span class="k">type</span> <span class="rt">File</span> <span class="o">=</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AppendAllBytes</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">bytes</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AppendAllBytesAsync</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">bytes</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span> <span class="o">*</span> <span class="pn">?</span><span class="id">cancellationToken</span><span class="pn">:</span> <span class="vt">CancellationToken</span> <span class="pn">-&gt;</span> <span class="rt">Task</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AppendAllLines</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">contents</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">seq</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AppendAllLinesAsync</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">contents</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">seq</span> <span class="o">*</span> <span class="id">encoding</span><span class="pn">:</span> <span class="rt">Encoding</span> <span class="o">*</span> <span class="pn">?</span><span class="id">cancellationToken</span><span class="pn">:</span> <span class="vt">CancellationToken</span> <span class="pn">-&gt;</span> <span class="rt">Task</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AppendAllText</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">contents</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 3 overloads<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AppendAllTextAsync</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">contents</span><span class="pn">:</span> <span class="vt">ReadOnlyMemory</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">encoding</span><span class="pn">:</span> <span class="rt">Encoding</span> <span class="o">*</span> <span class="pn">?</span><span class="id">cancellationToken</span><span class="pn">:</span> <span class="vt">CancellationToken</span> <span class="pn">-&gt;</span> <span class="rt">Task</span> + 3 overloads<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">AppendText</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">StreamWriter</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Copy</span><span class="pn">:</span> <span class="id">sourceFileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span> <span class="id">destFileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Create</span><span class="pn">:</span> <span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">FileStream</span> + 2 overloads<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">CreateSymbolicLink</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">path</span><span class="pn">:</span> <span class="rt">string</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">pathToTarget</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">FileSystemInfo</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs41"><span class="rt">File</span><span class="pn">.</span><span class="fn">WriteAllText</span><span class="pn">(</span><span class="id">path</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">contents</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">unit</span><br /><span class="rt">File</span><span class="pn">.</span><span class="fn">WriteAllText</span><span class="pn">(</span><span class="id">path</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">contents</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">unit</span><br /><span class="rt">File</span><span class="pn">.</span><span class="fn">WriteAllText</span><span class="pn">(</span><span class="id">path</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">contents</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">encoding</span><span class="pn">:</span> <span class="rt">Encoding</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">unit</span><br /><span class="rt">File</span><span class="pn">.</span><span class="fn">WriteAllText</span><span class="pn">(</span><span class="id">path</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">contents</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">encoding</span><span class="pn">:</span> <span class="rt">Encoding</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs42"><span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">EvalScript</span><span class="pn">:</span> <span class="id">filePath</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs43"><span class="k">val</span> <span class="fn">result</span><span class="pn">:</span> <span class="rt">Choice</span><span class="pn">&lt;</span><span class="rt">unit</span><span class="pn">,</span><span class="rt">exn</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs44"><span class="k">val</span> <span class="fn">warnings</span><span class="pn">:</span> <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span> <span class="rt">array</span></div>
+<div popover class="fsdocs-tip" id="fs45"><span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">EvalScriptNonThrowing</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">filePath</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Choice</span><span class="pn">&lt;</span><span class="rt">unit</span><span class="pn">,</span><span class="rt">exn</span><span class="pn">&gt;</span> <span class="pn">*</span> <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span> <span class="rt">array</span></div>
+<div popover class="fsdocs-tip" id="fs46">union case <span class="rt">Choice</span><span class="pn">.</span><span class="uc">Choice1Of2</span><span class="pn">:</span> <span class="ta">&#39;T1</span> <span class="pn">-&gt;</span> <span class="rt">Choice</span><span class="pn">&lt;</span><span class="ta">&#39;T1</span><span class="pn">,</span><span class="ta">&#39;T2</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs47">union case <span class="rt">Choice</span><span class="pn">.</span><span class="uc">Choice2Of2</span><span class="pn">:</span> <span class="ta">&#39;T2</span> <span class="pn">-&gt;</span> <span class="rt">Choice</span><span class="pn">&lt;</span><span class="ta">&#39;T1</span><span class="pn">,</span><span class="ta">&#39;T2</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs48">Multiple items<br /><span class="k">val</span> <span class="id">exn</span><span class="pn">:</span> <span class="rt">exn</span><br /><br />--------------------<br /><span class="k">type</span> <span class="rt">exn</span> <span class="o">=</span> <span class="rt">Exception</span></div>
+<div popover class="fsdocs-tip" id="fs49">property <span class="rt">Exception</span><span class="pn">.</span><span class="prop">Message</span><span class="pn">:</span> <span class="rt">string</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs50"><span class="k">val</span> <span class="id">w</span><span class="pn">:</span> <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span></div>
+<div popover class="fsdocs-tip" id="fs51"><em>Gets the message for the diagnostic</em><br />property <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span><span class="pn">.</span><span class="prop">Message</span><span class="pn">:</span> <span class="rt">string</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs52"><em>Gets the start line for the diagnostic</em><br />property <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span><span class="pn">.</span><span class="prop">StartLine</span><span class="pn">:</span> <span class="vt">int</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs53"><em>Gets the start column for the diagnostic</em><br />property <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span><span class="pn">.</span><span class="prop">StartColumn</span><span class="pn">:</span> <span class="vt">int</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs54"><span class="k">val</span> <span class="fn">evalExpressionTyped2</span><span class="pn">:</span> <span class="id">text</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs55"><span class="k">val</span> <span class="id">res</span><span class="pn">:</span> <span class="rt">Choice</span><span class="pn">&lt;</span><span class="rt">FsiValue</span> <span class="rt">option</span><span class="pn">,</span><span class="rt">exn</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs56"><span class="k">val</span> <span class="id">warnings</span><span class="pn">:</span> <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span> <span class="rt">array</span></div>
+<div popover class="fsdocs-tip" id="fs57"><span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">EvalExpressionNonThrowing</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Choice</span><span class="pn">&lt;</span><span class="rt">FsiValue</span> <span class="rt">option</span><span class="pn">,</span><span class="rt">exn</span><span class="pn">&gt;</span> <span class="pn">*</span> <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span> <span class="rt">array</span><br /><span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">EvalExpressionNonThrowing</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">scriptFileName</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="rt">Choice</span><span class="pn">&lt;</span><span class="rt">FsiValue</span> <span class="rt">option</span><span class="pn">,</span><span class="rt">exn</span><span class="pn">&gt;</span> <span class="pn">*</span> <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span> <span class="rt">array</span></div>
+<div popover class="fsdocs-tip" id="fs58"><span class="k">val</span> <span class="fn">sprintf</span><span class="pn">:</span> <span class="id">format</span><span class="pn">:</span> <span class="m">Printf.</span><span class="rt">StringFormat</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs59"><span class="k">namespace</span> <span class="m">System.Threading</span></div>
+<div popover class="fsdocs-tip" id="fs60"><span class="k">namespace</span> <span class="m">System.Threading.Tasks</span></div>
+<div popover class="fsdocs-tip" id="fs61"><span class="k">val</span> <span class="fn">sampleLongRunningExpr</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs62"><span class="k">val</span> <span class="fn">task1</span><span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="vt">int</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs63">Multiple items<br /><em>Represents an asynchronous operation.</em><br /><span class="k">type</span> <span class="rt">Task</span> <span class="o">=</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IAsyncResult</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IDisposable</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="id">action</span><span class="pn">:</span> <span class="rt">Action</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 7 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">ConfigureAwait</span><span class="pn">:</span> <span class="id">continueOnCapturedContext</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="vt">ConfiguredTaskAwaitable</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">ContinueWith</span><span class="pn">:</span> <span class="id">continuationAction</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">Task</span><span class="pn">,</span><span class="rt">obj</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="rt">Task</span> + 19 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">Dispose</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetAwaiter</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">TaskAwaiter</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">RunSynchronously</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">Start</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">Wait</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 5 overloads<br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><em>Represents an asynchronous operation that can return a value.<br /><br />TResult: The type of the result produced by this Task`1.</em><br /><span class="k">type</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> <span class="o">=</span><br />&#160;&#160;<span class="k">inherit</span> <span class="rt">Task</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="rt">Func</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">,</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 7 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">ConfigureAwait</span><span class="pn">:</span> <span class="id">continueOnCapturedContext</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="vt">ConfiguredTaskAwaitable</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">ContinueWith</span><span class="pn">:</span> <span class="id">continuationAction</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span><span class="rt">obj</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="rt">Task</span> + 19 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetAwaiter</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">TaskAwaiter</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">WaitAsync</span><span class="pn">:</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="vt">CancellationToken</span> <span class="pn">-&gt;</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> + 4 overloads<br />&#160;&#160;<span class="k">member</span> <span class="prop">Result</span><span class="pn">:</span> <span class="ta">&#39;TResult</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="prop">Factory</span><span class="pn">:</span> <span class="rt">TaskFactory</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><br />--------------------<br /><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">Threading.</span><span class="vt">CancellationToken</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">Threading.</span><span class="vt">CancellationToken</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">Threading.</span><span class="vt">CancellationToken</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">Threading.</span><span class="vt">CancellationToken</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><br /><br />--------------------<br /><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="rt">Func</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="rt">Func</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">,</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="rt">Func</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">Threading.</span><span class="vt">CancellationToken</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="rt">Func</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="rt">Func</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">,</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">Threading.</span><span class="vt">CancellationToken</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="rt">Func</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">,</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="rt">Func</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">Threading.</span><span class="vt">CancellationToken</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="rt">Func</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">,</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">Threading.</span><span class="vt">CancellationToken</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs64"><span class="k">val</span> <span class="fn">task2</span><span class="pn">:</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="vt">int</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs65"><em>Gets the result value of this Task`1.<br /><br />returns: The result value of this Task`1, which is of the same type as the task&#39;s type parameter.</em><br />property <span class="rt">Task</span><span class="pn">.</span><span class="prop">Result</span><span class="pn">:</span> <span class="vt">int</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs66"><span class="k">val</span> <span class="fn">parseResults</span><span class="pn">:</span> <span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">FSharpParseFileResults</span></div>
+<div popover class="fsdocs-tip" id="fs67"><span class="k">val</span> <span class="fn">checkResults</span><span class="pn">:</span> <span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">FSharpCheckFileResults</span></div>
+<div popover class="fsdocs-tip" id="fs68"><span class="k">val</span> <span class="fn">checkProjectResults</span><span class="pn">:</span> <span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">FSharpCheckProjectResults</span></div>
+<div popover class="fsdocs-tip" id="fs69"><span class="k">member</span> <span class="rt">FsiEvaluationSession</span><span class="pn">.</span><span class="fn">ParseAndCheckInteraction</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">code</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">keepAssemblyContents</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">FSharpParseFileResults</span> <span class="pn">*</span> <span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">FSharpCheckFileResults</span> <span class="pn">*</span> <span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">FSharpCheckProjectResults</span></div>
+<div popover class="fsdocs-tip" id="fs70"><em>The errors returned by parsing a source file.</em><br />property <span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">FSharpCheckFileResults</span><span class="pn">.</span><span class="prop">Diagnostics</span><span class="pn">:</span> <span class="m">FSharp.Compiler.Diagnostics.</span><span class="rt">FSharpDiagnostic</span> <span class="rt">array</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs71"><em>Gets the total number of elements in all the dimensions of the Array.<br /><br />returns: The total number of elements in all the dimensions of the Array; zero if there are no elements in the array.</em><br />property <span class="rt">Array</span><span class="pn">.</span><span class="prop">Length</span><span class="pn">:</span> <span class="vt">int</span> <span class="k">with</span> get</div>
+<div popover class="fsdocs-tip" id="fs72"><span class="k">member</span> <span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">FSharpCheckFileResults</span><span class="pn">.</span><span class="fn">GetToolTip</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">line</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">colAtEndOfNames</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">lineText</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">names</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">list</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">tokenTag</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="pn">?</span><span class="id">width</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="m">FSharp.Compiler.EditorServices.</span><span class="rt">ToolTipText</span></div>
+<div popover class="fsdocs-tip" id="fs73"><em>Some of the values in the field FSharpTokenInfo.Tag</em><br /><span class="k">module</span> <span class="m">FSharpTokenTag</span><br />from FSharp.Compiler.Tokenization</div>
+<div popover class="fsdocs-tip" id="fs74"><em>Indicates the token is an identifier (synonym for FSharpTokenTag.Identifier)</em><br /><span class="k">val</span> <span class="fn">IDENT</span><span class="pn">:</span> <span class="vt">int</span></div>
+<div popover class="fsdocs-tip" id="fs75"><span class="k">member</span> <span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">FSharpCheckFileResults</span><span class="pn">.</span><span class="fn">GetSymbolUseAtLocation</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;<span class="id">line</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">colAtEndOfNames</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">lineText</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">*</span><br />&#160;&#160;&#160;&#160;<span class="id">names</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">list</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="m">FSharp.Compiler.CodeAnalysis.</span><span class="rt">FSharpSymbolUse</span> <span class="rt">option</span></div>
+<div popover class="fsdocs-tip" id="fs76"><span class="k">val</span> <span class="fn">fsiConfig2</span><span class="pn">:</span> <span class="rt">FsiEvaluationSessionHostConfig</span></div>
+<div popover class="fsdocs-tip" id="fs77"><span class="k">val</span> <span class="fn">collectionTest</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span></div>
+<div popover class="fsdocs-tip" id="fs78"><span class="k">val</span> <span class="id">i</span><span class="pn">:</span> <span class="vt">int32</span></div>
+<div popover class="fsdocs-tip" id="fs79"><span class="k">val</span> <span class="id">defaultArgs</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">array</span></div>
+<div popover class="fsdocs-tip" id="fs80"><span class="k">val</span> <span class="id">inStream</span><span class="pn">:</span> <span class="rt">StringReader</span></div>
+<div popover class="fsdocs-tip" id="fs81"><span class="k">val</span> <span class="id">outStream</span><span class="pn">:</span> <span class="rt">StringWriter</span></div>
+<div popover class="fsdocs-tip" id="fs82"><span class="k">val</span> <span class="id">errStream</span><span class="pn">:</span> <span class="rt">StringWriter</span></div>
+<div popover class="fsdocs-tip" id="fs83"><span class="k">val</span> <span class="id">fsiConfig</span><span class="pn">:</span> <span class="rt">FsiEvaluationSessionHostConfig</span></div>
+<div popover class="fsdocs-tip" id="fs84"><span class="k">val</span> <span class="id">session</span><span class="pn">:</span> <span class="rt">FsiEvaluationSession</span></div>
+<div popover class="fsdocs-tip" id="fs85"><span class="k">val</span> <span class="id">v</span><span class="pn">:</span> <span class="rt">FsiValue</span> <span class="rt">option</span></div>
+<div popover class="fsdocs-tip" id="fs86">property <span class="rt">Option</span><span class="pn">.</span><span class="prop">Value</span><span class="pn">:</span> <span class="rt">FsiValue</span> <span class="k">with</span> get</div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Interactive-Service-Embedding-F-Interactive">
+      Interactive Service: Embedding F# Interactive
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Starting-the-F-interactive">
+      Starting the F# interactive
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="3">
+    <a href="#Evaluating-and-executing-code">
+      Evaluating and executing code
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="4">
+    <a href="#Catching-errors">
+      Catching errors
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="5">
+    <a href="#Executing-in-parallel">
+      Executing in parallel
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="6">
+    <a href="#Type-checking-in-the-evaluation-context">
+      Type checking in the evaluation context
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="7">
+    <a href="#The-fsi-object">
+      The 'fsi' object
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="8">
+    <a href="#Collectible-code-generation">
+      Collectible code generation
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-heading-6, --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-heading-6; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="6"] { view-timeline-name: --fsdocs-heading-6; }
+#fsdocs-page-menu [data-fsdocs-heading="6"] { animation-timeline: --fsdocs-heading-6, --fsdocs-heading-7; }
+body:has(#content [data-fsdocs-heading="6"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="6"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="7"] { view-timeline-name: --fsdocs-heading-7; }
+#fsdocs-page-menu [data-fsdocs-heading="7"] { animation-timeline: --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="7"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="7"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="8"] { view-timeline-name: --fsdocs-heading-8; }
+#fsdocs-page-menu [data-fsdocs-heading="8"] { animation-timeline: --fsdocs-heading-8, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="8"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="8"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="../content/fsdocs-tips.js"></script>
+<script type="module" src="../content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="../content/fsdocs-details-toggle.js"></script>
+<script type="module" src="../content/fsdocs-theme.js"></script>
+<script type="module" src="../content/fsdocs-search.js"></script>
+<script type="module" src="../content/fsdocs-copy-button.js"></script>
+<script type="module" src="../content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

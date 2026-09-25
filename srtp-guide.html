@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en" data-root="./">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="SRTP guide (draft)" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/srtp-guide.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="SRTP guide (draft)">
+    
+    <title>SRTP guide (draft) | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="./img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="./content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="./content/fsdocs-details-set-expanded.js"></script>
+    <link href="./content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="./content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header active">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="./reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="./img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header active">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="./reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1 data-fsdocs-heading="1"><a name="Guide-to-Writing-SRTP-Code-in-F" class="anchor" href="#Guide-to-Writing-SRTP-Code-in-F">Guide to Writing SRTP Code in F#</a></h1>
+<p>This guide documents best practices for using Statically Resolved Type Parameters (SRTP) in F#, including the new extension constraint solutions feature (RFC FS-1043).</p>
+<h2 data-fsdocs-heading="2"><a name="What-Are-SRTPs" class="anchor" href="#What-Are-SRTPs">What Are SRTPs?</a></h2>
+<p>Statically Resolved Type Parameters (SRTPs) allow you to write generic code that requires types to have specific members, resolved at compile time:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="k">inline</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="fn">add</span> <span class="pn">(</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="fn">x</span><span class="pn">:</span> <span class="ta">^</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="3" class="id">T</span><span class="pn">)</span> <span class="pn">(</span><span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="4" class="fn">y</span><span class="pn">:</span> <span class="ta">^</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="5" class="id">T</span><span class="pn">)</span> <span class="o">=</span> <span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="6" class="fn">x</span> <span class="o">+</span> <span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="7" class="fn">y</span>
+</code></pre></div>
+<p>The <code>^T</code> syntax (hat-type) declares a statically resolved type parameter. The use of <code>(+)</code> generates a member constraint that the compiler resolves at each call site based on the concrete type.</p>
+<h2 data-fsdocs-heading="3"><a name="Extension-Constraint-Solutions-Preview" class="anchor" href="#Extension-Constraint-Solutions-Preview">Extension Constraint Solutions (Preview)</a></h2>
+<p>With <code>--langversion:preview</code>, extension methods now participate in SRTP constraint resolution.</p>
+<h3 data-fsdocs-heading="4"><a name="Defining-Extension-Operators" class="anchor" href="#Defining-Extension-Operators">Defining Extension Operators</a></h3>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="8" class="id">System</span>
+
+<span class="k">type</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="9" class="rt">String</span> <span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="fn">(*)</span> <span class="pn">(</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="10" class="fn">s</span><span class="pn">:</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="11" class="rt">string</span><span class="pn">,</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="12" class="fn">n</span><span class="pn">:</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="13" class="vt">int</span><span class="pn">)</span> <span class="o">=</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="14" class="m">String</span><span class="pn">.</span><span data-fsdocs-tip="fs11" data-fsdocs-tip-unique="15" class="id">replicate</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="16" class="fn">n</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="17" class="fn">s</span>
+
+<span class="k">let</span> <span class="k">inline</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="18" class="fn">multiply</span> <span class="pn">(</span><span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="19" class="fn">x</span><span class="pn">:</span> <span class="ta">^</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="20" class="id">T</span><span class="pn">)</span> <span class="pn">(</span><span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="21" class="fn">n</span><span class="pn">:</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="22" class="vt">int</span><span class="pn">)</span> <span class="o">=</span> <span data-fsdocs-tip="fs13" data-fsdocs-tip-unique="23" class="fn">x</span> <span class="o">*</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="24" class="fn">n</span>
+<span class="k">let</span> <span data-fsdocs-tip="fs14" data-fsdocs-tip-unique="25" class="id">result</span> <span class="o">=</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="26" class="fn">multiply</span> <span class="s">&quot;ha&quot;</span> <span class="n">3</span>  <span class="c">// &quot;hahaha&quot;</span>
+</code></pre></div>
+<h3 data-fsdocs-heading="5"><a name="Tuple-Type-Extensions" class="anchor" href="#Tuple-Type-Extensions">Tuple Type Extensions</a></h3>
+<p>Type extensions can be written directly on tuple types using tuple syntax. The tuple type is
+rewritten to its underlying named type — <code>System.Tuple&lt;...&gt;</code> for reference tuples and
+<code>System.ValueTuple&lt;...&gt;</code> for struct tuples:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Reference tuple: rewritten to System.Tuple&lt;&#39;T1, &#39;T2&gt;</span>
+<span class="k">type</span> <span class="pn">(</span><span class="id">&#39;</span><span class="id">T1</span> <span class="pn">*</span> <span class="id">&#39;</span><span class="id">T2</span><span class="pn">)</span> <span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="k">inline</span> <span class="pn">(</span><span class="o">&lt;*&gt;</span><span class="pn">)</span> <span class="pn">(</span><span class="pn">(</span><span class="id">a</span><span class="pn">,</span> <span class="id">f</span><span class="pn">)</span><span class="pn">,</span> <span class="pn">(</span><span class="id">b</span><span class="pn">,</span> <span class="id">x</span><span class="pn">)</span><span class="pn">)</span> <span class="o">=</span> <span class="pn">(</span><span class="id">a</span><span class="pn">,</span> <span class="id">f</span> <span class="id">x</span><span class="pn">)</span>
+
+<span class="k">let</span> <span class="id">r</span> <span class="o">=</span> <span class="pn">(</span><span class="n">1</span><span class="pn">,</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="27" class="id">string</span><span class="pn">)</span> <span class="o">&lt;*&gt;</span> <span class="pn">(</span><span class="n">2</span><span class="pn">,</span> <span class="n">3</span><span class="pn">)</span>   <span class="c">// (1, &quot;3&quot;)</span>
+
+<span class="c">// Struct tuple: rewritten to System.ValueTuple&lt;&#39;T1, &#39;T2&gt;</span>
+<span class="k">type</span> <span class="k">struct</span> <span class="pn">(</span><span class="id">&#39;</span><span class="id">T1</span> <span class="pn">*</span> <span class="id">&#39;</span><span class="id">T2</span><span class="pn">)</span> <span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="id">Fst</span> <span class="pn">(</span><span class="k">struct</span> <span class="pn">(</span><span class="id">a</span><span class="pn">,</span> <span class="id">_b</span><span class="pn">)</span><span class="pn">)</span> <span class="o">=</span> <span class="id">a</span>
+</code></pre></div>
+<p>This capability is gated behind the same preview flag as extension constraint solutions (see
+<a href="#feature-flag">Feature Flag</a>); below preview it is rejected with a feature-availability error.</p>
+<p>Only <strong>static</strong> members and operators are supported on a tuple type extension. An <strong>instance</strong>
+member (<code>member x.Foo = ...</code>) can be declared but cannot be invoked through dot-notation on a
+tuple value — resolution fails with <code>error FS0039: The field, constructor or member 'Foo' is not
+defined</code>. Use a static member or operator (as above) instead.</p>
+<h3 data-fsdocs-heading="6"><a name="Resolution-Priority" class="anchor" href="#Resolution-Priority">Resolution Priority</a></h3>
+<p>When solving an SRTP constraint:
+1. <strong>Built-in solutions</strong> for primitive operators (e.g. <code>int + int</code>) are applied when the types match precisely, regardless of whether extension methods exist
+2. <strong>Overload resolution</strong> considers both intrinsic and extension members. Extension members are lower priority in the resolution order (same as in regular F# overload resolution)
+3. Among extensions, standard F# name resolution rules apply (later <code>open</code> shadows earlier)</p>
+<h3 data-fsdocs-heading="7"><a name="Accessibility" class="anchor" href="#Accessibility">Accessibility</a></h3>
+<p>An SRTP constraint may only be solved by a <strong>public</strong> member. A <code>private</code>, <code>internal</code>, or
+<code>protected</code> member is never a valid witness — even one that is visible at the point where the
+inline function is defined. The inline function carries its solution to arbitrary call sites,
+so a non-public witness would be inlined into scopes where it is inaccessible (a runtime
+<code>MethodAccessException</code>). The compiler therefore rejects it at definition time:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">module</span> <span class="id">A</span> <span class="o">=</span>
+    <span class="k">type</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="28" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="29" class="id">Int32</span> <span class="k">with</span>
+        <span class="k">static</span> <span class="k">member</span> <span class="k">private</span> <span class="id">Secret</span> <span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="30" class="id">int</span><span class="pn">)</span> <span class="o">=</span> <span class="id">x</span> <span class="o">+</span> <span class="n">1</span>
+    <span class="c">// error FS0001: ... &#39;Secret&#39; ... is not public</span>
+    <span class="k">let</span> <span class="k">inline</span> <span class="id">useSecret</span> <span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span class="id">^</span><span class="id">T</span><span class="pn">)</span> <span class="o">=</span> <span class="pn">(</span><span class="id">^</span><span class="id">T</span> <span class="pn">:</span> <span class="pn">(</span><span class="k">static</span> <span class="k">member</span> <span class="id">Secret</span><span class="pn">:</span> <span class="id">^</span><span class="id">T</span> <span class="k">-&gt;</span> <span class="id">^</span><span class="id">T</span><span class="pn">)</span> <span class="id">x</span><span class="pn">)</span>
+</code></pre></div>
+<p>This applies to every witness kind — named methods, operators, property accessors, and
+<code>op_Implicit</code>/<code>op_Explicit</code> conversions — and holds across assembly boundaries: an <code>internal</code>
+member is not a valid witness in a referencing assembly even with <code>InternalsVisibleTo</code>.</p>
+<h3 data-fsdocs-heading="8"><a name="Scope-Capture" class="anchor" href="#Scope-Capture">Scope Capture</a></h3>
+<p>With <code>--langversion:preview</code>, extrinsic extension members (defined on a type from another assembly) participate in SRTP constraint resolution when they are in scope where the inline function is defined:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">module</span> <span class="id">StringOps</span> <span class="o">=</span>
+    <span class="c">// System.String has no built-in (*) — this extension is extrinsic.</span>
+    <span class="k">type</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="31" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="32" class="id">String</span> <span class="k">with</span>
+        <span class="k">static</span> <span class="k">member</span> <span class="o">(*)</span> <span class="pn">(</span><span class="id">s</span><span class="pn">:</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="33" class="id">string</span><span class="pn">,</span> <span class="id">n</span><span class="pn">:</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="34" class="id">int</span><span class="pn">)</span> <span class="o">=</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="35" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="36" class="id">String</span><span class="pn">.</span><span data-fsdocs-tip="fs16" data-fsdocs-tip-unique="37" class="id">Concat</span><span class="pn">(</span><span data-fsdocs-tip="fs17" data-fsdocs-tip-unique="38" class="id">Array</span><span class="pn">.</span><span data-fsdocs-tip="fs18" data-fsdocs-tip-unique="39" class="id">replicate</span> <span class="id">n</span> <span class="id">s</span><span class="pn">)</span>
+
+<span class="k">module</span> <span class="id">GenericLib</span> <span class="o">=</span>
+    <span class="k">open</span> <span class="id">StringOps</span>
+
+    <span class="c">// multiply captures the SRTP constraint with String.(*) in scope.</span>
+    <span class="c">// The extension is recorded in the constraint at this definition site.</span>
+    <span class="k">let</span> <span class="k">inline</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="40" class="id">multiply</span> <span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span class="id">^</span><span class="id">T</span><span class="pn">)</span> <span class="pn">(</span><span class="id">n</span><span class="pn">:</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="41" class="id">int</span><span class="pn">)</span> <span class="o">=</span> <span class="id">x</span> <span class="pn">*</span> <span class="id">n</span>
+
+<span class="k">module</span> <span class="id">Consumer</span> <span class="o">=</span>
+    <span class="k">open</span> <span class="id">GenericLib</span>
+    <span class="c">// StringOps is NOT opened here, but the extension was captured when</span>
+    <span class="c">// multiply was defined. It travels with the constraint and resolves here.</span>
+    <span class="k">let</span> <span class="id">r</span> <span class="o">=</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="42" class="id">multiply</span> <span class="s">&quot;ha&quot;</span> <span class="n">3</span>  <span class="c">// &quot;hahaha&quot;</span>
+</code></pre></div>
+<p><strong>Definition-site capture is intra-assembly only.</strong> The capture shown above travels with the
+constraint <em>within a single assembly</em>. It is deliberately <strong>not</strong> serialized into compiled
+metadata (see <a href="#binary-compatibility">Binary compatibility</a>), so when <code>multiply</code> lives in a
+<em>referenced</em> assembly the captured <code>StringOps</code> extension does not travel to the consumer.
+Cross-assembly, SRTP constraints are resolved from the <strong>consumer's</strong> scope: the consumer must
+have the extension in scope (e.g. <code>open StringOps</code> / <code>open type</code>) at its own call site.</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// GenericLib compiled into library.dll (opens StringOps at its definition site)</span>
+<span class="c">// Consumer.fs references library.dll:</span>
+<span class="k">open</span> <span class="id">GenericLib</span>
+<span class="c">// error FS0001: None of the types support the operator &#39;*&#39;</span>
+<span class="c">//   — StringOps is not in scope here, and cross-assembly capture is not serialized.</span>
+<span class="k">let</span> <span class="id">r</span> <span class="o">=</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="43" class="id">multiply</span> <span class="s">&quot;ha&quot;</span> <span class="n">3</span>
+
+<span class="c">// Fix: bring the extension into the consumer&#39;s scope.</span>
+<span class="k">open</span> <span class="id">StringOps</span>
+<span class="k">let</span> <span class="id">ok</span> <span class="o">=</span> <span data-fsdocs-tip="fs12" data-fsdocs-tip-unique="44" class="id">multiply</span> <span class="s">&quot;ha&quot;</span> <span class="n">3</span>  <span class="c">// &quot;hahaha&quot;</span>
+</code></pre></div>
+<h3 data-fsdocs-heading="9"><a name="Known-Limitations" class="anchor" href="#Known-Limitations">Known Limitations</a></h3>
+<ul>
+<li><strong>FSharpPlus compatibility</strong>: Code using return types as support types in SRTP constraints may fail to compile. See workarounds below.</li>
+</ul>
+<h3 data-fsdocs-heading="10"><a name="Binary-Compatibility" class="anchor" href="#Binary-Compatibility">Binary Compatibility</a></h3>
+<p>Extension solutions captured during constraint solving are <strong>not</strong> written into compiled
+metadata. A trait constraint's set of candidate extension members and its accessor domain live
+only in-process while a file is being checked; they are discarded before IL/metadata emission,
+so the on-disk pickle format is unchanged and old and new compilers interoperate.</p>
+<p>The practical consequence is the intra- vs cross-assembly split described under
+<a href="#scope-capture">Scope Capture</a>: within one assembly an inline function carries its
+definition-site extensions, but a consumer of a <em>compiled</em> inline function resolves SRTP
+constraints from its own scope and must have the relevant extensions in scope.</p>
+<h2 data-fsdocs-heading="11"><a name="Weak-Resolution-Changes" class="anchor" href="#Weak-Resolution-Changes">Weak Resolution Changes</a></h2>
+<p>With <code>--langversion:preview</code>, inline code no longer eagerly resolves SRTP constraints via weak resolution when true overload resolution is involved:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// Before: f1 inferred as DateTime -&gt; TimeSpan -&gt; DateTime (non-generic, because op_Addition</span>
+<span class="c">//         had only one overload and weak resolution eagerly picked it)</span>
+<span class="c">// After:  f1 stays generic: DateTime -&gt; ^a -&gt; ^b (because weak resolution no longer forces</span>
+<span class="c">//         overload resolution for inline code)</span>
+<span class="k">let</span> <span class="k">inline</span> <span class="id">f1</span> <span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="45" class="id">DateTime</span><span class="pn">)</span> <span class="id">y</span> <span class="o">=</span> <span class="id">x</span> <span class="o">+</span> <span class="id">y</span>
+</code></pre></div>
+<h3 data-fsdocs-heading="12"><a name="Workarounds-for-Breaking-Changes" class="anchor" href="#Workarounds-for-Breaking-Changes">Workarounds for Breaking Changes</a></h3>
+<p>If existing inline code breaks:</p>
+<ol>
+<li>
+<p><strong>Add explicit type annotations:</strong></p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="k">inline</span> <span class="id">f1</span> <span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="46" class="id">DateTime</span><span class="pn">)</span> <span class="pn">(</span><span class="id">y</span><span class="pn">:</span> <span data-fsdocs-tip="fs20" data-fsdocs-tip-unique="47" class="id">TimeSpan</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs19" data-fsdocs-tip-unique="48" class="id">DateTime</span> <span class="o">=</span> <span class="id">x</span> <span class="o">+</span> <span class="id">y</span>
+</code></pre></div>
+</li>
+<li><p><strong>Use sequentialization</strong> to force resolution order</p></li>
+<li><p><strong>Sequentialize nested calls</strong> when using FSharpPlus-style patterns with return types in support types. If nesting <code>InvokeMap</code> calls directly produces errors, sequentialize with a let-binding (see the sequentialization example above). Do NOT remove return types from support types unless you understand the impact on overload resolution — return types are the fundamental mechanism for return-type-driven resolution in type-class encodings.</p></li>
+</ol>
+<h2 data-fsdocs-heading="13"><a name="Feature-Flag" class="anchor" href="#Feature-Flag">Feature Flag</a></h2>
+<p>Enable with: <code>--langversion:preview</code><br />
+Feature name: <code>ExtensionConstraintSolutions</code></p>
+<p>This feature is gated at the preview language version and will be stabilized in a future F# release.</p>
+<h2 data-fsdocs-heading="14"><a name="AllowOverloadOnReturnType-Attribute" class="anchor" href="#AllowOverloadOnReturnType-Attribute">AllowOverloadOnReturnType Attribute</a></h2>
+<p>The <code>[&lt;AllowOverloadOnReturnType&gt;]</code> attribute (in <code>FSharp.Core</code>) enables return-type-based overload resolution for any method, extending behavior previously reserved for <code>op_Explicit</code> and <code>op_Implicit</code>:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="49" class="id">Converter</span> <span class="o">=</span>
+    <span class="pn">[&lt;</span><span class="id">AllowOverloadOnReturnType</span><span class="pn">&gt;]</span>
+    <span class="k">static</span> <span class="k">member</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="50" class="id">Convert</span><span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="51" class="id">string</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="52" class="id">int</span> <span class="o">=</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="53" class="id">int</span> <span class="id">x</span>
+    <span class="pn">[&lt;</span><span class="id">AllowOverloadOnReturnType</span><span class="pn">&gt;]</span>
+    <span class="k">static</span> <span class="k">member</span> <span data-fsdocs-tip="fs22" data-fsdocs-tip-unique="54" class="id">Convert</span><span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="55" class="id">string</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="56" class="id">float</span> <span class="o">=</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="57" class="id">float</span> <span class="id">x</span>
+
+<span class="k">let</span> <span class="id">resultInt</span><span class="pn">:</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="58" class="id">int</span> <span class="o">=</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="59" class="id">Converter</span><span class="pn">.</span><span class="id">Convert</span><span class="pn">(</span><span class="s">&quot;42&quot;</span><span class="pn">)</span>       <span class="c">// resolves to int overload</span>
+<span class="k">let</span> <span class="id">resultFloat</span><span class="pn">:</span> <span data-fsdocs-tip="fs23" data-fsdocs-tip-unique="60" class="id">float</span> <span class="o">=</span> <span data-fsdocs-tip="fs21" data-fsdocs-tip-unique="61" class="id">Converter</span><span class="pn">.</span><span class="id">Convert</span><span class="pn">(</span><span class="s">&quot;42&quot;</span><span class="pn">)</span>   <span class="c">// resolves to float overload</span>
+</code></pre></div>
+<p>Without the attribute, these overloads would produce an ambiguity error. Note that the call site must provide enough type context (e.g., a type annotation) for the compiler to select the correct overload.</p>
+<h2 data-fsdocs-heading="15"><a name="Design-Intent-Aspirational-Patterns" class="anchor" href="#Design-Intent-Aspirational-Patterns">Design Intent: Aspirational Patterns</a></h2>
+<blockquote>
+<p><strong>⚠️ MOSTLY ASPIRATIONAL</strong>: The patterns below are taken from the RFC to illustrate the
+long-term design intent. Except where a subsection explicitly shows a working example, they do
+<strong>not</strong> compile with the current implementation. Cross-type operator extensions (e.g.,
+<code>float + int</code>) interact with built-in operator resolution in complex ways that are not yet
+supported. Do not rely on the aspirational snippets in production code.</p>
+</blockquote>
+<h3 data-fsdocs-heading="16"><a name="Numeric-Widening-via-Extension-Operators-NOT-IMPLEMENTED" class="anchor" href="#Numeric-Widening-via-Extension-Operators-NOT-IMPLEMENTED">Numeric Widening via Extension Operators (NOT IMPLEMENTED)</a></h3>
+<p>The RFC describes retrofitting widening conversions onto primitive types:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// ⚠️ ASPIRATIONAL — does not compile</span>
+<span class="k">type</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="62" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="63" class="id">Int32</span> <span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="k">inline</span> <span class="id">widen_to_double</span> <span class="pn">(</span><span class="id">a</span><span class="pn">:</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="64" class="id">int32</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="65" class="id">double</span> <span class="o">=</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="66" class="id">double</span> <span class="id">a</span>
+
+<span class="k">let</span> <span class="k">inline</span> <span class="id">widen_to_double</span> <span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span class="id">^</span><span class="id">T</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="67" class="id">double</span> <span class="o">=</span> <span class="pn">(</span><span class="id">^</span><span class="id">T</span> <span class="pn">:</span> <span class="pn">(</span><span class="k">static</span> <span class="k">member</span> <span class="id">widen_to_double</span> <span class="pn">:</span> <span class="id">^</span><span class="id">T</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="68" class="id">double</span><span class="pn">)</span> <span class="pn">(</span><span class="id">x</span><span class="pn">)</span><span class="pn">)</span>
+
+<span class="k">type</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="69" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs26" data-fsdocs-tip-unique="70" class="id">Double</span> <span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="k">inline</span> <span class="pn">(</span><span class="o">+</span><span class="pn">)</span><span class="pn">(</span><span class="id">a</span><span class="pn">:</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="71" class="id">double</span><span class="pn">,</span> <span class="id">b</span><span class="pn">:</span> <span class="id">&#39;</span><span class="id">T</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="72" class="id">double</span> <span class="o">=</span> <span class="id">a</span> <span class="o">+</span> <span class="id">widen_to_double</span> <span class="id">b</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="k">inline</span> <span class="pn">(</span><span class="o">+</span><span class="pn">)</span><span class="pn">(</span><span class="id">a</span><span class="pn">:</span> <span class="id">&#39;</span><span class="id">T</span><span class="pn">,</span> <span class="id">b</span><span class="pn">:</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="73" class="id">double</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="74" class="id">double</span> <span class="o">=</span> <span class="id">widen_to_double</span> <span class="id">a</span> <span class="o">+</span> <span class="id">b</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Warning</strong>: Defining <code>(+)</code> extensions on <code>System.Double</code> would shadow built-in
+arithmetic for all <code>float</code> operations in scope. This pattern requires careful design
+to avoid degrading error messages and performance for existing code.</p>
+</blockquote>
+<h3 data-fsdocs-heading="17"><a name="Defining-op_Implicit-via-Extension-Members" class="anchor" href="#Defining-op_Implicit-via-Extension-Members">Defining op_Implicit via Extension Members</a></h3>
+<p>Public extension <code>op_Implicit</code>/<code>op_Explicit</code> conversions <strong>do</strong> participate in SRTP resolution
+when the target type is determined at the call site:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">module</span> <span class="id">A</span> <span class="o">=</span>
+    <span class="k">type</span> <span class="id">Wrap</span> <span class="o">=</span> <span class="pn">{</span> <span class="id">X</span><span class="pn">:</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="75" class="id">int</span> <span class="pn">}</span>
+    <span class="k">type</span> <span class="id">Wrap</span> <span class="k">with</span>
+        <span class="k">static</span> <span class="k">member</span> <span class="id">op_Implicit</span> <span class="pn">(</span><span class="id">w</span><span class="pn">:</span> <span class="id">Wrap</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="76" class="id">int</span> <span class="o">=</span> <span class="id">w</span><span class="pn">.</span><span class="id">X</span>
+    <span class="k">let</span> <span class="k">inline</span> <span class="id">conv</span> <span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span class="id">^</span><span class="id">T</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="77" class="id">int</span> <span class="o">=</span> <span class="pn">(</span><span class="pn">(</span><span class="id">^</span><span class="id">T</span><span class="pn">)</span> <span class="pn">:</span> <span class="pn">(</span><span class="k">static</span> <span class="k">member</span> <span class="id">op_Implicit</span> <span class="pn">:</span> <span class="id">^</span><span class="id">T</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="78" class="id">int</span><span class="pn">)</span> <span class="id">x</span><span class="pn">)</span>
+
+<span class="k">let</span> <span class="id">r</span> <span class="o">=</span> <span class="id">A</span><span class="pn">.</span><span class="id">conv</span> <span class="pn">{</span> <span class="id">A</span><span class="pn">.</span><span class="id">Wrap</span><span class="pn">.</span><span class="id">X</span> <span class="o">=</span> <span class="n">5</span> <span class="pn">}</span>  <span class="c">// 5</span>
+</code></pre></div>
+<p>What is <strong>not</strong> supported is the return-type-polymorphic form the RFC describes — a single
+<code>(^T or ^U)</code> conversion function backed by several <code>op_Implicit</code> overloads that differ only by
+return type:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="c">// ⚠️ ASPIRATIONAL — does not compile (error FS0001: None of the types support the operator &#39;op_Implicit&#39;)</span>
+<span class="k">let</span> <span class="k">inline</span> <span class="id">implicitConv</span> <span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span class="id">^</span><span class="id">T</span><span class="pn">)</span> <span class="pn">:</span> <span class="id">^</span><span class="id">U</span> <span class="o">=</span> <span class="pn">(</span><span class="pn">(</span><span class="id">^</span><span class="id">T</span> <span class="k">or</span> <span class="id">^</span><span class="id">U</span><span class="pn">)</span> <span class="pn">:</span> <span class="pn">(</span><span class="k">static</span> <span class="k">member</span> <span class="id">op_Implicit</span> <span class="pn">:</span> <span class="id">^</span><span class="id">T</span> <span class="k">-&gt;</span> <span class="id">^</span><span class="id">U</span><span class="pn">)</span> <span class="pn">(</span><span class="id">x</span><span class="pn">)</span><span class="pn">)</span>
+
+<span class="k">type</span> <span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="79" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs15" data-fsdocs-tip-unique="80" class="id">Int32</span> <span class="k">with</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="k">inline</span> <span class="id">op_Implicit</span> <span class="pn">(</span><span class="id">a</span><span class="pn">:</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="81" class="id">int32</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="82" class="id">int64</span> <span class="o">=</span> <span data-fsdocs-tip="fs27" data-fsdocs-tip-unique="83" class="id">int64</span> <span class="id">a</span>
+    <span class="k">static</span> <span class="k">member</span> <span class="k">inline</span> <span class="id">op_Implicit</span> <span class="pn">(</span><span class="id">a</span><span class="pn">:</span> <span data-fsdocs-tip="fs24" data-fsdocs-tip-unique="84" class="id">int32</span><span class="pn">)</span> <span class="pn">:</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="85" class="id">double</span> <span class="o">=</span> <span data-fsdocs-tip="fs25" data-fsdocs-tip-unique="86" class="id">double</span> <span class="id">a</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Note</strong>: Even where supported, these conversions are explicit in F# code
+(you must call the conversion function), not implicit as in C#.</p>
+</blockquote>
+
+        <div popover class="fsdocs-tip" id="fs1"><span class="k">val</span> <span class="fn">add</span><span class="pn">:</span> <span class="id">x</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="id">y</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="ta">&#39;a</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="pn">(</span><span class="o">+</span><span class="pn">)</span><span class="pn">)</span></div>
+<div popover class="fsdocs-tip" id="fs2"><span class="k">val</span> <span class="id">x</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="pn">(</span><span class="o">+</span><span class="pn">)</span><span class="pn">)</span></div>
+<div popover class="fsdocs-tip" id="fs3"><span class="ta">&#39;T</span></div>
+<div popover class="fsdocs-tip" id="fs4"><span class="k">val</span> <span class="id">y</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="pn">(</span><span class="o">+</span><span class="pn">)</span><span class="pn">)</span></div>
+<div popover class="fsdocs-tip" id="fs5"><span class="k">namespace</span> <span class="m">System</span></div>
+<div popover class="fsdocs-tip" id="fs6">Multiple items<br /><em>Represents text as a sequence of UTF-16 code units.</em><br /><span class="k">type</span> <span class="rt">String</span> <span class="o">=</span><br />&#160;&#160;<span class="k">interface</span> <span class="rt">seq</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IEnumerable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">ICloneable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IComparable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IComparable</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IConvertible</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IEquatable</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IParsable</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">ISpanParsable</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 8 overloads<br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="rt">String</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">String</span><br /><span class="rt">String</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="vt">char</span> <span class="rt">array</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">String</span><br /><span class="rt">String</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">String</span><br /><span class="rt">String</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">sbyte</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">String</span><br /><span class="rt">String</span><span class="pn">(</span><span class="id">c</span><span class="pn">:</span> <span class="vt">char</span><span class="pn">,</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">String</span><br /><span class="rt">String</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">startIndex</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">length</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">String</span><br /><span class="rt">String</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="vt">char</span> <span class="rt">array</span><span class="pn">,</span> <span class="id">startIndex</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">length</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">String</span><br /><span class="rt">String</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">sbyte</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">startIndex</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">length</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">String</span><br /><span class="rt">String</span><span class="pn">(</span><span class="id">value</span><span class="pn">:</span> <span class="rt">nativeptr</span><span class="pn">&lt;</span><span class="vt">sbyte</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">startIndex</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">length</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">enc</span><span class="pn">:</span> <span class="m">Text.</span><span class="rt">Encoding</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">String</span></div>
+<div popover class="fsdocs-tip" id="fs7"><span class="k">val</span> <span class="id">s</span><span class="pn">:</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs8">Multiple items<br /><span class="k">val</span> <span class="fn">string</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br /><br />--------------------<br /><span class="k">type</span> <span class="rt">string</span> <span class="o">=</span> <span class="rt">String</span></div>
+<div popover class="fsdocs-tip" id="fs9"><span class="k">val</span> <span class="id">n</span><span class="pn">:</span> <span class="vt">int</span></div>
+<div popover class="fsdocs-tip" id="fs10">Multiple items<br /><span class="k">val</span> <span class="fn">int</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="vt">int</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="fn">op_Explicit</span><span class="pn">)</span><br /><br />--------------------<br /><span class="k">type</span> int <span class="o">=</span> <span class="vt">int32</span><br /><br />--------------------<br /><span class="k">type</span> int<span class="pn">&lt;</span><span class="ta">&#39;Measure</span><span class="pn">&gt;</span> <span class="o">=</span><br />&#160;&#160;<span class="vt">int</span></div>
+<div popover class="fsdocs-tip" id="fs11"><span class="k">val</span> <span class="fn">replicate</span><span class="pn">:</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="id">str</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="rt">string</span></div>
+<div popover class="fsdocs-tip" id="fs12"><span class="k">val</span> <span class="fn">multiply</span><span class="pn">:</span> <span class="id">x</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="id">n</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span></div>
+<div popover class="fsdocs-tip" id="fs13"><span class="k">val</span> <span class="id">x</span><span class="pn">:</span> <span class="vt">int</span></div>
+<div popover class="fsdocs-tip" id="fs14"><span class="k">val</span> <span class="fn">result</span><span class="pn">:</span> <span class="vt">int</span></div>
+<div popover class="fsdocs-tip" id="fs15"><em>Represents a 32-bit signed integer.</em><br /><span class="k">type</span> <span class="vt">Int32</span> <span class="o">=</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">CompareTo</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">Equals</span><span class="pn">:</span> <span class="id">obj</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetHashCode</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetTypeCode</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="en">TypeCode</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">ToString</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 3 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">TryFormat</span><span class="pn">:</span> <span class="id">utf8Destination</span><span class="pn">:</span> <span class="vt">Span</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">bytesWritten</span><span class="pn">:</span> <span class="rt">byref</span><span class="pn">&lt;</span><span class="vt">int</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="pn">?</span><span class="id">format</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="pn">?</span><span class="id">provider</span><span class="pn">:</span> <span class="if">IFormatProvider</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Abs</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">BigMul</span><span class="pn">:</span> <span class="id">left</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">right</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int64</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">Clamp</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">min</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">max</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">CopySign</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">sign</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs16"><span class="rt">String</span><span class="pn">.</span><span class="fn">Concat</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span><span class="pn">(</span><span class="id">values</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="rt">seq</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">String</span><span class="pn">.</span><span class="fn">Concat</span><span class="pn">(</span><span class="id">values</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="rt">string</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">String</span><span class="pn">.</span><span class="fn">Concat</span><span class="pn">(</span> <span class="id">values</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">array</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">String</span><span class="pn">.</span><span class="fn">Concat</span><span class="pn">(</span><span class="id">args</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">String</span><span class="pn">.</span><span class="fn">Concat</span><span class="pn">(</span> <span class="id">args</span><span class="pn">:</span> <span class="rt">obj</span> <span class="rt">array</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">String</span><span class="pn">.</span><span class="fn">Concat</span><span class="pn">(</span><span class="id">arg0</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">String</span><span class="pn">.</span><span class="fn">Concat</span><span class="pn">(</span><span class="id">values</span><span class="pn">:</span> <span class="rt">string</span> <span class="rt">seq</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">String</span><span class="pn">.</span><span class="fn">Concat</span><span class="pn">(</span><span class="id">str0</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">,</span> <span class="id">str1</span><span class="pn">:</span> <span class="rt">string</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">String</span><span class="pn">.</span><span class="fn">Concat</span><span class="pn">(</span><span class="id">str0</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">str1</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="rt">String</span><span class="pn">.</span><span class="fn">Concat</span><span class="pn">(</span><span class="id">arg0</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">arg1</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">)</span> <span class="pn">:</span> <span class="rt">string</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em></div>
+<div popover class="fsdocs-tip" id="fs17"><em>Provides methods for creating, manipulating, searching, and sorting arrays, thereby serving as the base class for all arrays in the common language runtime.</em><br /><span class="k">type</span> <span class="rt">Array</span> <span class="o">=</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">ICollection</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IEnumerable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IList</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IStructuralComparable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IStructuralEquatable</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">ICloneable</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Clone</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">obj</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">CopyTo</span><span class="pn">:</span> <span class="id">array</span><span class="pn">:</span> <span class="rt">Array</span> <span class="o">*</span> <span class="id">index</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetEnumerator</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="if">IEnumerator</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetLength</span><span class="pn">:</span> <span class="id">dimension</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs18"><span class="k">val</span> <span class="fn">replicate</span><span class="pn">:</span> <span class="id">count</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="id">initial</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span> <span class="rt">array</span></div>
+<div popover class="fsdocs-tip" id="fs19">Multiple items<br /><em>Represents an instant in time, typically expressed as a date and time of day.</em><br /><span class="k">type</span> <span class="vt">DateTime</span> <span class="o">=</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="id">date</span><span class="pn">:</span> <span class="vt">DateOnly</span> <span class="o">*</span> <span class="id">time</span><span class="pn">:</span> <span class="vt">TimeOnly</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 16 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">Add</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">TimeSpan</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddDays</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddHours</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddMicroseconds</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddMilliseconds</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddMinutes</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddMonths</span><span class="pn">:</span> <span class="id">months</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddSeconds</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">AddTicks</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">int64</span> <span class="pn">-&gt;</span> <span class="vt">DateTime</span><br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="vt">DateTime</span> <span class="pn">()</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="vt">DateTime</span><span class="pn">(</span><span class="id">ticks</span><span class="pn">:</span> <span class="vt">int64</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="vt">DateTime</span><span class="pn">(</span><span class="id">date</span><span class="pn">:</span> <span class="vt">DateOnly</span><span class="pn">,</span> <span class="id">time</span><span class="pn">:</span> <span class="vt">TimeOnly</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="vt">DateTime</span><span class="pn">(</span><span class="id">ticks</span><span class="pn">:</span> <span class="vt">int64</span><span class="pn">,</span> <span class="id">kind</span><span class="pn">:</span> <span class="en">DateTimeKind</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="vt">DateTime</span><span class="pn">(</span><span class="id">date</span><span class="pn">:</span> <span class="vt">DateOnly</span><span class="pn">,</span> <span class="id">time</span><span class="pn">:</span> <span class="vt">TimeOnly</span><span class="pn">,</span> <span class="id">kind</span><span class="pn">:</span> <span class="en">DateTimeKind</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="vt">DateTime</span><span class="pn">(</span><span class="id">year</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">month</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">day</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="vt">DateTime</span><span class="pn">(</span><span class="id">year</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">month</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">day</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">calendar</span><span class="pn">:</span> <span class="m">Globalization.</span><span class="rt">Calendar</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="vt">DateTime</span><span class="pn">(</span><span class="id">year</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">month</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">day</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">hour</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">minute</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">second</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="vt">DateTime</span><span class="pn">(</span><span class="id">year</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">month</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">day</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">hour</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">minute</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">second</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">kind</span><span class="pn">:</span> <span class="en">DateTimeKind</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em><br /><span class="vt">DateTime</span><span class="pn">(</span><span class="id">year</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">month</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">day</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">hour</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">minute</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">second</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">calendar</span><span class="pn">:</span> <span class="m">Globalization.</span><span class="rt">Calendar</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">DateTime</span><br />&#160;&#160;&#160;<em>(+0 other overloads)</em></div>
+<div popover class="fsdocs-tip" id="fs20">Multiple items<br /><em>Represents a time interval.</em><br /><span class="k">type</span> <span class="vt">TimeSpan</span> <span class="o">=</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="id">hours</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">minutes</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">seconds</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 4 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">Add</span><span class="pn">:</span> <span class="id">ts</span><span class="pn">:</span> <span class="vt">TimeSpan</span> <span class="pn">-&gt;</span> <span class="vt">TimeSpan</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">CompareTo</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="vt">int</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">Divide</span><span class="pn">:</span> <span class="id">divisor</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">TimeSpan</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">Duration</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">TimeSpan</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Equals</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 2 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetHashCode</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Multiply</span><span class="pn">:</span> <span class="id">factor</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">TimeSpan</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Negate</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">TimeSpan</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Subtract</span><span class="pn">:</span> <span class="id">ts</span><span class="pn">:</span> <span class="vt">TimeSpan</span> <span class="pn">-&gt;</span> <span class="vt">TimeSpan</span><br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="vt">TimeSpan</span> <span class="pn">()</span><br /><span class="vt">TimeSpan</span><span class="pn">(</span><span class="id">ticks</span><span class="pn">:</span> <span class="vt">int64</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">TimeSpan</span><br /><span class="vt">TimeSpan</span><span class="pn">(</span><span class="id">hours</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">minutes</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">seconds</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">TimeSpan</span><br /><span class="vt">TimeSpan</span><span class="pn">(</span><span class="id">days</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">hours</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">minutes</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">seconds</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">TimeSpan</span><br /><span class="vt">TimeSpan</span><span class="pn">(</span><span class="id">days</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">hours</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">minutes</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">seconds</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">milliseconds</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">TimeSpan</span><br /><span class="vt">TimeSpan</span><span class="pn">(</span><span class="id">days</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">hours</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">minutes</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">seconds</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">milliseconds</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">,</span> <span class="id">microseconds</span><span class="pn">:</span> <span class="vt">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="vt">TimeSpan</span></div>
+<div popover class="fsdocs-tip" id="fs21"><em>Represents a method that converts an object from one type to another type.<br /><br />input: The object to convert.<br />TInput: The type of object that is to be converted.<br />TOutput: The type the input object is to be converted to.<br />returns: The TOutput that represents the converted TInput.</em><br /><span class="k">type</span> Converter<span class="pn">&lt;</span><span class="ta">&#39;TInput</span><span class="pn">,</span><span class="ta">&#39;TOutput</span> <span class="pn">(</span><span class="k">allows ref struct</span> <span class="k">and</span> <span class="k">allows ref struct</span><span class="pn">)</span><span class="pn">&gt;</span> <span class="o">=</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="id">object</span><span class="pn">:</span> <span class="rt">obj</span> <span class="o">*</span> <span class="id">method</span><span class="pn">:</span> <span class="vt">nativeint</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">BeginInvoke</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">input</span><span class="pn">:</span> <span class="ta">&#39;TInput</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">callback</span><span class="pn">:</span> <span class="rt">AsyncCallback</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">object</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="if">IAsyncResult</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">EndInvoke</span><span class="pn">:</span> <span class="id">result</span><span class="pn">:</span> <span class="if">IAsyncResult</span> <span class="pn">-&gt;</span> <span class="ta">&#39;TOutput</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Invoke</span><span class="pn">:</span> <span class="id">input</span><span class="pn">:</span> <span class="ta">&#39;TInput</span> <span class="pn">-&gt;</span> <span class="ta">&#39;TOutput</span></div>
+<div popover class="fsdocs-tip" id="fs22"><em>Converts a base data type to another base data type.</em><br /><span class="k">type</span> <span class="rt">Convert</span> <span class="o">=</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ChangeType</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">obj</span> <span class="o">*</span> <span class="id">conversionType</span><span class="pn">:</span> <span class="rt">Type</span> <span class="pn">-&gt;</span> <span class="rt">obj</span> + 3 overloads<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">FromBase64CharArray</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">inArray</span><span class="pn">:</span> <span class="vt">char</span> <span class="rt">array</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">offset</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">length</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="vt">byte</span> <span class="rt">array</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">FromBase64String</span><span class="pn">:</span> <span class="id">s</span><span class="pn">:</span> <span class="rt">string</span> <span class="pn">-&gt;</span> <span class="vt">byte</span> <span class="rt">array</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">FromHexString</span><span class="pn">:</span> <span class="id">utf8Source</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span> <span class="vt">byte</span> <span class="rt">array</span> + 5 overloads<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">GetTypeCode</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="en">TypeCode</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">IsDBNull</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToBase64CharArray</span><span class="pn">:</span> <span class="id">inArray</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span> <span class="o">*</span> <span class="id">offsetIn</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">length</span><span class="pn">:</span> <span class="vt">int</span> <span class="o">*</span> <span class="id">outArray</span><span class="pn">:</span> <span class="vt">char</span> <span class="rt">array</span> <span class="o">*</span> <span class="id">offsetOut</span><span class="pn">:</span> <span class="vt">int</span> <span class="pn">-&gt;</span> <span class="vt">int</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToBase64String</span><span class="pn">:</span> <span class="id">inArray</span><span class="pn">:</span> <span class="vt">byte</span> <span class="rt">array</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 4 overloads<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToBoolean</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 17 overloads<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">ToByte</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="vt">byte</span> + 18 overloads<br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs23">Multiple items<br /><span class="k">val</span> <span class="fn">float</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="vt">float</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="fn">op_Explicit</span><span class="pn">)</span><br /><br />--------------------<br /><span class="k">type</span> float <span class="o">=</span> <span class="vt">Double</span><br /><br />--------------------<br /><span class="k">type</span> float<span class="pn">&lt;</span><span class="ta">&#39;Measure</span><span class="pn">&gt;</span> <span class="o">=</span><br />&#160;&#160;<span class="vt">float</span></div>
+<div popover class="fsdocs-tip" id="fs24">Multiple items<br /><span class="k">val</span> <span class="fn">int32</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="vt">int32</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="fn">op_Explicit</span><span class="pn">)</span><br /><br />--------------------<br /><span class="k">type</span> int32 <span class="o">=</span> <span class="vt">Int32</span><br /><br />--------------------<br /><span class="k">type</span> int32<span class="pn">&lt;</span><span class="ta">&#39;Measure</span><span class="pn">&gt;</span> <span class="o">=</span> <span class="rt">int</span><span class="pn">&lt;</span><span class="ta">&#39;Measure</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs25">Multiple items<br /><span class="k">val</span> <span class="fn">double</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="vt">double</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="fn">op_Explicit</span><span class="pn">)</span><br /><br />--------------------<br /><span class="k">type</span> double <span class="o">=</span> <span class="vt">Double</span><br /><br />--------------------<br /><span class="k">type</span> double<span class="pn">&lt;</span><span class="ta">&#39;Measure</span><span class="pn">&gt;</span> <span class="o">=</span> <span class="rt">float</span><span class="pn">&lt;</span><span class="ta">&#39;Measure</span><span class="pn">&gt;</span></div>
+<div popover class="fsdocs-tip" id="fs26"><em>Represents a double-precision floating-point number.</em><br /><span class="k">type</span> <span class="vt">Double</span> <span class="o">=</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">CompareTo</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">int</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">Equals</span><span class="pn">:</span> <span class="id">obj</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetHashCode</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetTypeCode</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="en">TypeCode</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">ToString</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span> + 3 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">TryFormat</span><span class="pn">:</span> <span class="id">utf8Destination</span><span class="pn">:</span> <span class="vt">Span</span><span class="pn">&lt;</span><span class="vt">byte</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">bytesWritten</span><span class="pn">:</span> <span class="rt">byref</span><span class="pn">&lt;</span><span class="vt">int</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="pn">?</span><span class="id">format</span><span class="pn">:</span> <span class="vt">ReadOnlySpan</span><span class="pn">&lt;</span><span class="vt">char</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="pn">?</span><span class="id">provider</span><span class="pn">:</span> <span class="if">IFormatProvider</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 1 overload<br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="pn">(</span><span class="o">&lt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="id">left</span><span class="pn">:</span> <span class="vt">float</span> <span class="o">*</span> <span class="id">right</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="pn">(</span><span class="o">&lt;=</span><span class="pn">)</span> <span class="pn">:</span> <span class="id">left</span><span class="pn">:</span> <span class="vt">float</span> <span class="o">*</span> <span class="id">right</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="pn">(</span><span class="o">&lt;&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="id">left</span><span class="pn">:</span> <span class="vt">float</span> <span class="o">*</span> <span class="id">right</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="pn">(</span><span class="o">=</span><span class="pn">)</span> <span class="pn">:</span> <span class="id">left</span><span class="pn">:</span> <span class="vt">float</span> <span class="o">*</span> <span class="id">right</span><span class="pn">:</span> <span class="vt">float</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="pn">...</span></div>
+<div popover class="fsdocs-tip" id="fs27">Multiple items<br /><span class="k">val</span> <span class="fn">int64</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="vt">int64</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="fn">op_Explicit</span><span class="pn">)</span><br /><br />--------------------<br /><span class="k">type</span> int64 <span class="o">=</span> <span class="vt">Int64</span><br /><br />--------------------<br /><span class="k">type</span> int64<span class="pn">&lt;</span><span class="ta">&#39;Measure</span><span class="pn">&gt;</span> <span class="o">=</span><br />&#160;&#160;<span class="vt">int64</span></div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Guide-to-Writing-SRTP-Code-in-F">
+      Guide to Writing SRTP Code in F#
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#What-Are-SRTPs">
+      What Are SRTPs?
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="3">
+    <a href="#Extension-Constraint-Solutions-Preview">
+      Extension Constraint Solutions (Preview)
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="4">
+    <a href="#Defining-Extension-Operators">
+      Defining Extension Operators
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="5">
+    <a href="#Tuple-Type-Extensions">
+      Tuple Type Extensions
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="6">
+    <a href="#Resolution-Priority">
+      Resolution Priority
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="7">
+    <a href="#Accessibility">
+      Accessibility
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="8">
+    <a href="#Scope-Capture">
+      Scope Capture
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="9">
+    <a href="#Known-Limitations">
+      Known Limitations
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="10">
+    <a href="#Binary-Compatibility">
+      Binary Compatibility
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="11">
+    <a href="#Weak-Resolution-Changes">
+      Weak Resolution Changes
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="12">
+    <a href="#Workarounds-for-Breaking-Changes">
+      Workarounds for Breaking Changes
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="13">
+    <a href="#Feature-Flag">
+      Feature Flag
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="14">
+    <a href="#AllowOverloadOnReturnType-Attribute">
+      AllowOverloadOnReturnType Attribute
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="15">
+    <a href="#Design-Intent-Aspirational-Patterns">
+      Design Intent: Aspirational Patterns
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="16">
+    <a href="#Numeric-Widening-via-Extension-Operators-NOT-IMPLEMENTED">
+      Numeric Widening via Extension Operators (NOT IMPLEMENTED)
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="17">
+    <a href="#Defining-op_Implicit-via-Extension-Members">
+      Defining op_Implicit via Extension Members
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-heading-6, --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-heading-9, --fsdocs-heading-10, --fsdocs-heading-11, --fsdocs-heading-12, --fsdocs-heading-13, --fsdocs-heading-14, --fsdocs-heading-15, --fsdocs-heading-16, --fsdocs-heading-17, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-heading-6; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="6"] { view-timeline-name: --fsdocs-heading-6; }
+#fsdocs-page-menu [data-fsdocs-heading="6"] { animation-timeline: --fsdocs-heading-6, --fsdocs-heading-7; }
+body:has(#content [data-fsdocs-heading="6"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="6"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="7"] { view-timeline-name: --fsdocs-heading-7; }
+#fsdocs-page-menu [data-fsdocs-heading="7"] { animation-timeline: --fsdocs-heading-7, --fsdocs-heading-8; }
+body:has(#content [data-fsdocs-heading="7"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="7"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="8"] { view-timeline-name: --fsdocs-heading-8; }
+#fsdocs-page-menu [data-fsdocs-heading="8"] { animation-timeline: --fsdocs-heading-8, --fsdocs-heading-9; }
+body:has(#content [data-fsdocs-heading="8"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="8"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="9"] { view-timeline-name: --fsdocs-heading-9; }
+#fsdocs-page-menu [data-fsdocs-heading="9"] { animation-timeline: --fsdocs-heading-9, --fsdocs-heading-10; }
+body:has(#content [data-fsdocs-heading="9"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="9"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="10"] { view-timeline-name: --fsdocs-heading-10; }
+#fsdocs-page-menu [data-fsdocs-heading="10"] { animation-timeline: --fsdocs-heading-10, --fsdocs-heading-11; }
+body:has(#content [data-fsdocs-heading="10"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="10"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="11"] { view-timeline-name: --fsdocs-heading-11; }
+#fsdocs-page-menu [data-fsdocs-heading="11"] { animation-timeline: --fsdocs-heading-11, --fsdocs-heading-12; }
+body:has(#content [data-fsdocs-heading="11"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="11"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="12"] { view-timeline-name: --fsdocs-heading-12; }
+#fsdocs-page-menu [data-fsdocs-heading="12"] { animation-timeline: --fsdocs-heading-12, --fsdocs-heading-13; }
+body:has(#content [data-fsdocs-heading="12"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="12"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="13"] { view-timeline-name: --fsdocs-heading-13; }
+#fsdocs-page-menu [data-fsdocs-heading="13"] { animation-timeline: --fsdocs-heading-13, --fsdocs-heading-14; }
+body:has(#content [data-fsdocs-heading="13"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="13"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="14"] { view-timeline-name: --fsdocs-heading-14; }
+#fsdocs-page-menu [data-fsdocs-heading="14"] { animation-timeline: --fsdocs-heading-14, --fsdocs-heading-15; }
+body:has(#content [data-fsdocs-heading="14"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="14"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="15"] { view-timeline-name: --fsdocs-heading-15; }
+#fsdocs-page-menu [data-fsdocs-heading="15"] { animation-timeline: --fsdocs-heading-15, --fsdocs-heading-16; }
+body:has(#content [data-fsdocs-heading="15"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="15"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="16"] { view-timeline-name: --fsdocs-heading-16; }
+#fsdocs-page-menu [data-fsdocs-heading="16"] { animation-timeline: --fsdocs-heading-16, --fsdocs-heading-17, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="16"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="16"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="17"] { view-timeline-name: --fsdocs-heading-17; }
+#fsdocs-page-menu [data-fsdocs-heading="17"] { animation-timeline: --fsdocs-heading-17, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="17"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="17"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="./content/fsdocs-tips.js"></script>
+<script type="module" src="./content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="./content/fsdocs-details-toggle.js"></script>
+<script type="module" src="./content/fsdocs-theme.js"></script>
+<script type="module" src="./content/fsdocs-search.js"></script>
+<script type="module" src="./content/fsdocs-copy-button.js"></script>
+<script type="module" src="./content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

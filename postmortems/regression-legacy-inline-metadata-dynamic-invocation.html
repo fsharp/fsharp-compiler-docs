@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en" data-root="../">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Legacy inline metadata dynamic invocation" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Legacy inline metadata dynamic invocation">
+    
+    <title>Legacy inline metadata dynamic invocation | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="../img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="../content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="../content/fsdocs-details-set-expanded.js"></script>
+    <link href="../content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="../content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header active">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="../img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header active">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1 data-fsdocs-heading="1"><a name="Regression-Legacy-inline-metadata-decoded-as-non-inline-breaking-cross-assembly-SRTP" class="anchor" href="#Regression-Legacy-inline-metadata-decoded-as-non-inline-breaking-cross-assembly-SRTP">Regression: Legacy inline metadata decoded as non-inline, breaking cross-assembly SRTP</a></h1>
+<h2 data-fsdocs-heading="2"><a name="Summary" class="anchor" href="#Summary">Summary</a></h2>
+<p>Adding a new <code>ValInline.InlinedDefinition</code> case reused the serialized inline-flag bit pattern <code>0x00</code>, which already meant "required inline" in assemblies compiled by F# 5.0 and earlier. A newer compiler reading those older assemblies decoded the value as <em>not</em> inlined, dropped the inline body at the call site, and emitted a direct call to a dynamic-invocation stub. Cross-assembly SRTP APIs such as Aether 8.3.1 then threw <code>System.NotSupportedException</code> at runtime. Shipped in .NET SDK 10.0.400.</p>
+<h2 data-fsdocs-heading="3"><a name="Error-Manifestation" class="anchor" href="#Error-Manifestation">Error Manifestation</a></h2>
+<p>A program that consumes an inline SRTP API from a pre-F#6 library compiles cleanly but throws at runtime, including in optimized Release builds:</p>
+<div class="fsdocs-snippet"><pre class="fssnip"><code lang="text">Unhandled exception. System.NotSupportedException:
+Dynamic invocation of op_HatEquals is not supported
+   at Aether.Optic.set[a,b,c](a optic, b value)
+</code></pre></div>
+<p>The same source built with SDK 10.0.303 prints the expected result. <code>--always-inline+</code> does not help; rebuilding the referenced library with a current compiler does.</p>
+<h2 data-fsdocs-heading="4"><a name="Root-Cause" class="anchor" href="#Root-Cause">Root Cause</a></h2>
+<p><code>ValFlags</code> packs a value's inline declaration into two bits of an <code>int64</code> that is serialized verbatim into assembly metadata. The bit patterns are a permanent on-disk contract.</p>
+<p>In F# 5.0 and earlier the field had a <code>PseudoVal</code> case — "must always be inlined, no IL body needed" — encoded as <code>0x00</code> with <code>ShouldInline = true</code>:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">match</span> <span class="pn">(</span><span class="id">flags</span> <span class="o">&amp;&amp;&amp;</span> <span class="n">0b110000L</span><span class="pn">)</span> <span class="k">with</span>
+<span class="pn">|</span> <span class="n">0b000000L</span> <span class="k">-&gt;</span> <span class="id">ValInline</span><span class="pn">.</span><span class="id">PseudoVal</span>   <span class="c">// ShouldInline = true</span>
+<span class="pn">|</span> <span class="n">0b010000L</span> <span class="k">-&gt;</span> <span class="id">ValInline</span><span class="pn">.</span><span class="id">Always</span>
+<span class="pn">|</span> <span class="o">..</span><span class="pn">.</span>
+</code></pre></div>
+<p>PR #6811 (July 2021, F# 6) removed <code>PseudoVal</code> and folded it into <code>Always</code>. Crucially, <code>0x00</code> kept decoding to a <code>ShouldInline = true</code> value, so libraries built before the removal continued to import correctly.</p>
+<p>PR #19548 introduced <code>ValInline.InlinedDefinition</code> and reused the now-"free-looking" <code>0x00</code> bit pattern for it — but with the <em>opposite</em> semantics, <code>ShouldInline = false</code>. The reader was changed so <code>0x00</code> decoded to <code>InlinedDefinition</code>. That silently reinterpreted every <code>0x00</code> inline value already sitting in shipped DLLs: a required-inline definition from an old library now imported as non-inline, so the consuming compiler emitted a direct call to the SRTP dynamic-invocation stub instead of inlining the resolved witness.</p>
+<p>The violated assumption is the "tag values are forever" rule: a bit pattern that already has a meaning in shipped metadata cannot be given a new, incompatible meaning.</p>
+<h2 data-fsdocs-heading="5"><a name="Why-It-Escaped" class="anchor" href="#Why-It-Escaped">Why It Escaped</a></h2>
+<p>PR #19548 <em>did</em> add write-side normalization so a current compiler serializes <code>InlinedDefinition</code> as <code>Always</code> (<code>0x10</code>), keeping fresh round-trips correct. That protection is exactly what hid the bug:</p>
+<ul>
+<li>Any in-repo test compiles the producer library <strong>with the new compiler</strong>, which never writes <code>0x00</code> for an inline value. So no test that builds its own fixtures could reproduce it — the poisoned byte only exists in binaries produced by an F# 5.0-or-earlier compiler.</li>
+<li>The <code>CompilerCompat</code> cross-version suite exercises recent SDKs (9 ↔ current), not pre-2021 F# 5 binaries, so the format generation that still emits <code>0x00</code> inline bits was outside its matrix.</li>
+</ul>
+<p>The gap was read-side: the new meaning was applied to old bytes, and nothing in CI reads bytes written by a 2021-era compiler.</p>
+<h2 data-fsdocs-heading="6"><a name="Fix" class="anchor" href="#Fix">Fix</a></h2>
+<p>PR #20260 adds <code>ValFlags.OfPickledBits</code>, used by <code>u_ValData</code> when importing metadata. Because the write side always normalizes <code>InlinedDefinition</code> to <code>Always</code>, a serialized <code>0x00</code> inline field can only originate from a legacy compiler, where it meant required inline. <code>OfPickledBits</code> therefore maps legacy <code>0x00</code> back to <code>Always</code> on import. The serialized byte layout is unchanged; only interpretation of the legacy pattern is restored.</p>
+<h2 data-fsdocs-heading="7"><a name="Timeline" class="anchor" href="#Timeline">Timeline</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Date</p></th>
+<th><p>Event</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>≤ 2021</p></td>
+<td><p>F# 5.0 and earlier encode required-inline values (<code>PseudoVal</code>) as inline bits <code>0x00</code>, <code>ShouldInline = true</code>.</p></td>
+</tr>
+<tr class="even">
+<td><p>2021-07-19</p></td>
+<td><p>PR #6811 removes <code>PseudoVal</code>; <code>0x00</code> still decodes to a <code>ShouldInline = true</code> value. Old libraries keep working.</p></td>
+</tr>
+<tr class="odd">
+<td><p>2026-04-16</p></td>
+<td><p>Commit <code>761c8635b8</code> adds write-side normalization for the upcoming <code>InlinedDefinition</code> (<code>0x00</code> → <code>0x10</code> on pickle).</p></td>
+</tr>
+<tr class="even">
+<td><p>2026-07-02</p></td>
+<td><p>PR #19548 merges: <code>InlinedDefinition</code> reuses <code>0x00</code> with <code>ShouldInline = false</code>; reader decodes <code>0x00</code> → <code>InlinedDefinition</code>. Latent regression for legacy binaries.</p></td>
+</tr>
+<tr class="odd">
+<td><p>~2026-08</p></td>
+<td><p>Ships in .NET SDK 10.0.400.</p></td>
+</tr>
+<tr class="even">
+<td><p>2026-08-13</p></td>
+<td><p>Issue #20253 filed: Aether 8.3.1 SRTP call throws <code>NotSupportedException</code> under 10.0.400.</p></td>
+</tr>
+<tr class="odd">
+<td><p>—</p></td>
+<td><p>PR #20260 adds read-side normalization (<code>OfPickledBits</code>), restoring the invariant.</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="8"><a name="Prevention" class="anchor" href="#Prevention">Prevention</a></h2>
+<p>The generalized rule — flag bit patterns baked into pickled metadata are permanent, and a pattern that already has a meaning in shipped DLLs must never be reinterpreted — is encoded in <a href="../../.github/instructions/TypedTreePickle.instructions.md"><code>.github/instructions/TypedTreePickle.instructions.md</code></a>, whose <code>applyTo</code> covers the flag-encoding types in <code>src/Compiler/TypedTree/TypedTree.{fs,fsi}</code> and the pickle path. When adding a case to a serialized flag enum, either allocate an unused bit pattern or add read-side normalization that maps legacy patterns to their original semantics — write-side normalization alone only protects future binaries, never the ones already in the wild.</p>
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Regression-Legacy-inline-metadata-decoded-as-non-inline-breaking-cross-assembly-SRTP">
+      Regression: Legacy inline metadata decoded as non-inline, breaking cross-assembly SRTP
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Summary">
+      Summary
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="3">
+    <a href="#Error-Manifestation">
+      Error Manifestation
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="4">
+    <a href="#Root-Cause">
+      Root Cause
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="5">
+    <a href="#Why-It-Escaped">
+      Why It Escaped
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="6">
+    <a href="#Fix">
+      Fix
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="7">
+    <a href="#Timeline">
+      Timeline
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="8">
+    <a href="#Prevention">
+      Prevention
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-heading-6, --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-heading-6; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="6"] { view-timeline-name: --fsdocs-heading-6; }
+#fsdocs-page-menu [data-fsdocs-heading="6"] { animation-timeline: --fsdocs-heading-6, --fsdocs-heading-7; }
+body:has(#content [data-fsdocs-heading="6"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="6"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="7"] { view-timeline-name: --fsdocs-heading-7; }
+#fsdocs-page-menu [data-fsdocs-heading="7"] { animation-timeline: --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="7"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="7"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="8"] { view-timeline-name: --fsdocs-heading-8; }
+#fsdocs-page-menu [data-fsdocs-heading="8"] { animation-timeline: --fsdocs-heading-8, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="8"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="8"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="../content/fsdocs-tips.js"></script>
+<script type="module" src="../content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="../content/fsdocs-details-toggle.js"></script>
+<script type="module" src="../content/fsdocs-theme.js"></script>
+<script type="module" src="../content/fsdocs-search.js"></script>
+<script type="module" src="../content/fsdocs-copy-button.js"></script>
+<script type="module" src="../content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

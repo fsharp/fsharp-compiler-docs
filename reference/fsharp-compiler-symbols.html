@@ -1,0 +1,2018 @@
+<!DOCTYPE html>
+<html lang="en" data-root="../">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="FSharp.Compiler.Symbols" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/{{fsdocs-source-basename}}.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="FSharp.Compiler.Symbols">
+    
+    <title>FSharp.Compiler.Symbols | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="../img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="../content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="../content/fsdocs-details-set-expanded.js"></script>
+    <link href="../content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="../content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="api-docs">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item active">
+  <span>
+    <a class="nav-link active" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="../">
+            <img alt="Logo" src="../img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item active">
+  <span>
+    <a class="nav-link active" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <div>
+  <h2 id="fsharp-compiler-symbols" data-fsdocs-heading="1">
+    FSharp.Compiler.Symbols Namespace
+  </h2>
+  <div class="fsdocs-xmldoc"></div>
+  <table class="table outer-list fsdocs-entity-list">
+    <thead>
+      <tr>
+        <td>
+          Type/Module
+        </td>
+        <td>
+          Description
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpAbstractParameter">
+              <a href="../reference/fsharp-compiler-symbols-fsharpabstractparameter.html" data-fsdocs-nav="">
+                FSharpAbstractParameter
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a parameter in an abstract method of a class or interface
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L426-426" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpAbstractParameter\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpAbstractParameter`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpAbstractSignature">
+              <a href="../reference/fsharp-compiler-symbols-fsharpabstractsignature.html" data-fsdocs-nav="">
+                FSharpAbstractSignature
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents the signature of an abstract slot of a class or interface
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L448-448" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpAbstractSignature\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpAbstractSignature`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpAccessibility">
+              <a href="../reference/fsharp-compiler-symbols-fsharpaccessibility.html" data-fsdocs-nav="">
+                FSharpAccessibility
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Indicates the accessibility of a symbol, as seen by the F# language
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L40-40" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpAccessibility\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpAccessibility`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpAccessibilityRights">
+              <a href="../reference/fsharp-compiler-symbols-fsharpaccessibilityrights.html" data-fsdocs-nav="">
+                FSharpAccessibilityRights
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents the rights of a compilation to access symbols
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L604-604" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpAccessibilityRights\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpAccessibilityRights`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpActivePatternCase">
+              <a href="../reference/fsharp-compiler-symbols-fsharpactivepatterncase.html" data-fsdocs-nav="">
+                FSharpActivePatternCase
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 A subtype of FSharpSymbol that represents a single case within an active pattern
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L1056-1056" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpActivePatternCase\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpActivePatternCase`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpActivePatternGroup">
+              <a href="../reference/fsharp-compiler-symbols-fsharpactivepatterngroup.html" data-fsdocs-nav="">
+                FSharpActivePatternGroup
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents all cases within an active pattern
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L1080-1080" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpActivePatternGroup\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpActivePatternGroup`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpAnonRecordTypeDetails">
+              <a href="../reference/fsharp-compiler-symbols-fsharpanonrecordtypedetails.html" data-fsdocs-nav="">
+                FSharpAnonRecordTypeDetails
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 A subtype of FSharpSymbol that represents a record or union case field as seen by the F# language
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L513-513" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpAnonRecordTypeDetails\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpAnonRecordTypeDetails`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpAssembly">
+              <a href="../reference/fsharp-compiler-symbols-fsharpassembly.html" data-fsdocs-nav="">
+                FSharpAssembly
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents an assembly as seen by the F# language
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L163-163" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpAssembly\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpAssembly`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpAssemblyContents">
+              <a href="../reference/fsharp-compiler-symbols-fsharpassemblycontents.html" data-fsdocs-nav="">
+                FSharpAssemblyContents
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents the definitional contents of an assembly, as seen by the F# language
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Exprs.fsi#L12-12" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpAssemblyContents\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpAssemblyContents`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpAssemblySignature">
+              <a href="../reference/fsharp-compiler-symbols-fsharpassemblysignature.html" data-fsdocs-nav="">
+                FSharpAssemblySignature
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents an inferred signature of part of an assembly as seen by the F# language
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L187-187" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpAssemblySignature\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpAssemblySignature`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpAttribute">
+              <a href="../reference/fsharp-compiler-symbols-fsharpattribute.html" data-fsdocs-nav="">
+                FSharpAttribute
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a custom attribute attached to F# source code or a compiler .NET component
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L1231-1231" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpAttribute\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpAttribute`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpDelegateSignature">
+              <a href="../reference/fsharp-compiler-symbols-fsharpdelegatesignature.html" data-fsdocs-nav="">
+                FSharpDelegateSignature
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a delegate signature in an F# symbol
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L417-417" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpDelegateSignature\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpDelegateSignature`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpDisplayContext">
+              <a href="../reference/fsharp-compiler-symbols-fsharpdisplaycontext.html" data-fsdocs-nav="">
+                FSharpDisplayContext
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents the information needed to format types and other information in a style
+ suitable for use in F# source text at a particular source location.
+
+ Acquired via GetDisplayEnvAtLocationAlternate and similar methods. May be passed
+ to the Format method on FSharpType and other methods.
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L63-63" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpDisplayContext\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpDisplayContext`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpEntity">
+              <a href="../reference/fsharp-compiler-symbols-fsharpentity.html" data-fsdocs-nav="">
+                FSharpEntity
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 A subtype of FSharpSymbol that represents a type definition or module as seen by the F# language
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L212-212" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpEntity\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpEntity`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpExpr">
+              <a href="../reference/fsharp-compiler-symbols-fsharpexpr.html" data-fsdocs-nav="">
+                FSharpExpr
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a checked and reduced expression, as seen by the F# language.  The active patterns
+ in 'FSharp.Compiler.Symbols.FSharpExprPatterns' can be used to analyze information about the expression.
+
+ Pattern matching is reduced to decision trees and conditional tests. Some other
+ constructs may be represented in reduced form.
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Exprs.fsi#L66-66" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpExpr\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpExpr`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpExprPatterns">
+              <a href="../reference/fsharp-compiler-symbols-fsharpexprpatterns.html" data-fsdocs-nav="">
+                FSharpExprPatterns
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 A collection of active patterns to analyze expressions
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Exprs.fsi#L92-92" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpExprPatterns\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpExprPatterns`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpField">
+              <a href="../reference/fsharp-compiler-symbols-fsharpfield.html" data-fsdocs-nav="">
+                FSharpField
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 A subtype of FSharpSymbol that represents a record or union case field as seen by the F# language
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L529-529" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpField\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpField`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpGenericParameter">
+              <a href="../reference/fsharp-compiler-symbols-fsharpgenericparameter.html" data-fsdocs-nav="">
+                FSharpGenericParameter
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 A subtype of FSharpSymbol that represents a generic parameter for an FSharpSymbol
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L610-610" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpGenericParameter\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpGenericParameter`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpGenericParameterConstraint">
+              <a href="../reference/fsharp-compiler-symbols-fsharpgenericparameterconstraint.html" data-fsdocs-nav="">
+                FSharpGenericParameterConstraint
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a constraint on a generic type parameter
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L713-713" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpGenericParameterConstraint\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpGenericParameterConstraint`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpGenericParameterDefaultsToConstraint">
+              <a href="../reference/fsharp-compiler-symbols-fsharpgenericparameterdefaultstoconstraint.html" data-fsdocs-nav="">
+                FSharpGenericParameterDefaultsToConstraint
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents further information about a 'defaults to' constraint on a generic type parameter
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L703-703" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpGenericParameterDefaultsToConstraint\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpGenericParameterDefaultsToConstraint`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpGenericParameterDelegateConstraint">
+              <a href="../reference/fsharp-compiler-symbols-fsharpgenericparameterdelegateconstraint.html" data-fsdocs-nav="">
+                FSharpGenericParameterDelegateConstraint
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents further information about a delegate constraint on a generic type parameter
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L693-693" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpGenericParameterDelegateConstraint\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpGenericParameterDelegateConstraint`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpGenericParameterMemberConstraint">
+              <a href="../reference/fsharp-compiler-symbols-fsharpgenericparametermemberconstraint.html" data-fsdocs-nav="">
+                FSharpGenericParameterMemberConstraint
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents further information about a member constraint on a generic type parameter
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L672-672" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpGenericParameterMemberConstraint\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpGenericParameterMemberConstraint`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpImplementationFileContents">
+              <a href="../reference/fsharp-compiler-symbols-fsharpimplementationfilecontents.html" data-fsdocs-nav="">
+                FSharpImplementationFileContents
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents the definitional contents of a single file or fragment in an assembly, as seen by the F# language
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Exprs.fsi#L26-26" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpImplementationFileContents\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpImplementationFileContents`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpImplementationFileDeclaration">
+              <a href="../reference/fsharp-compiler-symbols-fsharpimplementationfiledeclaration.html" data-fsdocs-nav="">
+                FSharpImplementationFileDeclaration
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a declaration in an implementation file, as seen by the F# language
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Exprs.fsi#L46-46" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpImplementationFileDeclaration\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpImplementationFileDeclaration`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpInlineAnnotation">
+              <a href="../reference/fsharp-compiler-symbols-fsharpinlineannotation.html" data-fsdocs-nav="">
+                FSharpInlineAnnotation
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L779-779" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpInlineAnnotation\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpInlineAnnotation`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpMemberOrFunctionOrValue">
+              <a href="../reference/fsharp-compiler-symbols-fsharpmemberorfunctionorvalue.html" data-fsdocs-nav="">
+                FSharpMemberOrFunctionOrValue
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 A subtype of F# symbol that represents an F# method, property, event, function or value, including extension members.
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L795-795" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpMemberOrFunctionOrValue`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpObjectExprOverride">
+              <a href="../reference/fsharp-compiler-symbols-fsharpobjectexproverride.html" data-fsdocs-nav="">
+                FSharpObjectExprOverride
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a checked method in an object expression, as seen by the F# language.
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Exprs.fsi#L78-78" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpObjectExprOverride\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpObjectExprOverride`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpObsoleteDiagnosticInfo">
+              <a href="../reference/fsharp-compiler-symbols-fsharpobsoletediagnosticinfo.html" data-fsdocs-nav="">
+                FSharpObsoleteDiagnosticInfo
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L85-85" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpObsoleteDiagnosticInfo\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpObsoleteDiagnosticInfo`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpOpenDeclaration">
+              <a href="../reference/fsharp-compiler-symbols-fsharpopendeclaration.html" data-fsdocs-nav="">
+                FSharpOpenDeclaration
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents open declaration in F# code.
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L1256-1256" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpOpenDeclaration\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpOpenDeclaration`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpParameter">
+              <a href="../reference/fsharp-compiler-symbols-fsharpparameter.html" data-fsdocs-nav="">
+                FSharpParameter
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 A subtype of FSharpSymbol that represents a parameter
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L1026-1026" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpParameter\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpParameter`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpStaticParameter">
+              <a href="../reference/fsharp-compiler-symbols-fsharpstaticparameter.html" data-fsdocs-nav="">
+                FSharpStaticParameter
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 A subtype of FSharpSymbol that represents a static parameter to an F# type provider
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L644-644" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpStaticParameter\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpStaticParameter`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpSymbol">
+              <a href="../reference/fsharp-compiler-symbols-fsharpsymbol.html" data-fsdocs-nav="">
+                FSharpSymbol
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Represents a symbol in checked F# source code or a compiled .NET component.
+
+ The subtype of the symbol may reveal further information and can be one of FSharpEntity, FSharpUnionCase
+ FSharpField, FSharpGenericParameter, FSharpStaticParameter, FSharpMemberOrFunctionOrValue, FSharpParameter,
+ or FSharpActivePatternCase.
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L97-97" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpSymbol\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpSymbol`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpSymbolPatterns">
+              <a href="../reference/fsharp-compiler-symbols-fsharpsymbolpatterns.html" data-fsdocs-nav="">
+                FSharpSymbolPatterns
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Patterns over FSharpSymbol and derivatives.
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/SymbolPatterns.fsi#L8-8" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpSymbolPatterns\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpSymbolPatterns`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpType">
+              <a href="../reference/fsharp-compiler-symbols-fsharptype.html" data-fsdocs-nav="">
+                FSharpType
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L1098-1098" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpType\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpType`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpUnionCase">
+              <a href="../reference/fsharp-compiler-symbols-fsharpunioncase.html" data-fsdocs-nav="">
+                FSharpUnionCase
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 A subtype of FSharpSymbol that represents a union case as seen by the F# language
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/Symbols.fsi#L471-471" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpUnionCase\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpUnionCase`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="fsdocs-entity-name">
+          <p>
+            <a name="FSharpXmlDoc">
+              <a href="../reference/fsharp-compiler-symbols-fsharpxmldoc.html" data-fsdocs-nav="">
+                FSharpXmlDoc
+              </a>
+            </a>
+          </p>
+        </td>
+        <td class="fsdocs-entity-xmldoc">
+          <div>
+            <div class="fsdocs-summary-contents">
+              <p class="fsdocs-summary">
+                 Describe a comment as either a block of text or a file+signature reference into an intellidoc file.
+              </p>
+            </div>
+            <div class="icon-button-row">
+              <a href="https://github.com/dotnet/fsharp//tree/master/src/Compiler/Symbols/SymbolHelpers.fsi#L24-24" class="fsdocs-source-link" title="Source on GitHub">
+                <iconify-icon icon="ri:github-fill" height="24" width="24"></iconify-icon>
+              </a>
+              <div class="fsdocs-source-link" title="Copy signature (XML)" onclick="Clipboard_CopyTo('<see cref=\'T:FSharp.Compiler.Symbols.FSharpXmlDoc\'/>')">
+                <iconify-icon icon="bi:filetype-xml" height="24" width="24"></iconify-icon>
+              </div>
+              <div class="fsdocs-source-link" title="Copy signature (Markdown)" onclick="Clipboard_CopyTo('`cref:T:FSharp.Compiler.Symbols.FSharpXmlDoc`')">
+                <iconify-icon icon="bi:filetype-md" height="24" width="24"></iconify-icon>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-2" data-fsdocs-heading="1">
+    <a href="#fsharp-compiler-symbols" title="FSharp.Compiler.Symbols Namespace">
+      FSharp.Compiler.Symbols Namespace
+    </a>
+    <ul class="fsdocs-menu-entries">
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpabstractparameter.html" title="FSharpAbstractParameter">
+          FSharpAbstractParameter
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpabstractsignature.html" title="FSharpAbstractSignature">
+          FSharpAbstractSignature
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpaccessibility.html" title="FSharpAccessibility">
+          FSharpAccessibility
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpaccessibilityrights.html" title="FSharpAccessibilityRights">
+          FSharpAccessibilityRights
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpactivepatterncase.html" title="FSharpActivePatternCase">
+          FSharpActivePatternCase
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpactivepatterngroup.html" title="FSharpActivePatternGroup">
+          FSharpActivePatternGroup
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpanonrecordtypedetails.html" title="FSharpAnonRecordTypeDetails">
+          FSharpAnonRecordTypeDetails
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpassembly.html" title="FSharpAssembly">
+          FSharpAssembly
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpassemblycontents.html" title="FSharpAssemblyContents">
+          FSharpAssemblyContents
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpassemblysignature.html" title="FSharpAssemblySignature">
+          FSharpAssemblySignature
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpattribute.html" title="FSharpAttribute">
+          FSharpAttribute
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpdelegatesignature.html" title="FSharpDelegateSignature">
+          FSharpDelegateSignature
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpdisplaycontext.html" title="FSharpDisplayContext">
+          FSharpDisplayContext
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpentity.html" title="FSharpEntity">
+          FSharpEntity
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpexpr.html" title="FSharpExpr">
+          FSharpExpr
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpexprpatterns.html" title="FSharpExprPatterns">
+          FSharpExprPatterns
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpfield.html" title="FSharpField">
+          FSharpField
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpgenericparameter.html" title="FSharpGenericParameter">
+          FSharpGenericParameter
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpgenericparameterconstraint.html" title="FSharpGenericParameterConstraint">
+          FSharpGenericParameterConstraint
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpgenericparameterdefaultstoconstraint.html" title="FSharpGenericParameterDefaultsToConstraint">
+          FSharpGenericParameterDefaultsToConstraint
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpgenericparameterdelegateconstraint.html" title="FSharpGenericParameterDelegateConstraint">
+          FSharpGenericParameterDelegateConstraint
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpgenericparametermemberconstraint.html" title="FSharpGenericParameterMemberConstraint">
+          FSharpGenericParameterMemberConstraint
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpimplementationfilecontents.html" title="FSharpImplementationFileContents">
+          FSharpImplementationFileContents
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpimplementationfiledeclaration.html" title="FSharpImplementationFileDeclaration">
+          FSharpImplementationFileDeclaration
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpinlineannotation.html" title="FSharpInlineAnnotation">
+          FSharpInlineAnnotation
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpmemberorfunctionorvalue.html" title="FSharpMemberOrFunctionOrValue">
+          FSharpMemberOrFunctionOrValue
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpobjectexproverride.html" title="FSharpObjectExprOverride">
+          FSharpObjectExprOverride
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpobsoletediagnosticinfo.html" title="FSharpObsoleteDiagnosticInfo">
+          FSharpObsoleteDiagnosticInfo
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpopendeclaration.html" title="FSharpOpenDeclaration">
+          FSharpOpenDeclaration
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpparameter.html" title="FSharpParameter">
+          FSharpParameter
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpstaticparameter.html" title="FSharpStaticParameter">
+          FSharpStaticParameter
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpsymbol.html" title="FSharpSymbol">
+          FSharpSymbol
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpsymbolpatterns.html" title="FSharpSymbolPatterns">
+          FSharpSymbolPatterns
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharptype.html" title="FSharpType">
+          FSharpType
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpunioncase.html" title="FSharpUnionCase">
+          FSharpUnionCase
+        </a>
+      </li>
+      <li>
+        <a href="../reference/fsharp-compiler-symbols-fsharpxmldoc.html" title="FSharpXmlDoc">
+          FSharpXmlDoc
+        </a>
+      </li>
+    </ul>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="../content/fsdocs-tips.js"></script>
+<script type="module" src="../content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="../content/fsdocs-details-toggle.js"></script>
+<script type="module" src="../content/fsdocs-theme.js"></script>
+<script type="module" src="../content/fsdocs-search.js"></script>
+<script type="module" src="../content/fsdocs-copy-button.js"></script>
+<script type="module" src="../content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en" data-root="../">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Performance-improvement review: evidence and rule contract
+" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/performance-improvement-review/evidence.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Performance-improvement review: evidence and rule contract
+">
+    
+    <title>Performance-improvement review: evidence and rule contract
+ | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="../img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="../content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="../content/fsdocs-details-set-expanded.js"></script>
+    <link href="../content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="../content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-extension-srtp-evidence-across-files.html">
+    Extension SRTP evidence
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>             
+<li class="nav-header active">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../performance-improvement-review/validation.html">
+    Performance-improvement review: validation
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../performance-improvement-review/corpus.html">
+    Performance-improvement review corpus
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../performance-improvement-review/evidence.html">
+    Performance-improvement review: evidence and rule contract
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../performance-improvement-review/mining/README.html">
+    Frozen corpus inventory and scope
+
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="../img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../postmortems/regression-extension-srtp-evidence-across-files.html">
+    Extension SRTP evidence
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>             
+<li class="nav-header active">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../performance-improvement-review/validation.html">
+    Performance-improvement review: validation
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../performance-improvement-review/corpus.html">
+    Performance-improvement review corpus
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../performance-improvement-review/evidence.html">
+    Performance-improvement review: evidence and rule contract
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../performance-improvement-review/mining/README.html">
+    Frozen corpus inventory and scope
+
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <h1 data-fsdocs-heading="1"><a name="Performance-improvement-review-evidence-and-rule-contract" class="anchor" href="#Performance-improvement-review-evidence-and-rule-contract">Performance-improvement review: evidence and rule contract</a></h1>
+<p>This is the source-to-rule contract for the <a href="../../.github/agents/performance-improvement-review.md">reviewer</a>. <a href="corpus.html">corpus.md</a> fixes discovery to <strong>2026-04-22 through 2026-09-22</strong>, with evidence cutoff <code>2026-09-22T09:28:34Z</code>. <a href="validation.md#sprint-11-bounded-semantic-validation">validation.md</a> distinguishes frozen RED expectations, preserved failures and actual final C6 acceptance. G1-G8 are eight ordered checks, not eight unconditional benchmark demands.</p>
+<p><strong>Attribution correction (sprint 10):</strong> the #20348/#20352 seeds came from orchestration, not an original-user attestation of authorship. The audit below uses the captured comment, enclosing review, replies, account/role, automation disclosures and pinned source instead. <code>source-attributed</code> identifies what a participant posted and in which role; it does not certify unaided human composition. A User account, an empty enclosing review, absence of a model marker, interactive replies or a matching code change alone supplies no such certificate. Conversely, uncertainty is not evidence of AI authorship, and no writing-style test or external attestation prerequisite is imposed. These conversations are usable as attributed feedback with the stated limits.</p>
+<p>All twelve rules remain <strong>request-required</strong>, independently of source attribution. Archived C5 and its extract call PERF-08/09 <code>human-derived + request-required</code>; that historical label is not proof of composition. Sprint 11 aligns the candidate/integration wording with source attribution, without claiming unaided composition. Its sole subsequent decision-rule repair is PERF-05's instrumentation clause, prompted by an actual missed source-backed development concern; original expectations and failures remain in <a href="validation.md#sprint-11-bounded-semantic-validation">validation</a>. #20416's <a href="https://github.com/dotnet/fsharp/pull/20416#pullrequestreview-5155491204">explicit AI disclosure</a> applies to that review and attached inline findings. In contrast, #20261's <a href="https://github.com/dotnet/fsharp/pull/20261#pullrequestreview-4949741702">review</a> has no explicit automation disclosure in the captured review/comment envelopes: the earlier "model-associated" label is unsupported, so composition remains <strong>uncertain</strong>, not classified by style. Both remain excluded from verified-human votes, alongside bots, uncertain quotations, existing agents and synthetic cases. Author measurements are not independent review; code corroborates mechanisms/resolutions, not authorship.</p>
+<h2 data-fsdocs-heading="2"><a name="Named-conversation-audit" class="anchor" href="#Named-conversation-audit">Named conversation audit</a></h2>
+<p>Original REST bodies and GraphQL thread envelopes are in session <code>c8f75c7a-5c38-4380-a60f-80b1f04b4d69\files</code> (#19995/#20287/#20296/#20352) and <code>28a5997c-c817-48a9-8f00-4a45e40edbf0\files</code> (#20348/#20353), under the archive root in <a href="validation.md#sprint-10-reconciliation-and-residual-manifest">validation.md</a>. All named exchanges predate the cutoff. Their enclosing reviews contain no automation disclosure; #20352 and the elapsed-time exchange are general comments with no enclosing review or commit binding. This is a bounded envelope finding, not certainty about composition. Release-note bots and empty approvals are not supporting feedback.</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>Source / participant role and envelope</p></th>
+<th><p>Concern, pinned revision and resolution/counterexample</p></th>
+<th><p>Narrow mapping to existing rules</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>#20353: auduchinok, MEMBER reviewer <a href="https://github.com/dotnet/fsharp/pull/20353#issuecomment-5454977613">elapsed-time question</a>; T-Gro, MEMBER author <a href="https://github.com/dotnet/fsharp/pull/20353#issuecomment-5510436436">answer</a>. Source-attributed conversation; no enclosing review.</p></td>
+<td><p>Commit-unbound question/answer; final context <code>604669d1a6fd688f6ee0cd1daff3e7020192a080</code>. Author reports 477 MB -&gt; 0 allocation, says time is noisy and quotes a 99.75% hit ratio. Neither the asserted time direction nor hit ratio quantifies elapsed benefit.</p></td>
+<td><p>PERF-03/04: select evidence for the actual claim; an allocation win need not prove a timing win. <strong>One-off timing question</strong>, not a human mandate for every metric or a rejection.</p></td>
+</tr>
+<tr class="even">
+<td><p>#20287: T-Gro, MEMBER reviewer <a href="https://github.com/dotnet/fsharp/pull/20287#discussion_r3811931627">reader concern</a>, enclosing <a href="https://github.com/dotnet/fsharp/pull/20287#pullrequestreview-4970838372">review 4970838372</a>; <a href="https://github.com/dotnet/fsharp/pull/20287#discussion_r3811945510">self-qualification</a>; auduchinok, MEMBER author <a href="https://github.com/dotnet/fsharp/pull/20287#discussion_r3811998107">answer</a>, <a href="https://github.com/dotnet/fsharp/pull/20287#pullrequestreview-4970925639">review 4970925639</a>.</p></td>
+<td><p>Original <code>63df5b0fb83a5439dcad47672c01df9b6ad6fe57</code>, not remapped final <code>9252af630067c59e8fd087380a5d52ecd95c15a6</code>. Reviewer asks about releasing a closure, then questions the saving because readers are shared; author confirms no saving. Original/final source retains the shared reader.</p></td>
+<td><p>PERF-05/12: trace ownership before demanding release; withdraw a concern when its premise fails. This does <strong>not</strong> establish a leak or "always clear readers."</p></td>
+</tr>
+<tr class="odd">
+<td><p>#20296: T-Gro, MEMBER reviewer <a href="https://github.com/dotnet/fsharp/pull/20296#discussion_r3843282327">typed-key request</a>, <a href="https://github.com/dotnet/fsharp/pull/20296#pullrequestreview-5007592882">review 5007592882</a>; <a href="https://github.com/dotnet/fsharp/pull/20296#discussion_r3843357224">shared-settings request</a>, <a href="https://github.com/dotnet/fsharp/pull/20296#pullrequestreview-5007678895">review 5007678895</a>.</p></td>
+<td><p>Original <code>09a3cb1dbc832f9e2d4e8711e4726f9043eb91c0</code>: opaque strings and duplicated reuse-relevant flags. Final <code>86ece46d9e5a7ae67aca866749ae4f377dab5ff1</code> adds <code>SharedCcuKey</code> and <code>ImportReuseKey</code>, used by framework/service sharing checks. No direct reply to these two requests; resolution is source-backed, not inferred from approval. The <a href="https://github.com/dotnet/fsharp/pull/20296#discussion_r3860880778">default-setting reply</a> answers a different thread.</p></td>
+<td><p>PERF-06/09/10: make cache identity reviewable and reuse the relevant settings definition; inspect hit/miss/error behavior. The reviewer's recollection of past missing flags is not a new reproduced defect. <strong>One-off concrete typed-key request</strong>, not mandatory abstraction for every cache.</p></td>
+</tr>
+<tr class="even">
+<td><p>#19995: majocha, CONTRIBUTOR reviewer <a href="https://github.com/dotnet/fsharp/pull/19995#discussion_r3480852672">instrumentation cost</a>, <a href="https://github.com/dotnet/fsharp/pull/19995#pullrequestreview-4578821416">review 4578821416</a>; T-Gro, MEMBER reviewer <a href="https://github.com/dotnet/fsharp/pull/19995#discussion_r3490903438">narrower instrumentation gate</a>; NatElkins, CONTRIBUTOR author <a href="https://github.com/dotnet/fsharp/pull/19995#discussion_r3532823827">ownership/removal answer</a>.</p></td>
+<td><p>Original <code>f96b70e1c112af68b5e14fd75fca4bc6ca7308c2</code>; final <code>bd2148ba7aff3a9f365be52a4e4769a56fef8acf</code> removes per-cache listeners/IDs and uses disposable <code>ListenToAll</code>, name totals and documented serialized tests. At <code>1c1f7a9f7a222f823f1659234bfa49921d81427d</code>, majocha <a href="https://github.com/dotnet/fsharp/pull/19995#discussion_r3534273208">suggests lightweight per-instance Stats</a>, then <a href="https://github.com/dotnet/fsharp/pull/19995#discussion_r3534528513">accepts either design</a>, <a href="https://github.com/dotnet/fsharp/pull/19995#pullrequestreview-4642793675">review 4642793675</a>. Author <a href="https://github.com/dotnet/fsharp/pull/19995#discussion_r3536631511">keeps aggregation</a>.</p></td>
+<td><p>PERF-03/05/10/11: include instrumentation cost/ownership and interference in measurement reasoning, prefer a simpler bounded mechanism, and retain accepted alternatives. No measured exporter slowdown or universal DEBUG gate is established.</p></td>
+</tr>
+<tr class="odd">
+<td><p>#20348: brianrourkeboll, CONTRIBUTOR reviewer <a href="https://github.com/dotnet/fsharp/pull/20348#discussion_r3854812488">suggestion</a>, <a href="https://github.com/dotnet/fsharp/pull/20348#pullrequestreview-5021077157">review 5021077157</a>; T-Gro, MEMBER author <a href="https://github.com/dotnet/fsharp/pull/20348#discussion_r3860828838">acceptance</a>, <a href="https://github.com/dotnet/fsharp/pull/20348#pullrequestreview-5028138073">review 5028138073</a>.</p></td>
+<td><p>Original <code>2a9e33aef0bf3df3bab894b332e8f0b55d7d9e08</code>; final <code>95479116c5693f9b96727cc2ac88e965982e621e</code> adopts comprehensions. The suggestion says "approximately as fast" tentatively; acceptance says nicer, not measured faster.</p></td>
+<td><p>PERF-09: consider a simpler idiom without inventing measured equivalence, syntax risk or a timing prerequisite for an unclaimed comparison.</p></td>
+</tr>
+<tr class="even">
+<td><p>#20352: T-Gro, MEMBER <strong>author</strong> <a href="https://github.com/dotnet/fsharp/pull/20352#issuecomment-5422336205">withdrawal</a>. No submitted reviews, inline discussion or enclosing review.</p></td>
+<td><p>Commit-unbound rationale: too bloated for the win; sole submitted head <code>39167b8148d900fe003aea4cd80f95643fdb691f</code>. #20363 is its narrower same-family continuation, not an independent reviewer vote.</p></td>
+<td><p>PERF-08: weigh gain against common-mechanism complexity and ask for a narrower alternative or justification. Author withdrawal is not maintainer rejection or proof its allocation report was false.</p></td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Recurrence and limits:</strong> ownership-sensitive reasoning recurs across <code>FAMILY-il-import-retention</code> (#20287) and <code>FAMILY-cache-listener</code> (#19995), with opposite remedies because ownership differs. Reviewability/simpler alternatives recur across those families and <code>FAMILY-self-profile</code> (#20348); <code>FAMILY-inline-copy</code> (#20352) adds author rationale, not independent review. #20287/#20296 are one family, as are #20348/#20353. This is recurrence of <strong>attributed concerns</strong>, not a count of verified-human votes or consensus on one implementation. The #20353 time question, #20296 typed-key request and #20352 withdrawal remain one-off specific observations. The <a href="https://github.com/dotnet/fsharp/pull/20285#discussion_r3829823873">accepted cold-allocation trade-off</a> remains attribution-limited contrary context, not another vote. No source supplies a universal significance threshold, peak-memory protocol or thread-pool benchmark mandate; the explicit conditional requirements below remain binding.</p>
+<h2 data-fsdocs-heading="3"><a name="1-Need-value-and-target-workload" class="anchor" href="#1-Need-value-and-target-workload">1. Need/value and target workload</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Rule ID</p></th>
+<th><p>Concern and concise human paraphrase</p></th>
+<th><p>Source PR and exact review/comment URL</p></th>
+<th><p>Source kind and author/role</p></th>
+<th><p>Reviewed revision and resolution</p></th>
+<th><p>Resulting conditional reviewer rule</p></th>
+<th><p>Evidence to request</p></th>
+<th><p>Applicability/limits</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>PERF-01</p></td>
+<td><p>Request contract: explain why this cost matters, to whom, and where it occurs.</p></td>
+<td><p>Request origin; no human precedent claimed.</p></td>
+<td><p>request-required</p></td>
+<td><p>Not a historical review.</p></td>
+<td><p>Tie the claim to a named compiler/FCS/IDE or generated-program workload and its hot path.</p></td>
+<td><p>Concise why-focused description, profile or frequency evidence, input size/shape, baseline cost and expected user value.</p></td>
+<td><p>Do not treat a microbenchmark as whole-build or user-latency evidence. Docs-only/no performance claim: metric checks not applicable.</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="4"><a name="2-PR-description-quality-and-tabular-benchmark-evidence" class="anchor" href="#2-PR-description-quality-and-tabular-benchmark-evidence">2. PR description quality and tabular benchmark evidence</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Rule ID</p></th>
+<th><p>Concern and concise human paraphrase</p></th>
+<th><p>Source PR and exact review/comment URL</p></th>
+<th><p>Source kind and author/role</p></th>
+<th><p>Reviewed revision and resolution</p></th>
+<th><p>Resulting conditional reviewer rule</p></th>
+<th><p>Evidence to request</p></th>
+<th><p>Applicability/limits</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>PERF-02</p></td>
+<td><p>Request contract: make a quantitative claim falsifiable rather than prose-only.</p></td>
+<td><p>Request origin. #20261's <a href="https://github.com/dotnet/fsharp/pull/20261">description</a> is input context, not independent review evidence.</p></td>
+<td><p>request-required; auduchinok's description is author-reported measurement, text origin uncertain.</p></td>
+<td><p>Final code <code>9d8662d93106e401d67e480e5fb0d812b04cb57c</code>; captured description has a retained-memory table and three fresh-process runs, but no published dispersion/environment/command.</p></td>
+<td><p>Require a before/after table for the applicable measured claim; identify what the reported numbers do and do not establish.</p></td>
+<td><p>Baseline/changed commits and configuration; units, workload/input size, repetitions, meaningful variability/error, hardware/OS/runtime/SDK/tool versions, reproducible commands and input/result links.</p></td>
+<td><p>Do not ask for a table or repetitions already present. A current description cannot establish what was available at an earlier review. Missing metadata means needs evidence, not fabricated wrong numbers.</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="5"><a name="3-Metric-selection-and-measurement-validity" class="anchor" href="#3-Metric-selection-and-measurement-validity">3. Metric selection and measurement validity</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Rule ID</p></th>
+<th><p>Concern and concise human paraphrase</p></th>
+<th><p>Source PR and exact review/comment URL</p></th>
+<th><p>Source kind and author/role</p></th>
+<th><p>Reviewed revision and resolution</p></th>
+<th><p>Resulting conditional reviewer rule</p></th>
+<th><p>Evidence to request</p></th>
+<th><p>Applicability/limits</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>PERF-03</p></td>
+<td><p>Request contract: select metrics for the claim; do not equate allocations, retained memory and elapsed time.</p></td>
+<td><p>Context only: #20353 <a href="https://github.com/dotnet/fsharp/pull/20353#issuecomment-5454977613">question</a>, <a href="https://github.com/dotnet/fsharp/pull/20353#issuecomment-5510436436">answer</a>.</p></td>
+<td><p>request-required; auduchinok reviewer question versus T-Gro author explanation; prose authorship unverified, <strong>not human-derived</strong>.</p></td>
+<td><p>General comments are commit-unbound. Final <code>604669d1a6fd688f6ee0cd1daff3e7020192a080</code>; author bounds reliable win to allocations and acknowledges noisy time; no quantified timing resolution.</p></td>
+<td><p>An allocation-only improvement need not lower elapsed time; a speed claim needs time evidence. Check comparable inputs/configurations and confounders.</p></td>
+<td><p>Appropriate counters, full workload selection, cold/warm state, warmup, cache policy, GC/timing boundaries and separate-process/repeated-run methodology as relevant.</p></td>
+<td><p>Hit ratio, closure/IL counts or sampled CPU alone do not prove end-to-end speed. No fixed benchmark matrix. See metric mapping below.</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="6"><a name="4-Size-significance-of-the-improvement" class="anchor" href="#4-Size-significance-of-the-improvement">4. Size/significance of the improvement</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Rule ID</p></th>
+<th><p>Concern and concise human paraphrase</p></th>
+<th><p>Source PR and exact review/comment URL</p></th>
+<th><p>Source kind and author/role</p></th>
+<th><p>Reviewed revision and resolution</p></th>
+<th><p>Resulting conditional reviewer rule</p></th>
+<th><p>Evidence to request</p></th>
+<th><p>Applicability/limits</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>PERF-04</p></td>
+<td><p>Request contract: distinguish a useful effect from noise or selective reporting.</p></td>
+<td><p>Request origin; #20261 explicitly calls time changes noise-level, not a measured speed win.</p></td>
+<td><p>request-required</p></td>
+<td><p>No human significance threshold recovered.</p></td>
+<td><p>Compare absolute and relative effects against observed variability and workload value, including regressions and unchanged cases.</p></td>
+<td><p>Repeated comparable runs, spread/error definition, raw distributions or linked results, excluded-run rationale, all selected workloads and input revisions.</p></td>
+<td><p>No arbitrary minimum percentage. Do not cherry-pick the best run, compare changed inputs as a code effect, or demand speed improvement for a narrowly supported allocation claim.</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="7"><a name="5-Regressions-and-resource-trade-offs" class="anchor" href="#5-Regressions-and-resource-trade-offs">5. Regressions and resource trade-offs</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Rule ID</p></th>
+<th><p>Concern and concise human paraphrase</p></th>
+<th><p>Source PR and exact review/comment URL</p></th>
+<th><p>Source kind and author/role</p></th>
+<th><p>Reviewed revision and resolution</p></th>
+<th><p>Resulting conditional reviewer rule</p></th>
+<th><p>Evidence to request</p></th>
+<th><p>Applicability/limits</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>PERF-05</p></td>
+<td><p>Request contract: a good headline metric must not conceal a relevant resource/lifetime regression.</p></td>
+<td><p>Request origin; #19995 <a href="https://github.com/dotnet/fsharp/pull/19995#discussion_r3480852672">remaining tag cost</a>, <a href="https://github.com/dotnet/fsharp/pull/19995#discussion_r3490903438">instrumentation gate</a>, and <a href="https://github.com/dotnet/fsharp/pull/19995#discussion_r3534528513">accepted alternative</a>. #20261's bucket comparison is author measurement context.</p></td>
+<td><p>request-required; #19995 source-attributed majocha/T-Gro reviewer concerns, composition limits above</p></td>
+<td><p>Original <code>f96b70e1c112af68b5e14fd75fca4bc6ca7308c2</code> retains tags/direct counters; final <code>bd2148ba7aff3a9f365be52a4e4769a56fef8acf</code> removes per-instance tags and reuses opt-in aggregation.</p></td>
+<td><p>Follow resources introduced or prolonged by the optimization; raise risk/blocker only for a concrete mechanism, observed regression or substantiated failure scenario. For instrumentation changes, credit repaired ownership separately from remaining per-instance tags/filtering, direct counters and active-exporter costs.</p></td>
+<td><p>When implicated: total allocated bytes and GC; live/retained/peak memory with lifetime boundaries; repeated/incremental work and release/eviction proof; CPU, thread counts, contention, thread-pool pressure, cancellation, starvation/hangs under realistic concurrency. For changed instrumentation, relevant enabled/disabled cost evidence or justification for a simpler bounded mechanism.</p></td>
+<td><p>Allocated volume is not live memory or leak proof. A cache is not inherently a leak, and a weak reference alone is not lifetime proof. Missing relevant measurements means needs evidence. Useful diagnostics need not be removed or gated by a particular directive; the source does not establish a measured exporter slowdown.</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="8"><a name="6-Behavior-API-compatibility-preservation" class="anchor" href="#6-Behavior-API-compatibility-preservation">6. Behavior/API/compatibility preservation</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Rule ID</p></th>
+<th><p>Concern and concise human paraphrase</p></th>
+<th><p>Source PR and exact review/comment URL</p></th>
+<th><p>Source kind and author/role</p></th>
+<th><p>Reviewed revision and resolution</p></th>
+<th><p>Resulting conditional reviewer rule</p></th>
+<th><p>Evidence to request</p></th>
+<th><p>Applicability/limits</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>PERF-06</p></td>
+<td><p>Request contract: removing work must not remove observable behavior.</p></td>
+<td><p>Context only: #20353 <a href="https://github.com/dotnet/fsharp/pull/20353#discussion_r3881856791">range question</a>, <a href="https://github.com/dotnet/fsharp/pull/20353#discussion_r3914684020">author answer</a>.</p></td>
+<td><p>request-required; abonie reviewer / T-Gro author; unverified text origin, not human-derived.</p></td>
+<td><p>Original <code>b77c6c6828547768dcdfed1a04347331fdd12e5c</code>, final <code>604669d1a6fd688f6ee0cd1daff3e7020192a080</code>; resolved discussion, no diagnostic-range regression test added. Author allows first-call attribution for malformed-metadata import errors.</p></td>
+<td><p>Select behavior proof from the mechanism: semantics, diagnostics/ranges, APIs and binary/source compatibility, exceptions and cancellation, edge cases, ordering/determinism, and expected generated output.</p></td>
+<td><p>Differential or targeted assertions on affected observable behavior, including relevant unusual inputs. Trace dropped cache-key inputs through misses/hits and error paths.</p></td>
+<td><p>An unchanged signature is not behavior proof. Deliberately changed code generation needs expected-output/semantic proof, <strong>not universal byte-for-byte IL identity</strong>. An author explanation does not prove every diagnostic path equivalent.</p></td>
+</tr>
+<tr class="even">
+<td><p>PERF-07</p></td>
+<td><p>Request contract: an optimization relying on an invariant needs evidence at its source.</p></td>
+<td><p>Context only: #20349 <a href="https://github.com/dotnet/fsharp/pull/20349#discussion_r3881120590">request</a>, <a href="https://github.com/dotnet/fsharp/pull/20349#discussion_r3914836899">resolution</a>.</p></td>
+<td><p>request-required; abonie reviewer / T-Gro author; unverified text origin, not human-derived.</p></td>
+<td><p>Original <code>b0770fe05ee57d56bbb292277cc35f20b3ec81f7</code>; comment and debug assertion added in <code>d33b15c5ef845d987bc5ad18f728f586892323d8</code>, retained at <code>cc98f598d445d5f5c1a2bf962ebd3d82fc599c5c</code>; resolved.</p></td>
+<td><p>For sort removal/order-dependent shortcuts, inspect producer order, ties, empty/singleton cases and consumers; preserve determinism.</p></td>
+<td><p>Source invariant and an appropriate comment, assertion or test; explain equivalent ordering.</p></td>
+<td><p>The source asked for comment <strong>or</strong> assertion, not both universally. Stop reporting the missing-invariant-documentation concern after it is addressed; assertions are not proof all executions passed.</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="9"><a name="7-Surgical-scope-isolation-and-implementation-risk" class="anchor" href="#7-Surgical-scope-isolation-and-implementation-risk">7. Surgical scope, isolation, and implementation risk</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Rule ID</p></th>
+<th><p>Concern and concise human paraphrase</p></th>
+<th><p>Source PR and exact review/comment URL</p></th>
+<th><p>Source kind and author/role</p></th>
+<th><p>Reviewed revision and resolution</p></th>
+<th><p>Resulting conditional reviewer rule</p></th>
+<th><p>Evidence to request</p></th>
+<th><p>Applicability/limits</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>PERF-08</p></td>
+<td><p>Author withdrew a broad copy/remark fusion as too bloated for its win and planned a minimal rework.</p></td>
+<td><p>#20352 <a href="https://github.com/dotnet/fsharp/pull/20352#issuecomment-5422336205">withdrawal</a>.</p></td>
+<td><p><strong>request-required</strong>; source-attributed T-Gro <strong>author rationale</strong>, composition unverified, not maintainer rejection.</p></td>
+<td><p>Comment is commit-unbound; sole submitted head <code>39167b8148d900fe003aea4cd80f95643fdb691f</code>, 427-line diff across optimizer/remapper/signature. Closed-unmerged; #20363 is the same family, not a second vote.</p></td>
+<td><p>Weigh maintenance and review cost against demonstrated value when an optimization spreads through a common mechanism; request a narrower alternative or justification.</p></td>
+<td><p>Allocation/time benefit on the target workload, proof of affected ranges/debug points/quotations, and comparison with helper reuse or a localized approach.</p></td>
+<td><p>One PR/family supports this observation; no line-count cutoff, automatic rejection of large changes, or claim the reported 321 MB saving was false.</p></td>
+</tr>
+<tr class="even">
+<td><p>PERF-09</p></td>
+<td><p>Reviewer tentatively suggested approximately-as-fast array comprehensions; author accepted their simpler form.</p></td>
+<td><p>#20348 <a href="https://github.com/dotnet/fsharp/pull/20348#discussion_r3854812488">suggestion</a>, <a href="https://github.com/dotnet/fsharp/pull/20348#discussion_r3860828838">acceptance</a>.</p></td>
+<td><p><strong>request-required</strong>; source-attributed brianrourkeboll reviewer / T-Gro author exchange; composition unverified.</p></td>
+<td><p>Original <code>2a9e33aef0bf3df3bab894b332e8f0b55d7d9e08</code>; final <code>95479116c5693f9b96727cc2ac88e965982e621e</code> adopts comprehensions. Resolved/outdated.</p></td>
+<td><p>Where a lower-level rewrite adds complexity, consider a simpler existing idiom with equivalent behavior; measure any claimed performance difference.</p></td>
+<td><p>Relevant generated code or focused comparison, retaining sort stability/key limits and workload.</p></td>
+<td><p>One PR/family. Neither participant supplied measured equivalence in this thread; <strong>never infer comprehensions are always faster</strong> or make this a blocker based on syntax.</p></td>
+</tr>
+<tr class="odd">
+<td><p>PERF-10</p></td>
+<td><p>Request contract: isolate the cause of the improvement and reuse existing helpers.</p></td>
+<td><p>Request origin.</p></td>
+<td><p>request-required</p></td>
+<td><p>No human recurrence claimed.</p></td>
+<td><p>Separate independent optimizations, unrelated cleanup and behavior changes enough to attribute gains and review risk; prefer existing lifetime/collection/remapping helpers.</p></td>
+<td><p>Per-mechanism evidence or controlled on/off comparison when a bundle obscures attribution; explain new abstraction/state and maintenance cost.</p></td>
+<td><p>No blanket one-file/one-hunk rule. Small diffs can be unsafe; large changes can be justified.</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="10"><a name="8-Reproducibility-tests-and-final-recommendation" class="anchor" href="#8-Reproducibility-tests-and-final-recommendation">8. Reproducibility, tests, and final recommendation</a></h2>
+<table>
+<thead>
+<tr class="header">
+<th><p>Rule ID</p></th>
+<th><p>Concern and concise human paraphrase</p></th>
+<th><p>Source PR and exact review/comment URL</p></th>
+<th><p>Source kind and author/role</p></th>
+<th><p>Reviewed revision and resolution</p></th>
+<th><p>Resulting conditional reviewer rule</p></th>
+<th><p>Evidence to request</p></th>
+<th><p>Applicability/limits</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>PERF-11</p></td>
+<td><p>Request contract: the test must exercise the property the optimization could change.</p></td>
+<td><p>Context only: #20353 <a href="https://github.com/dotnet/fsharp/pull/20353#discussion_r3881817308">runtime-test request</a>, <a href="https://github.com/dotnet/fsharp/pull/20353#discussion_r3914681725">answer</a>.</p></td>
+<td><p>request-required; abonie reviewer / T-Gro author; text origin unverified, not human-derived.</p></td>
+<td><p>Original <code>b77c6c6828547768dcdfed1a04347331fdd12e5c</code> only compiled; <code>05406570004daef8ddc03603ca6425a3b0311a4e</code> switched to <code>compileExeAndRun</code>, retained at final <code>604669d1a6fd688f6ee0cd1daff3e7020192a080</code>; resolved.</p></td>
+<td><p>Require executable assertions for runtime behavior, generated-output assertions for structural claims, and repeated/incremental tests for stateful optimizations when relevant.</p></td>
+<td><p>Targeted tests/results and reproducible benchmark command/input/compiler provenance; actual compiler path/version, not merely a successful build.</p></td>
+<td><p>Compile-only success cannot prove a runtime conditional. Recognize the final test executes it; do not invent a test failure or claim it ran during this sprint.</p></td>
+</tr>
+<tr class="even">
+<td><p>PERF-12</p></td>
+<td><p>Request contract: separate missing proof, demonstrated risk and inapplicability in the recommendation.</p></td>
+<td><p>Request origin; exact outcomes in <a href="validation.md#outcomes">validation.md</a>.</p></td>
+<td><p>request-required</p></td>
+<td><p>RED expectations and C5 execution records are distinct; model replay is not a human-source audit.</p></td>
+<td><p>Give each of G1-G8 an applicable outcome with evidence; final recommendation reflects unresolved material risks and specifically missing evidence.</p></td>
+<td><p>Exact source/code/measurement supporting each conclusion; concise outstanding evidence requests.</p></td>
+<td><p><code>pass</code> is local to a supported check, not certification. <code>needs evidence</code> is not a defect. <code>risk/blocker</code> needs a concrete mechanism/evidence. <code>not applicable</code> needs a reason. Neither approval/merge nor closure substitutes for assessment.</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="11"><a name="Conditional-metric-mapping" class="anchor" href="#Conditional-metric-mapping">Conditional metric mapping</a></h2>
+<p>Choose the primary measurement from the actual claim and investigate only implicated trade-offs. Do not require all rows for every PR.</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>Claim/workload</p></th>
+<th><p>Primary measurement</p></th>
+<th><p>Related trade-off to test when relevant</p></th>
+<th><p>Human source IDs or request origin</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>Faster operation, IDE response or service</p></td>
+<td><p>Elapsed time/latency distribution or throughput with workload/concurrency and units</p></td>
+<td><p>Tail latency, CPU, allocation/GC, warmup/caches, sustained versus isolated work</p></td>
+<td><p>Request: PERF-01/03/04/05</p></td>
+</tr>
+<tr class="even">
+<td><p>Less memory across a compile/solution</p></td>
+<td><p>Define total process/heap footprint, retained live bytes at a stated lifecycle point, or peak over the interval</p></td>
+<td><p>Total allocated bytes, GC, duplicate objects, post-close/repeated/incremental retention</p></td>
+<td><p>Request: PERF-03/05; #20261 author table is context, not a human vote</p></td>
+</tr>
+<tr class="odd">
+<td><p>Fewer allocations</p></td>
+<td><p>Allocation count/allocated bytes per operation or compile</p></td>
+<td><p>GC collections/pause time, relevant elapsed-time or retention regression</p></td>
+<td><p>Request: PERF-03/05; #20353 question/answer remain attribution-limited</p></td>
+</tr>
+<tr class="even">
+<td><p>Less GC work</p></td>
+<td><p>Collection counts/generations and pause/time under a defined load</p></td>
+<td><p>Allocation volume, retained/peak heap, throughput and latency</p></td>
+<td><p>Request: PERF-05</p></td>
+</tr>
+<tr class="odd">
+<td><p>Fewer closures or generated artifacts</p></td>
+<td><p>Before/after closure/type/method/IL counts with compiler flags and expected output</p></td>
+<td><p>Runtime allocation/size; semantics and runtime speed only if claimed</p></td>
+<td><p>Request: PERF-03/06/11; counts do not prove end-to-end speed</p></td>
+</tr>
+<tr class="even">
+<td><p>Less CPU work</p></td>
+<td><p>CPU time or correctly defined sampled/exclusive/inclusive profile</p></td>
+<td><p>Elapsed time, parallel work, contention, total workload completion</p></td>
+<td><p>Request: PERF-03/05</p></td>
+</tr>
+<tr class="odd">
+<td><p>Better concurrency/parallelism</p></td>
+<td><p>Throughput/latency at named concurrency; active threads/work items and CPU</p></td>
+<td><p>Thread-pool pressure, starvation/hangs, contention, cancellation, memory and determinism</p></td>
+<td><p>Request: PERF-05/06</p></td>
+</tr>
+<tr class="even">
+<td><p>Faster startup/build/compiler/FCS</p></td>
+<td><p>Cold startup/build elapsed time or named parse/check operation; incremental/warm work separately</p></td>
+<td><p>Peak/retained memory, allocations, cache hits/reuse and repeated builds/checks</p></td>
+<td><p>Request: PERF-01/03/05</p></td>
+</tr>
+<tr class="odd">
+<td><p>Workload-specific bottleneck</p></td>
+<td><p>Relevant measure such as emitted bytes, metadata rows, cache hit/miss/eviction counts or processed inputs/second</p></td>
+<td><p>End-to-end relevance and affected behavior/resource cost</p></td>
+<td><p>Request: PERF-01/03; PERF-08/09 add source-attributed scope observations, not metric mandates</p></td>
+</tr>
+</tbody>
+</table>
+
+<h2 data-fsdocs-heading="12"><a name="Tooling-context-not-human-evidence" class="anchor" href="#Tooling-context-not-human-evidence">Tooling context, not human evidence</a></h2>
+<p><strong>Post-C3 evaluation correction (request-required, not new human training history):</strong> HOLD-09's frozen oracle required a modern-runtime comparison with hardware intrinsics disabled. C3 asked about .NET Framework and broader inputs but missed that condition. The final source chooses LINQ on modern runtimes and the old loop on Framework; Framework data therefore does not measure LINQ's modern scalar fallback. The <a href="https://github.com/dotnet/fsharp/pull/18509#issuecomment-3188320978">earlier request</a> is attribution-limited 2025 context, <strong>not a newly verified human precedent or in-window human vote</strong>. PERF-03 now explicitly asks for representative supported fast/fallback paths on the same runtime when capability-dependent dispatch is implicated. This is not a universal hardware/OS/runtime benchmark matrix. The original C3 output/oracle remain in <a href="validation.md#c3-blind-execution-and-retained-failure">validation.md</a>; #18509 becomes development, and a coached replay cannot count as independent holdout success.</p>
+<p><strong>Post-C4 development-regression correction (request-required):</strong> C4 recognized HOLD-01's changed runtime array type but treated its compatibility obligation as an unspecified policy, omitting the concrete formerly successful downcast that now fails. This exposed development case was already excluded from holdout credit. PERF-06/12 distinguish representation differences requiring investigation from <strong>source-established caller failures</strong>, which are material risk even without a separate policy document. Intentional empty sharing does not automatically authorize the collateral runtime-type break. C5 makes that classification explicit; no new human precedent or changed oracle is claimed.</p>
+<p>At checkout <code>ae294143e5890033fcb717956050a91a6f2ed6e8</code>, <a href="../../tests/benchmarks/README.md">benchmark guidance</a> distinguishes compiler/service work from generated-program runtime and cautions about environment differences. <a href="../../tests/benchmarks/FCSBenchmarks/BenchmarkComparison/README.md">Historical FCS comparison</a> measures <code>FSharpChecker.ParseAndCheckFileInProject</code>; its per-version BenchmarkDotNet processes and API compatibility defines need recording. A <code>ParseAndCheckProject</code> retention claim is not automatically covered by that single-file benchmark.</p>
+<p><a href="../../tests/benchmarks/CompiledCodeBenchmarks/README.md">Compiled-program benchmarks</a> use <code>tests\benchmarks\CompiledCodeBenchmarks\MicroPerf\MicroPerf.fsproj</code>. <code>Program.fs</code> configures <code>Current</code> as baseline and <code>Preview</code> as a custom build configuration; the project selects preview language/local compiler for that configuration. These labels are <strong>not baseline/PR commit identities</strong>. Verify the binaries, runtime, flags and compiler versions actually used on both sides.</p>
+<p>When appropriate, <a href="../../eng/scripts/BuildWithLocalFSharp.fsx">BuildWithLocalFSharp.fsx</a> supplies local compiler/core overrides after a Release packed build; its <code>--verify</code> mode checks the resolved FSharp.Core version in assets files, not the compiler binary's identity. Retain the actual compiler path/version separately. This is tooling choice, not a mandatory matrix or a benchmark result. The existing <code>expert-reviewer</code> remains responsible for broad compiler review; these rules request behavior proof only where a performance mechanism could change it.</p>
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Performance-improvement-review-evidence-and-rule-contract">
+      Performance-improvement review: evidence and rule contract
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Named-conversation-audit">
+      Named conversation audit
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="3">
+    <a href="#1-Need-value-and-target-workload">
+      1. Need/value and target workload
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="4">
+    <a href="#2-PR-description-quality-and-tabular-benchmark-evidence">
+      2. PR description quality and tabular benchmark evidence
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="5">
+    <a href="#3-Metric-selection-and-measurement-validity">
+      3. Metric selection and measurement validity
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="6">
+    <a href="#4-Size-significance-of-the-improvement">
+      4. Size/significance of the improvement
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="7">
+    <a href="#5-Regressions-and-resource-trade-offs">
+      5. Regressions and resource trade-offs
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="8">
+    <a href="#6-Behavior-API-compatibility-preservation">
+      6. Behavior/API/compatibility preservation
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="9">
+    <a href="#7-Surgical-scope-isolation-and-implementation-risk">
+      7. Surgical scope, isolation, and implementation risk
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="10">
+    <a href="#8-Reproducibility-tests-and-final-recommendation">
+      8. Reproducibility, tests, and final recommendation
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="11">
+    <a href="#Conditional-metric-mapping">
+      Conditional metric mapping
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="12">
+    <a href="#Tooling-context-not-human-evidence">
+      Tooling context, not human evidence
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-heading-6, --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-heading-9, --fsdocs-heading-10, --fsdocs-heading-11, --fsdocs-heading-12, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-heading-6; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="6"] { view-timeline-name: --fsdocs-heading-6; }
+#fsdocs-page-menu [data-fsdocs-heading="6"] { animation-timeline: --fsdocs-heading-6, --fsdocs-heading-7; }
+body:has(#content [data-fsdocs-heading="6"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="6"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="7"] { view-timeline-name: --fsdocs-heading-7; }
+#fsdocs-page-menu [data-fsdocs-heading="7"] { animation-timeline: --fsdocs-heading-7, --fsdocs-heading-8; }
+body:has(#content [data-fsdocs-heading="7"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="7"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="8"] { view-timeline-name: --fsdocs-heading-8; }
+#fsdocs-page-menu [data-fsdocs-heading="8"] { animation-timeline: --fsdocs-heading-8, --fsdocs-heading-9; }
+body:has(#content [data-fsdocs-heading="8"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="8"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="9"] { view-timeline-name: --fsdocs-heading-9; }
+#fsdocs-page-menu [data-fsdocs-heading="9"] { animation-timeline: --fsdocs-heading-9, --fsdocs-heading-10; }
+body:has(#content [data-fsdocs-heading="9"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="9"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="10"] { view-timeline-name: --fsdocs-heading-10; }
+#fsdocs-page-menu [data-fsdocs-heading="10"] { animation-timeline: --fsdocs-heading-10, --fsdocs-heading-11; }
+body:has(#content [data-fsdocs-heading="10"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="10"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="11"] { view-timeline-name: --fsdocs-heading-11; }
+#fsdocs-page-menu [data-fsdocs-heading="11"] { animation-timeline: --fsdocs-heading-11, --fsdocs-heading-12, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="11"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="11"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="12"] { view-timeline-name: --fsdocs-heading-12; }
+#fsdocs-page-menu [data-fsdocs-heading="12"] { animation-timeline: --fsdocs-heading-12, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="12"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="12"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="../content/fsdocs-tips.js"></script>
+<script type="module" src="../content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="../content/fsdocs-details-toggle.js"></script>
+<script type="module" src="../content/fsdocs-theme.js"></script>
+<script type="module" src="../content/fsdocs-search.js"></script>
+<script type="module" src="../content/fsdocs-copy-button.js"></script>
+<script type="module" src="../content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

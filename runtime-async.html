@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en" data-root="./">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Runtime async" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/runtime-async.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Runtime async">
+    
+    <title>Runtime async | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="./img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="./content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="./content/fsdocs-details-set-expanded.js"></script>
+    <link href="./content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="./content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header active">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-extension-srtp-evidence-across-files.html">
+    Extension SRTP evidence
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./performance-improvement-review/validation.html">
+    Performance-improvement review: validation
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./performance-improvement-review/corpus.html">
+    Performance-improvement review corpus
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./performance-improvement-review/evidence.html">
+    Performance-improvement review: evidence and rule contract
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./performance-improvement-review/mining/README.html">
+    Frozen corpus inventory and scope
+
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="./reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="./img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header active">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="./runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./postmortems/regression-extension-srtp-evidence-across-files.html">
+    Extension SRTP evidence
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>             
+<li class="nav-header ">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./performance-improvement-review/validation.html">
+    Performance-improvement review: validation
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./performance-improvement-review/corpus.html">
+    Performance-improvement review corpus
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./performance-improvement-review/evidence.html">
+    Performance-improvement review: evidence and rule contract
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="./performance-improvement-review/mining/README.html">
+    Frozen corpus inventory and scope
+
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="./reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="./reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        
+<h1 data-fsdocs-heading="1"><a name="Runtime-async" class="anchor" href="#Runtime-async">Runtime async</a></h1>
+<p>This document describes the current proof-of-concept implementation of F#
+support for the .NET runtime-async feature. It describes the code as
+implemented, not an aspirational design. The .NET design is still evolving:</p>
+<ul>
+<li><a href="https://github.com/dotnet/runtime/blob/main/docs/design/specs/runtime-async.md">Runtime-async specification</a></li>
+<li><a href="https://github.com/dotnet/runtime/blob/main/docs/design/coreclr/botr/runtime-async-codegen.md">Runtime-async code-generation contract</a></li>
+<li>
+<a href="https://github.com/dotnet/roslyn/blob/main/docs/compilers/CSharp/Runtime%20Async%20Design.md">Roslyn runtime async design</a> —
+how C# lowers <code>await</code> (including the exception-handling hoisting described below)
+</li>
+</ul>
+<p>The implementation targets functions, lambdas, and members returning
+<code>System.Threading.Tasks.Task&lt;'T&gt;</code>, <code>Task</code>, <code>ValueTask&lt;'T&gt;</code>, or <code>ValueTask</code>.
+Inline computation-expression builders can use the feature, but no such
+builder is currently part of FSharp.Core.</p>
+<h2 data-fsdocs-heading="2"><a name="Runtime-contract" class="anchor" href="#Runtime-contract">Runtime contract</a></h2>
+<p>Runtime-async methods are CIL methods marked with
+<code>MethodImplOptions.Async</code> (<code>0x2000</code>). The runtime, rather than a compiler
+generated state machine and method builder, owns suspension and resumption.</p>
+<p>The compiler provides a return intrinsic for each of these carrier shapes:
+generic and non-generic <code>Task</code>, and generic and non-generic <code>ValueTask</code>.</p>
+<p>Suspension is explicit, via <code>System.Runtime.CompilerServices.AsyncHelpers</code>:</p>
+<ul>
+<li><code>Await</code> for <code>Task</code>, <code>ValueTask</code>, and configured awaitables</li>
+<li>
+<code>AwaitAwaiter</code> and <code>UnsafeAwaitAwaiter</code> for awaiters (used by SRTP
+awaitable bindings)
+</li>
+</ul>
+<p>The compiler emits the adjacent IL sequence the runtime specification expects:</p>
+<div class="fsdocs-snippet"><pre class="fssnip"><code lang="il">call Task&lt;int32&gt; SomeAsyncMethod(...)
+call int32 AsyncHelpers::Await&lt;int32&gt;(Task&lt;int32&gt;)
+</code></pre></div>
+<p>In runtime-async bodies, the compiler emits <code>Task</code> upcasts as <code>castclass</code>
+instructions, including before <code>ConfigureAwait</code>. These casts prevent the runtime
+from incorrectly optimizing a generic task-producing call followed by a
+non-generic await.</p>
+<p>Runtime restrictions and their compiler handling:</p>
+<ul>
+<li><code>tail.</code> is forbidden; runtime-async methods suppress tail-call prefixes.</li>
+<li><code>localloc</code> is forbidden and reported as FS3920, even without a suspension.</li>
+<li><code>MethodImplOptions.Synchronized</code> is rejected with FS3921.</li>
+<li>
+Suspension cannot occur inside exception handlers, filters, or <code>finally</code>
+blocks. Awaiting in a protected <code>try</code> body is supported. Return-marker
+bodies rewrite suspending <code>try/with</code> handlers and filters, and
+<code>try/finally</code> compensations, so the suspension runs outside the EH region.
+
+C# avoids this by rewriting EH-region awaits at lowering time (see the
+Roslyn design doc): <code>try B finally { await x }</code> becomes
+<code>try B catch-all { pend e }</code>, then <code>await x</code> outside the region, then
+rethrow the pending exception. The compiler applies the same transformation
+to a suspending compensation: it captures the body result or exception,
+runs <code>DisposeAsync</code> (possibly suspending) <em>outside</em> the <code>try</code>, then restores
+the pending exception. This makes <code>use</code> on an <code>IAsyncDisposable</code> work under
+runtime async.
+</li>
+</ul>
+<p>Byref, byref-like, and pinned locals that are used after a suspension are
+rejected with diagnostic FS3919 when their non-preservable provenance is
+tracked. Pinned provenance is not currently propagated through ref cells or
+captured delegates, so those uses are not reliably diagnosed.</p>
+<p>Calls to <code>AsyncHelpers</code> suspension methods emitted outside a runtime-async
+method are rejected during code generation. Explicitly <code>inline</code> method bodies
+are treated as templates and checked at their eventual use site.</p>
+<h2 data-fsdocs-heading="3"><a name="F-surface" class="anchor" href="#F-surface">F# surface</a></h2>
+<p>The source-level markers are compiler intrinsics on
+<code>Microsoft.FSharp.Core.CompilerServices.StateMachineHelpers</code>, available from
+the <code>net10.0</code> FSharp.Core target and declared in <code>resumable.fsi</code> alongside the
+other compiler intrinsics:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">val</span> <span class="id">__runtimeAsyncReturn</span><span class="pn">&lt;</span><span class="id">&#39;</span><span class="id">T</span><span class="pn">&gt;</span> <span class="pn">:</span> <span class="id">&#39;</span><span class="id">T</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="1" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="2" class="id">Threading</span><span class="pn">.</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="3" class="id">Tasks</span><span class="pn">.</span><span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="4" class="id">Task</span><span class="pn">&lt;</span><span class="id">&#39;</span><span class="id">T</span><span class="pn">&gt;</span>
+<span class="k">val</span> <span class="id">__runtimeAsyncReturnValueTask</span><span class="pn">&lt;</span><span class="id">&#39;</span><span class="id">T</span><span class="pn">&gt;</span> <span class="pn">:</span> <span class="id">&#39;</span><span class="id">T</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="5" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="6" class="id">Threading</span><span class="pn">.</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="7" class="id">Tasks</span><span class="pn">.</span><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="8" class="id">ValueTask</span><span class="pn">&lt;</span><span class="id">&#39;</span><span class="id">T</span><span class="pn">&gt;</span>
+<span class="k">val</span> <span class="id">__runtimeAsyncReturnUnit</span> <span class="pn">:</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="9" class="id">unit</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="10" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="11" class="id">Threading</span><span class="pn">.</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="12" class="id">Tasks</span><span class="pn">.</span><span data-fsdocs-tip="fs4" data-fsdocs-tip-unique="13" class="id">Task</span>
+<span class="k">val</span> <span class="id">__runtimeAsyncReturnValueTaskUnit</span> <span class="pn">:</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="14" class="id">unit</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs1" data-fsdocs-tip-unique="15" class="id">System</span><span class="pn">.</span><span data-fsdocs-tip="fs2" data-fsdocs-tip-unique="16" class="id">Threading</span><span class="pn">.</span><span data-fsdocs-tip="fs3" data-fsdocs-tip-unique="17" class="id">Tasks</span><span class="pn">.</span><span data-fsdocs-tip="fs5" data-fsdocs-tip-unique="18" class="id">ValueTask</span>
+</code></pre></div>
+<p>Their FSharp.Core implementations throw; code generation consumes recognized
+marker applications instead of emitting calls to those stubs. They are marked
+<code>NoInlining</code> so a missed consumption does not silently fold into a caller.</p>
+<p>The feature is available from F# 11.2, including <code>default</code>, <code>latest</code>, and
+<code>preview</code> (<code>LanguageFeature.RuntimeAsync</code>), and gated on the target reference
+assemblies exposing <code>MethodImplOptions.Async</code> (see "Runtime capability check"
+below).
+Without the language version the checker reports error 3350; without runtime
+support it reports 3351.</p>
+<p>Typical forms:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="id">add</span> <span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="19" class="id">int</span><span class="pn">)</span> <span class="pn">(</span><span class="id">y</span><span class="pn">:</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="20" class="id">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="id">Task</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="21" class="id">int</span><span class="pn">&gt;</span> <span class="o">=</span>
+    <span class="id">__runtimeAsyncReturn</span> <span class="pn">(</span>
+        <span class="k">let</span> <span class="id">first</span> <span class="o">=</span> <span class="id">AsyncHelpers</span><span class="pn">.</span><span class="id">Await</span> <span class="pn">(</span><span class="id">getTask</span> <span class="id">x</span><span class="pn">)</span>
+        <span class="id">first</span> <span class="o">+</span> <span class="id">y</span><span class="pn">)</span>
+
+<span class="k">type</span> <span class="id">C</span><span class="pn">(</span><span class="pn">)</span> <span class="o">=</span>
+    <span class="k">member</span> <span class="id">_</span><span class="pn">.</span><span class="id">Add</span><span class="pn">(</span><span class="id">x</span><span class="pn">:</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="22" class="id">int</span><span class="pn">,</span> <span class="id">y</span><span class="pn">:</span> <span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="23" class="id">int</span><span class="pn">)</span> <span class="pn">:</span> <span class="id">Task</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="24" class="id">int</span><span class="pn">&gt;</span> <span class="o">=</span>
+        <span class="id">__runtimeAsyncReturn</span> <span class="pn">(</span>
+            <span class="id">AsyncHelpers</span><span class="pn">.</span><span class="id">Await</span> <span class="pn">(</span><span class="id">getTask</span> <span class="id">x</span><span class="pn">)</span> <span class="o">+</span> <span class="id">y</span><span class="pn">)</span>
+
+<span class="c">// Let-bound value (not a function): also supported.</span>
+<span class="k">let</span> <span class="id">answer</span> <span class="pn">:</span> <span class="id">Task</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="25" class="id">int</span><span class="pn">&gt;</span> <span class="o">=</span> <span class="id">__runtimeAsyncReturn</span> <span class="n">42</span>
+</code></pre></div>
+<p>There is no implicit awaiting: the argument of a generic return marker is
+checked as the logical <code>'T</code> result, and flattening requires an explicit
+<code>AsyncHelpers.Await</code>.</p>
+<h2 data-fsdocs-heading="4"><a name="Type-checking" class="anchor" href="#Type-checking">Type checking</a></h2>
+<p>The return intrinsics are ordinary values in the typed tree; no new expression
+node or <code>Val</code> flag is added. Type checking special-cases their applications in
+two places in <code>CheckExpressions.fs</code>:</p>
+<ul>
+<li>
+<code>Propagate</code> skips function-type propagation for the intrinsic so the
+argument is not checked against a function domain.
+</li>
+<li>
+<code>TcApplicationThen</code> (<code>tryTcRuntimeAsyncApplication</code>) recognises the
+intrinsic (possibly type-applied), gates the language feature and runtime
+capability, extracts the result carrier and argument type from the
+intrinsic's instantiated signature, and checks the argument with
+<code>TcExprFlex2</code>. The result carrier then unifies with the declared return
+type of the enclosing binding in the usual way.
+</li>
+</ul>
+<p>User code that defines its own same-named marker is unaffected: the intrinsic is
+only recognised when the <code>ValRef</code> resolves (via <code>valRefEq</code>) to the FSharp.Core
+declaration.</p>
+<h2 data-fsdocs-heading="5"><a name="Optimization" class="anchor" href="#Optimization">Optimization</a></h2>
+<p><code>Optimizer.fs</code> preserves the marker application as-is, optimizing its
+argument. The marked expression is forced to <code>HasEffect = true</code> and
+<code>UnknownValue</code>, so ordinary value propagation cannot treat it as a pure result.
+The marker therefore survives optimization as an ordinary <code>Expr.App</code> node;
+nothing else in the typed tree records that a method is runtime-async.</p>
+<p>Inline values whose bodies contain a marker or an <code>AsyncHelpers</code>
+suspension are recursively specialized at their call sites, including when
+optimization is disabled. The analysis follows inline and local values with a
+cycle guard, and <code>InlineIfLambda</code> arguments are forced through when the caller
+is already in a runtime-async context.</p>
+<p>Method splitting never moves an expression containing a suspension into a
+separate method, since that method would not be runtime-async. A method whose
+body is a return marker is never exported as an inline definition: its
+suspensions are valid only in the generated runtime-async method.</p>
+<h3 data-fsdocs-heading="6"><a name="Custom-optimizations" class="anchor" href="#Custom-optimizations">Custom optimizations</a></h3>
+<p>The terms used here are defined in
+<a href="optimizations.md#runtime-async-optimizations">Runtime-async optimizations</a>.
+These runtime-async-specific rewrites supplement forced ordinary optimizations
+such as inlining and eta-expansion. Some are needed to keep suspensions in the
+enclosing runtime-async method.</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>Rewrite</p></th>
+<th><p>Behavior and implementation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p>Await-input local elimination</p></td>
+<td><p><code>Optimizer.fs</code> (<code>inlineAwaitInput</code>) folds a single-use local into a suspension argument through calls, coercions, and constructions, moving only past safe expressions. This preserves evaluation order and exposes adjacent task-producing calls and awaits for the runtime to fuse.</p></td>
+</tr>
+<tr class="even">
+<td><p>Callback-capture floating</p></td>
+<td><p><code>Optimizer.fs</code> (<code>FloatInlineIfLambdaCaptures</code>) moves capture bindings and effect prefixes outside an <code>InlineIfLambda</code> lambda or delegate binding, exposing the callback to ordinary inlining without changing when captures are evaluated.</p></td>
+</tr>
+<tr class="odd">
+<td><p>Returned-closure reduction</p></td>
+<td><p><code>RuntimeAsyncAnalysis.fs</code> (<code>ReduceRuntimeAsyncReturnedClosureApplications</code>) pushes applications through bindings, sequencing, and match targets to beta-reduce returned lambdas, subject to argument-movement safety. This exposes suspensions in closures returned by builder combinators.</p></td>
+</tr>
+<tr class="even">
+<td><p>Single-use delegate inlining</p></td>
+<td><p><code>LowerRuntimeAsync.fs</code> (<code>tryPrepareDelegateInvocation</code> / <code>inlineDelegate</code>) substitutes a residual <code>InlineIfLambda</code> delegate body at its sole direct invocation when its wrapped or conditional construction is safe to move.</p></td>
+</tr>
+<tr class="odd">
+<td><p>Callback defunctionalization</p></td>
+<td><p><code>LowerRuntimeAsync.fs</code> (<code>tryDefunctionalizeCallback</code> / <code>mkCallbackDispatch</code>) replaces branch-selected suspending callbacks with a tag and hoisted captures. Construction runs once; each invocation binds its argument once and dispatches to copied branch bodies with shared mutable state. Copies across all invocations, including those nested in arguments, have a total 2000-expression-node budget.</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>There is also a runtime-async-specific reoptimization step in
+<code>Optimizer.fs</code> (<code>OptimizeDebugPipeRights</code>): after rebuilding a debug pipe chain,
+it reoptimizes with synthetic pipe-input bindings in scope. This enables
+existing optimizations on callbacks that capture those inputs; it is not a
+separate rewrite.</p>
+<p>Returned-closure reduction and callback lowering share construction-prefix
+recognition and rebuilding (<code>RuntimeAsyncConstructionPrefix</code> in <code>RuntimeAsync.fs</code>).
+Each rewrite retains its own movement checks, branch handling, and lambda reduction.</p>
+<h2 data-fsdocs-heading="7"><a name="Runtime-async-lowering" class="anchor" href="#Runtime-async-lowering">Runtime-async lowering</a></h2>
+<p><code>LowerRuntimeAsync.fs</code> runs once per file after the first optimization loop,
+so it sees the final inlined shape rather than an intermediate optimizer
+state, and before <code>LowerLocalMutables</code>, so mutable locals it introduces that
+closures capture are promoted to reference cells. It has two steps.</p>
+<p>First, it applies the callback rewrites listed above to compiler-owned,
+single-argument <code>InlineIfLambda</code> functions and delegates within runtime-async
+bodies or sequence recipes, including callbacks bound immediately before a
+runtime-async body and those captured by their construction. The outer pass
+normalizes children bottom-up, then selects and applies one callback rewrite.
+Successful replacements are revisited because substitution can make enclosing
+callbacks eligible; rejected candidates are left unchanged. A suspending
+construction used directly as an <code>Invoke</code> receiver is bound to a compiler-owned
+callback before lowering; receiver evaluation still precedes argument evaluation.</p>
+<p>Eligibility, captures, branch sizes, and use counts are checked before
+rewriting. Escaping callbacks, opaque consumers, quotations retaining the
+callback, unsupported tails such as <code>try</code>/<code>with</code>, and unsafe byref or pinned
+captures are rejected. Effectful delegate precomputations stay at construction.
+Only specialized copies change; exported inline definitions and signatures
+remain intact. Keeping suspensions in the enclosing method preserves
+<code>ExecutionContext</code> effects such as <code>AsyncLocal</code> writes in source order.
+Rejected callbacks remain closures: IlxGen diagnoses a suspension in an
+unmarked closure or delegate <code>Invoke</code> with FS3918, even when its enclosing
+method is runtime-async.</p>
+<p>Second, every return-marker body is prepared once after callbacks are inlined,
+innermost first: locals that cannot be preserved across a suspension are
+reported (once per range across the compilation), and suspending exception
+handlers are rewritten. Preparing afterwards means an <code>Await</code> that callback
+or delegate inlining moves into a handler is still rewritten.
+<code>__runtimeAsyncSequence</code> recipes are not prepared here; <code>LowerAsyncSeq</code>
+prepares their <code>MoveNextAsync</code> body after state-machine conversion, which is
+where sequence <code>try</code>/<code>with</code> is lowered.</p>
+<p>The later optimization loops (<code>ExtraLoop</code>, <code>FinalSimplify</code>) do not repeat the
+preparation. They rely on every suspending body having been inlined by the
+first loop, so they cannot move a suspension into a handler or a closure.</p>
+<p>Hoisted mutable captures keep their source name through <code>TOp.DebugLocalScope</code>.
+IlxGen relies on <code>LowerLocalMutables</code> having boxed every such capture that a
+closure reads, so the scope names either the local slot itself or a copy of
+the shared reference cell.</p>
+<p>When runtime-async specialization is forced in a debug build, the builder
+combinator is copied with its definition-site debug ranges remarked at the
+call site. User continuation arguments keep their own ranges, and the marked
+method retains a call-site sequence point even when forced inlining reduces
+its intermediate closures.</p>
+<p>Callback lowering shares recognition and rebuilding of transparent debug
+points and lexical-scope annotations. Rebuilding retains the original range,
+scope name, and storage reference; a lexical scope is not discarded when
+reducing an application through its wrapper.</p>
+<p>Dead branches eliminated by optimization do not reach code generation and do
+not produce a suspension-outside-runtime-async diagnostic.</p>
+<p>Runtime-async boundary recognition is centralized in
+<code>TypedTree/RuntimeAsync.fs</code>. <code>IsRuntimeAsyncBoundary</code> (with the more specific
+<code>TryGetRuntimeAsyncReturn</code> and <code>IsRuntimeAsyncSuspensionExpr</code>) lets consumers
+use the shared recognizers rather than matching typed-tree shapes
+independently.</p>
+<p>The optimizer and the lowering pass use a context-local <code>RuntimeAsyncAnalyzer</code>. It memoizes
+completed expression results by reference identity and inline-value results by
+value stamp, with a visiting set for recursive inline-value graphs. The cache
+is not global: optimizer environments can provide different inline bodies, and
+optimization creates new expression trees. Context-dependent decisions such as
+<code>runtimeAsyncContext</code> remain outside the cached facts.</p>
+<p>An optimizer analyzer lives for one application-inlining attempt; callback
+lowering shares an analyzer for one implementation file, and exception
+rewriting creates one per body. Flow-summary caches are also per body.
+Custom recursive analysis and callback reconstruction use stack guards,
+including traversals between inline-value bodies and through decision trees.
+Callback capture analysis uses the guarded free-variable collector.</p>
+<h2 data-fsdocs-heading="8"><a name="Code-generation" class="anchor" href="#Code-generation">Code generation</a></h2>
+<p><code>IlxGen.fs</code> recognises the return-marker family in three placements through the
+shared runtime-async boundary contract, which strips <code>DebugPoint</code> wrappers:</p>
+<ol>
+<li>
+<strong>Method body</strong> (<code>GenMethodForBinding</code>): the marker is unwrapped from the
+top of the method lambda body; the generated <code>ILMethodDef</code> gets
+<code>.WithAsync(true)</code>, which sets impl attribute bit <code>0x2000</code>
+(<code>MethodImplOptions.Async</code>, written as a literal because older reference
+assemblies do not define the enum member).
+</li>
+<li>
+<strong>Closure body</strong> (<code>GenClosureAsLocalTypeFunction</code> and
+<code>GenClosureAsFirstClassFunction</code>): the same unwrapping marks the closure
+method's IL body (<code>ILMethodBody.IsRuntimeAsync</code>). Local type functions
+mark <code>DirectInvoke</code> explicitly; for first-class closures,
+<code>EraseClosures.convIlxClosureDef</code> copies the flag onto the emitted
+<code>Invoke</code> method.
+</li>
+<li>
+<strong>Any other expression position</strong> (<code>GenRuntimeAsyncReturnAsStartedTask</code>), e.g.
+a <code>let</code>-bound value initializer: the marker application is wrapped in a
+fresh <code>fun () -&gt; ...</code> lambda that is immediately applied to <code>unit</code> and
+regenerated. The lambda flows through the closure path (2), producing a
+generated runtime-async helper method whose call starts the task. This
+relies on <code>GenApp</code> never beta-reducing a lambda application (it always
+emits a closure plus an indirect call); see the comment at
+<code>GenRuntimeAsyncReturnAsStartedTask</code>.
+</li>
+</ol>
+<p>Named methods, closures, and sequence methods share marker unwrapping and
+unit-return classification. Both closure emission paths also share captured
+value validation, runtime-async environment setup, and IL-body marking.</p>
+<p>A marker that ends up wrapped in anything other than <code>DebugPoint</code> at the top
+of a method or closure body is not detected there, but still reaches the
+catch-all case (3), so compilation stays correct — the cost is an extra
+nested runtime-async helper method rather than marking the enclosing method
+directly.</p>
+<h2 data-fsdocs-heading="9"><a name="Debug-stepping-and-call-stacks" class="anchor" href="#Debug-stepping-and-call-stacks">Debug stepping and call stacks</a></h2>
+<p>The compiler emits ordinary Portable PDB sequence points for runtime-async
+methods. It does not emit <code>StateMachineMethod</code> or async state-machine stepping
+records because runtime-async methods have no compiler-generated <code>MoveNext</code>
+method. Forced inlining therefore preserves user computation-expression
+sequence points in the generated runtime-async method while remapping the
+inlined builder implementation ranges.</p>
+<p>Suspension, continuation mapping, and reconstruction of logical async call
+stacks are owned by the runtime and debugger through the <code>Async</code> method
+implementation flag and the runtime-async debug information contract. Missing
+logical frames after a continuation cannot be repaired by inventing F# state
+machine metadata; such cases must be validated against the target runtime and
+tracked with the runtime/debugger implementation.</p>
+<p>Case (3) re-homes the marker argument into a compiler-synthesized closure
+during code generation, <em>after</em> <code>LowerLocalMutables</code> has run. Without special
+handling, mutable locals used both in that body and in the enclosing scope
+would be copied into the closure by value, silently disconnecting the two
+copies. <code>LowerLocalMutables</code> therefore treats the marker argument as a lambda
+body (<code>DecideExpr</code>), promoting its free mutable locals to reference cells so
+the synthesized closure and the enclosing scope share them.</p>
+<p><code>InvokeFast</code> is not a separate runtime-async path. It is the closure-erasure
+shape for an indirect call with multiple arguments. Forced inlining and
+eligible callback inlining happen before closure erasure; a suspension left
+behind an opaque indirect invocation is rejected by code generation.</p>
+<h2 data-fsdocs-heading="10"><a name="Runtime-capability-check" class="anchor" href="#Runtime-capability-check">Runtime capability check</a></h2>
+<p><code>InfoReader</code> gates <code>LanguageFeature.RuntimeAsync</code> on the target reference
+assemblies: it looks up the <code>Async</code> field on
+<code>System.Runtime.CompilerServices.MethodImplOptions</code>. This is a metadata-only
+probe of the <em>reference</em> assemblies; it does not prove the <em>executing</em> host
+JIT supports runtime-async. Compiling against new reference assemblies and
+running on an older runtime is not a supported configuration.</p>
+<h2 data-fsdocs-heading="11"><a name="Computation-expression-usage" class="anchor" href="#Computation-expression-usage">Computation-expression usage</a></h2>
+<p>The feature is usable from an inline computation-expression builder. A
+task-like builder can keep <code>Delay</code> and its other combinators synchronous and
+inline; <code>Run</code> introduces the return marker:</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">type</span> <span class="id">RuntimeTaskBuilder</span><span class="pn">(</span><span class="pn">)</span> <span class="o">=</span>
+    <span class="k">member</span> <span class="k">inline</span> <span class="id">_</span><span class="pn">.</span><span class="id">Delay</span><span class="pn">(</span><span class="pn">[&lt;</span><span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="26" class="id">InlineIfLambda</span><span class="pn">&gt;]</span> <span class="id">generator</span><span class="pn">:</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="27" class="id">unit</span> <span class="k">-&gt;</span> <span class="id">&#39;</span><span class="id">T</span><span class="pn">)</span> <span class="o">=</span> <span class="id">generator</span>
+    <span class="k">member</span> <span class="k">inline</span> <span class="id">_</span><span class="pn">.</span><span class="id">Run</span><span class="pn">(</span><span class="pn">[&lt;</span><span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="28" class="id">InlineIfLambda</span><span class="pn">&gt;]</span> <span class="id">code</span><span class="pn">:</span> <span data-fsdocs-tip="fs6" data-fsdocs-tip-unique="29" class="id">unit</span> <span class="k">-&gt;</span> <span class="id">&#39;</span><span class="id">T</span><span class="pn">)</span> <span class="o">=</span>
+        <span class="id">__runtimeAsyncReturn</span> <span class="pn">(</span><span class="id">code</span> <span class="pn">(</span><span class="pn">)</span><span class="pn">)</span>
+    <span class="k">member</span> <span class="k">inline</span> <span class="id">_</span><span class="pn">.</span><span class="id">Bind</span><span class="pn">(</span><span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="30" class="id">task</span><span class="pn">:</span> <span class="id">Task</span><span class="pn">&lt;</span><span class="id">&#39;</span><span class="id">T</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="pn">[&lt;</span><span data-fsdocs-tip="fs8" data-fsdocs-tip-unique="31" class="id">InlineIfLambda</span><span class="pn">&gt;]</span> <span class="id">continuation</span><span class="pn">:</span> <span class="id">&#39;</span><span class="id">T</span> <span class="k">-&gt;</span> <span class="id">&#39;</span><span class="id">U</span><span class="pn">)</span> <span class="o">=</span>
+        <span class="id">continuation</span> <span class="pn">(</span><span class="id">AsyncHelpers</span><span class="pn">.</span><span class="id">Await</span> <span data-fsdocs-tip="fs9" data-fsdocs-tip-unique="32" class="id">task</span><span class="pn">)</span>
+</code></pre></div>
+<p>Sample builders for tasks (<code>runtimeTask</code>), cancellable computations (<code>async2</code>) and async sequences (<code>asyncSeq2</code>) live with the <a href="../tests/FSharp.Compiler.ComponentTests/Language/RuntimeAsync/README.md">component tests</a>. They are examples, not FSharp.Core APIs.</p>
+<h3 data-fsdocs-heading="12"><a name="Unsupported-positions-for-inline-runtime-async-code" class="anchor" href="#Unsupported-positions-for-inline-runtime-async-code">Unsupported positions for inline runtime-async code</a></h3>
+<p>Inline runtime-async code that escapes as a first-class value, is passed to a
+non-inline function, or is dynamically dispatched cannot be inlined into the
+enclosing runtime-async method. If a suspension remains in the generated
+non-runtime-async method, code generation reports FS3918 rather than emitting
+an unsafe closure. Code in statically eliminated branches does not trigger
+this diagnostic.</p>
+<h2 data-fsdocs-heading="13"><a name="Async-sequences" class="anchor" href="#Async-sequences">Async sequences</a></h2>
+<p><code>__runtimeAsyncSequence</code> turns a statically known <code>unit -&gt; seq&lt;'T&gt;</code> recipe into an <code>IAsyncEnumerable&lt;'T&gt;</code>. It reuses sequence lowering, but emits a single runtime-async <code>MoveNextAsync(): ValueTask&lt;bool&gt;</code> state machine. Awaits in the recipe stay in this method, and yield positions persist between calls. Ordinary nested sequences remain synchronous.</p>
+<div class="fsdocs-snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="id">values</span> <span class="pn">(</span><span class="id">work</span><span class="pn">:</span> <span class="id">Task</span><span class="pn">&lt;</span><span data-fsdocs-tip="fs7" data-fsdocs-tip-unique="33" class="id">int</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="o">=</span>
+    <span class="id">__runtimeAsyncSequence</span> <span class="pn">(</span><span class="k">fun</span> <span class="pn">(</span><span class="pn">)</span> <span class="k">-&gt;</span> <span data-fsdocs-tip="fs10" data-fsdocs-tip-unique="34" class="id">seq</span> <span class="pn">{</span>
+        <span class="k">yield</span> <span class="id">AsyncHelpers</span><span class="pn">.</span><span class="id">Await</span> <span class="id">work</span>
+        <span class="k">try</span>
+            <span class="k">yield</span> <span class="id">AsyncHelpers</span><span class="pn">.</span><span class="id">Await</span> <span class="id">work</span> <span class="o">+</span> <span class="n">1</span>
+        <span class="k">with</span> <span class="id">_</span> <span class="k">-&gt;</span>
+            <span class="id">AsyncHelpers</span><span class="pn">.</span><span class="id">Await</span><span class="pn">(</span><span class="id">Task</span><span class="pn">.</span><span class="id">Delay</span> <span class="n">10</span><span class="pn">)</span>
+            <span class="k">yield</span> <span class="o">-</span><span class="n">1</span>
+    <span class="pn">}</span><span class="pn">)</span>
+</code></pre></div>
+<p><code>__runtimeAsyncSequenceCancellationToken()</code> returns the token passed to <code>GetAsyncEnumerator</code>. Each resume checks this token before running recipe code; awaiting a non-cancellable operation does not make it cancellable.</p>
+<p>Generated types derive from <code>GeneratedRuntimeAsyncSequenceBase&lt;'T&gt;</code>, which implements the enumerator interfaces:</p>
+<ul>
+<li>The first <code>GetAsyncEnumerator</code> reuses the sequence instance; later calls return independent clones.</li>
+<li>A second <code>MoveNextAsync</code>, or a <code>DisposeAsync</code>, while a move is pending throws <code>InvalidOperationException</code>. The generated <code>MoveNextAsync</code> releases this guard through <code>CompleteMoveNext</code> before its result completes.</li>
+</ul>
+<p><code>try/with</code> and <code>try/finally</code> blocks are part of the <code>MoveNextAsync</code> state machine, so bodies, guards, handlers and <code>finally</code> blocks can all await:</p>
+<ul>
+<li>A fault runs the pending <code>finally</code> blocks, then jumps to the innermost handler. Cleanup completes before guards run, as in ordinary <code>try/with</code>; a cleanup failure replaces the original exception.</li>
+<li><code>DisposeAsync</code> marks the enumerator as disposing and runs <code>MoveNextAsync</code> once more. That run executes the pending <code>finally</code> blocks and skips handlers.</li>
+</ul>
+<p>Other behavior:</p>
+<ul>
+<li>Recipes are normalized even with <code>--optimize-</code>. This can remove intermediate recipe locals but does not optimize surrounding code.</li>
+<li>Unhandled faults rethrow with their original dispatch information. Successful moves allocate no exception-transport object.</li>
+<li>Early disposal keeps ordinary sequence precedence: an outer cleanup failure replaces an inner one.</li>
+<li>Runtime-async inputs that are consumed immediately stay adjacent to their awaits, so the runtime can fuse the calls.</li>
+<li>Opaque recipes are rejected.</li>
+<li>The compiler does not hand off tail <code>yield!</code> calls; a builder can, as the sample <code>asyncSeq2</code> does.</li>
+<li>Builder-generated <code>MoveNextAsync</code> methods can lose sequence points, so source stepping is not guaranteed.</li>
+</ul>
+<p>Run the async-sequence tests with:</p>
+<div class="fsdocs-snippet"><pre class="fssnip"><code lang="sh">./build.sh -c Release
+dotnet test --project tests/FSharp.Compiler.ComponentTests/FSharp.Compiler.ComponentTests.fsproj \
+  -c Release --no-build -- --filter-class 'Language.RuntimeAsyncSequenceTests'
+</code></pre></div>
+<h2 data-fsdocs-heading="14"><a name="Not-yet-implemented" class="anchor" href="#Not-yet-implemented">Not yet implemented</a></h2>
+<ul>
+<li>
+Complete diagnostics for runtime restrictions. Runtime-async lowering rewrites
+suspending <code>try/with</code> handlers and filters, and <code>try/finally</code> compensations,
+so they execute outside exception-handling regions. There is no general
+diagnostic for runtime-contract violations in other generated or imported
+shapes. Stack allocation has a dedicated diagnostic (FS3920), and
+runtime-async methods suppress <code>tail.</code> emission rather than reporting it.
+</li>
+<li>
+A builder in FSharp.Core; builders using the feature are currently
+application/library code.
+</li>
+<li>
+Compile-time enforcement that every marker use was consumed during code
+generation (a missed marker throws only when its FSharp.Core stub is reached
+at run time).
+</li>
+</ul>
+
+        <div popover class="fsdocs-tip" id="fs1"><span class="k">namespace</span> <span class="m">System</span></div>
+<div popover class="fsdocs-tip" id="fs2"><span class="k">namespace</span> <span class="m">System.Threading</span></div>
+<div popover class="fsdocs-tip" id="fs3"><span class="k">namespace</span> <span class="m">System.Threading.Tasks</span></div>
+<div popover class="fsdocs-tip" id="fs4">Multiple items<br /><em>Represents an asynchronous operation that can return a value.<br /><br />TResult: The type of the result produced by this Task`1.</em><br /><span class="k">type</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> <span class="o">=</span><br />&#160;&#160;<span class="k">inherit</span> <span class="rt">Task</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="rt">Func</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">,</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 7 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">ConfigureAwait</span><span class="pn">:</span> <span class="id">continueOnCapturedContext</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="vt">ConfiguredTaskAwaitable</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">ContinueWith</span><span class="pn">:</span> <span class="id">continuationAction</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span><span class="rt">obj</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="rt">Task</span> + 19 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetAwaiter</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">TaskAwaiter</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">WaitAsync</span><span class="pn">:</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="vt">CancellationToken</span> <span class="pn">-&gt;</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> + 4 overloads<br />&#160;&#160;<span class="k">member</span> <span class="prop">Result</span><span class="pn">:</span> <span class="ta">&#39;TResult</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="prop">Factory</span><span class="pn">:</span> <span class="rt">TaskFactory</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><br />--------------------<br /><em>Represents an asynchronous operation.</em><br /><span class="k">type</span> <span class="rt">Task</span> <span class="o">=</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IAsyncResult</span><br />&#160;&#160;<span class="k">interface</span> <span class="if">IDisposable</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="id">action</span><span class="pn">:</span> <span class="rt">Action</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 7 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">ConfigureAwait</span><span class="pn">:</span> <span class="id">continueOnCapturedContext</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span> <span class="vt">ConfiguredTaskAwaitable</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">ContinueWith</span><span class="pn">:</span> <span class="id">continuationAction</span><span class="pn">:</span> <span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">Task</span><span class="pn">,</span><span class="rt">obj</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="rt">Task</span> + 19 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">Dispose</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetAwaiter</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">TaskAwaiter</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">RunSynchronously</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">Start</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">Wait</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 5 overloads<br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="m">System.</span><span class="rt">Func</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="m">System.</span><span class="rt">Func</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">,</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="m">System.</span><span class="rt">Func</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">System.Threading.</span><span class="vt">CancellationToken</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="m">System.</span><span class="rt">Func</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="m">System.</span><span class="rt">Func</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">,</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">System.Threading.</span><span class="vt">CancellationToken</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="m">System.</span><span class="rt">Func</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">,</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="m">System.</span><span class="rt">Func</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">System.Threading.</span><span class="vt">CancellationToken</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="pn">``</span><span class="o">function</span><span class="pn">``</span> <span class="pn">:</span> <span class="m">System.</span><span class="rt">Func</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">,</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">System.Threading.</span><span class="vt">CancellationToken</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><br />--------------------<br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="m">System.</span><span class="rt">Action</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="m">System.</span><span class="rt">Action</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">System.Threading.</span><span class="vt">CancellationToken</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="m">System.</span><span class="rt">Action</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="m">System.</span><span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="m">System.</span><span class="rt">Action</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">System.Threading.</span><span class="vt">CancellationToken</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="m">System.</span><span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">System.Threading.</span><span class="vt">CancellationToken</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="m">System.</span><span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><br /><span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">(</span><span class="id">action</span><span class="pn">:</span> <span class="m">System.</span><span class="rt">Action</span><span class="pn">&lt;</span><span class="rt">obj</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">state</span><span class="pn">:</span> <span class="rt">obj</span><span class="pn">,</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="m">System.Threading.</span><span class="vt">CancellationToken</span><span class="pn">,</span> <span class="id">creationOptions</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="en">TaskCreationOptions</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span></div>
+<div popover class="fsdocs-tip" id="fs5">Multiple items<br /><em>Provides a value type that wraps a Task`1 and a TResult, only one of which is used.<br /><br />TResult: The result.</em><br /><span class="k">type</span> <span class="vt">ValueTask</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> <span class="o">=</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="id">source</span><span class="pn">:</span> <span class="if">IValueTaskSource</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> <span class="o">*</span> <span class="id">token</span><span class="pn">:</span> <span class="vt">int16</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 2 overloads<br />&#160;&#160;<span class="k">member</span> <span class="fn">AsTask</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">ConfigureAwait</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">continueOnCapturedContext</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="vt">ConfiguredValueTaskAwaitable</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Equals</span><span class="pn">:</span> <span class="id">obj</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetAwaiter</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">ValueTaskAwaiter</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetHashCode</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Preserve</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">ValueTask</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">ToString</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">string</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="pn">(</span><span class="o">&lt;&gt;</span><span class="pn">)</span> <span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">left</span><span class="pn">:</span> <span class="vt">ValueTask</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">right</span><span class="pn">:</span> <span class="vt">ValueTask</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="vt">bool</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="pn">(</span><span class="o">=</span><span class="pn">)</span> <span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">left</span><span class="pn">:</span> <span class="vt">ValueTask</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> <span class="o">*</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">right</span><span class="pn">:</span> <span class="vt">ValueTask</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="vt">bool</span><br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><em>Provides an awaitable result of an asynchronous operation.</em><br /><span class="k">type</span> <span class="vt">ValueTask</span> <span class="o">=</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="id">source</span><span class="pn">:</span> <span class="if">IValueTaskSource</span> <span class="o">*</span> <span class="id">token</span><span class="pn">:</span> <span class="vt">int16</span> <span class="pn">-&gt;</span> <span class="rt">unit</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">AsTask</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="rt">Task</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">ConfigureAwait</span><span class="pn">:</span><br />&#160;&#160;&#160;&#160;&#160;&#160;<span class="id">continueOnCapturedContext</span><span class="pn">:</span> <span class="vt">bool</span> <span class="pn">-&gt;</span><br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="vt">ConfiguredValueTaskAwaitable</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Equals</span><span class="pn">:</span> <span class="id">obj</span><span class="pn">:</span> <span class="rt">obj</span> <span class="pn">-&gt;</span> <span class="vt">bool</span> + 1 overload<br />&#160;&#160;<span class="k">member</span> <span class="fn">GetAwaiter</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">ValueTaskAwaiter</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">GetHashCode</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">int</span><br />&#160;&#160;<span class="k">member</span> <span class="fn">Preserve</span><span class="pn">:</span> <span class="vt">unit</span> <span class="pn">-&gt;</span> <span class="vt">ValueTask</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="pn">(</span><span class="o">&lt;&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="id">left</span><span class="pn">:</span> <span class="vt">ValueTask</span> <span class="o">*</span> <span class="id">right</span><span class="pn">:</span> <span class="vt">ValueTask</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="pn">(</span><span class="o">=</span><span class="pn">)</span> <span class="pn">:</span> <span class="id">left</span><span class="pn">:</span> <span class="vt">ValueTask</span> <span class="o">*</span> <span class="id">right</span><span class="pn">:</span> <span class="vt">ValueTask</span> <span class="pn">-&gt;</span> <span class="vt">bool</span><br />&#160;&#160;<span class="k">static</span> <span class="k">member</span> <span class="fn">FromCanceled</span><span class="pn">:</span> <span class="id">cancellationToken</span><span class="pn">:</span> <span class="vt">CancellationToken</span> <span class="pn">-&gt;</span> <span class="vt">ValueTask</span> + 1 overload<br />&#160;&#160;<span class="pn">...</span><br /><br />--------------------<br /><span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span> <span class="pn">()</span><br /><span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span><span class="pn">(</span><span class="id">task</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span><span class="pn">(</span><span class="id">result</span><span class="pn">:</span> <span class="ta">&#39;TResult</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span><span class="pn">(</span><span class="id">source</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.Sources.</span><span class="if">IValueTaskSource</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><span class="pn">,</span> <span class="id">token</span><span class="pn">:</span> <span class="vt">int16</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span><span class="pn">&lt;</span><span class="ta">&#39;TResult</span><span class="pn">&gt;</span><br /><br />--------------------<br /><span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span> <span class="pn">()</span><br /><span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span><span class="pn">(</span><span class="id">task</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="rt">Task</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span><br /><span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span><span class="pn">(</span><span class="id">source</span><span class="pn">:</span> <span class="m">System.Threading.Tasks.Sources.</span><span class="if">IValueTaskSource</span><span class="pn">,</span> <span class="id">token</span><span class="pn">:</span> <span class="vt">int16</span><span class="pn">)</span> <span class="pn">:</span> <span class="m">System.Threading.Tasks.</span><span class="vt">ValueTask</span></div>
+<div popover class="fsdocs-tip" id="fs6"><span class="k">type</span> unit <span class="o">=</span> <span class="rt">Unit</span></div>
+<div popover class="fsdocs-tip" id="fs7">Multiple items<br /><span class="k">val</span> <span class="fn">int</span><span class="pn">:</span> <span class="id">value</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="pn">-&gt;</span> <span class="vt">int</span> <span class="pn">(</span><span class="k">requires</span> <span class="k">member</span> <span class="fn">op_Explicit</span><span class="pn">)</span><br /><br />--------------------<br /><span class="k">type</span> int <span class="o">=</span> <span class="vt">int32</span><br /><br />--------------------<br /><span class="k">type</span> int<span class="pn">&lt;</span><span class="ta">&#39;Measure</span><span class="pn">&gt;</span> <span class="o">=</span><br />&#160;&#160;<span class="vt">int</span></div>
+<div popover class="fsdocs-tip" id="fs8">Multiple items<br /><span class="k">type</span> <span class="rt">InlineIfLambdaAttribute</span> <span class="o">=</span><br />&#160;&#160;<span class="k">inherit</span> <span class="rt">Attribute</span><br />&#160;&#160;<span class="k">new</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">InlineIfLambdaAttribute</span><br /><br />--------------------<br /><span class="k">new</span><span class="pn">:</span> <span class="rt">unit</span> <span class="pn">-&gt;</span> <span class="rt">InlineIfLambdaAttribute</span></div>
+<div popover class="fsdocs-tip" id="fs9"><span class="k">val</span> <span class="fn">task</span><span class="pn">:</span> <span class="rt">TaskBuilder</span></div>
+<div popover class="fsdocs-tip" id="fs10">Multiple items<br /><span class="k">val</span> <span class="fn">seq</span><span class="pn">:</span> <span class="id">sequence</span><span class="pn">:</span> <span class="ta">&#39;T</span> <span class="rt">seq</span> <span class="pn">-&gt;</span> <span class="ta">&#39;T</span> <span class="rt">seq</span><br /><br />--------------------<br /><span class="k">type</span> <span class="ta">&#39;T</span> <span class="if">seq</span> <span class="o">=</span> <span class="m">System.Collections.Generic.</span><span class="if">IEnumerable</span><span class="pn">&lt;</span><span class="ta">&#39;T</span><span class="pn">&gt;</span></div>
+
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Runtime-async">
+      Runtime async
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Runtime-contract">
+      Runtime contract
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="3">
+    <a href="#F-surface">
+      F# surface
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="4">
+    <a href="#Type-checking">
+      Type checking
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="5">
+    <a href="#Optimization">
+      Optimization
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="6">
+    <a href="#Custom-optimizations">
+      Custom optimizations
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="7">
+    <a href="#Runtime-async-lowering">
+      Runtime-async lowering
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="8">
+    <a href="#Code-generation">
+      Code generation
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="9">
+    <a href="#Debug-stepping-and-call-stacks">
+      Debug stepping and call stacks
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="10">
+    <a href="#Runtime-capability-check">
+      Runtime capability check
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="11">
+    <a href="#Computation-expression-usage">
+      Computation-expression usage
+    </a>
+  </li>
+  <li class="level-3" data-fsdocs-heading="12">
+    <a href="#Unsupported-positions-for-inline-runtime-async-code">
+      Unsupported positions for inline runtime-async code
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="13">
+    <a href="#Async-sequences">
+      Async sequences
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="14">
+    <a href="#Not-yet-implemented">
+      Not yet implemented
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-heading-6, --fsdocs-heading-7, --fsdocs-heading-8, --fsdocs-heading-9, --fsdocs-heading-10, --fsdocs-heading-11, --fsdocs-heading-12, --fsdocs-heading-13, --fsdocs-heading-14, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-heading-6; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="6"] { view-timeline-name: --fsdocs-heading-6; }
+#fsdocs-page-menu [data-fsdocs-heading="6"] { animation-timeline: --fsdocs-heading-6, --fsdocs-heading-7; }
+body:has(#content [data-fsdocs-heading="6"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="6"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="7"] { view-timeline-name: --fsdocs-heading-7; }
+#fsdocs-page-menu [data-fsdocs-heading="7"] { animation-timeline: --fsdocs-heading-7, --fsdocs-heading-8; }
+body:has(#content [data-fsdocs-heading="7"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="7"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="8"] { view-timeline-name: --fsdocs-heading-8; }
+#fsdocs-page-menu [data-fsdocs-heading="8"] { animation-timeline: --fsdocs-heading-8, --fsdocs-heading-9; }
+body:has(#content [data-fsdocs-heading="8"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="8"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="9"] { view-timeline-name: --fsdocs-heading-9; }
+#fsdocs-page-menu [data-fsdocs-heading="9"] { animation-timeline: --fsdocs-heading-9, --fsdocs-heading-10; }
+body:has(#content [data-fsdocs-heading="9"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="9"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="10"] { view-timeline-name: --fsdocs-heading-10; }
+#fsdocs-page-menu [data-fsdocs-heading="10"] { animation-timeline: --fsdocs-heading-10, --fsdocs-heading-11; }
+body:has(#content [data-fsdocs-heading="10"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="10"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="11"] { view-timeline-name: --fsdocs-heading-11; }
+#fsdocs-page-menu [data-fsdocs-heading="11"] { animation-timeline: --fsdocs-heading-11, --fsdocs-heading-12; }
+body:has(#content [data-fsdocs-heading="11"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="11"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="12"] { view-timeline-name: --fsdocs-heading-12; }
+#fsdocs-page-menu [data-fsdocs-heading="12"] { animation-timeline: --fsdocs-heading-12, --fsdocs-heading-13; }
+body:has(#content [data-fsdocs-heading="12"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="12"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="13"] { view-timeline-name: --fsdocs-heading-13; }
+#fsdocs-page-menu [data-fsdocs-heading="13"] { animation-timeline: --fsdocs-heading-13, --fsdocs-heading-14, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="13"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="13"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="14"] { view-timeline-name: --fsdocs-heading-14; }
+#fsdocs-page-menu [data-fsdocs-heading="14"] { animation-timeline: --fsdocs-heading-14, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="14"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="14"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="./content/fsdocs-tips.js"></script>
+<script type="module" src="./content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="./content/fsdocs-details-toggle.js"></script>
+<script type="module" src="./content/fsdocs-theme.js"></script>
+<script type="module" src="./content/fsdocs-search.js"></script>
+<script type="module" src="./content/fsdocs-copy-button.js"></script>
+<script type="module" src="./content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>

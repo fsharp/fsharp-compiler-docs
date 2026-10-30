@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en" data-root="../../">
+<head>
+    <meta charset="UTF-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="F# Software Foundation; Microsoft; F# Contributors" name="author">
+    <!-- Opengraph properties (https://ogp.me/) -->
+    <meta property="og:site_name" content="F# Compiler Guide">
+    <meta property="og:title" content="Frozen corpus inventory and scope
+" />
+    <meta property="og:url" content="https://fsharp.github.io/fsharp-compiler-docs/performance-improvement-review/mining/README.html">
+    <meta property="og:type" content="website" />
+    <!-- Twitter cards (https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/summary-card-with-large-image) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="https://fsharp.github.io/fsharp-compiler-docs/">
+    <meta name="twitter:title" content="Frozen corpus inventory and scope
+">
+    
+    <title>Frozen corpus inventory and scope
+ | F# Compiler Guide</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="../../img/favicon.ico" rel="icon" sizes="32x32" type="image/png"/>
+    <script type="application/javascript" src="../../content/fsdocs-theme-set-dark.js"></script>
+    <script type="application/javascript" src="../../content/fsdocs-details-set-expanded.js"></script>
+    <link href="../../content/fsdocs-default.css" rel="stylesheet" type="text/css"/>
+    <link href="../../content/fsdocs-theme.css" rel="stylesheet" type="text/css"/>
+    
+    
+</head>
+<body class="content">
+<header>
+    <div class="start">
+        <div id="menu-toggle">
+            <iconify-icon class="icon closed" height="22" icon="eva:menu-fill" width="22"></iconify-icon>
+            <iconify-icon class="icon open" height="22" icon="mi:close" width="22"></iconify-icon>
+            <input type="checkbox" name="mobile-menu" />
+            <ul class="menu">
+                <li class="nav-header">Links</li>
+                <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+                </li>
+                <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                        href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+                    Notes</a></li>
+                <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+                    Repository</a></li>
+                <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/regression-extension-srtp-evidence-across-files.html">
+    Extension SRTP evidence
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>             
+<li class="nav-header active">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../performance-improvement-review/evidence.html">
+    Performance-improvement review: evidence and rule contract
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../performance-improvement-review/validation.html">
+    Performance-improvement review: validation
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../performance-improvement-review/corpus.html">
+    Performance-improvement review corpus
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../../performance-improvement-review/mining/README.html">
+    Frozen corpus inventory and scope
+
+  </a>
+</li>
+                <li class="nav-header">
+  <a href="../../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+            </ul>
+        </div>
+        <a href="https://fsharp.github.io/fsharp-compiler-docs/">
+            <img alt="Logo" src="../../img/logo.png">
+            <strong>F# Compiler Guide</strong>
+        </a>
+    </div>
+    <div class="end">
+        <a href="https://github.com/dotnet/fsharp/" target="_blank">
+            <iconify-icon icon="uil:github" width="26" height="26"></iconify-icon>
+        </a>
+        <iconify-icon id="search-btn" icon="carbon:search" class="search" width="24" height="24"></iconify-icon>
+        <fsdocs-theme-toggle></fsdocs-theme-toggle>
+    </div>
+</header>
+<aside id="fsdocs-main-menu">
+    <ul class="menu">
+        <li class="nav-header">Links</li>
+        <li class="license-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/blob/main/License.txt">License</a>
+        </li>
+        <li class="release-notes-menu-item builtin-menu-item nav-item"><a class="nav-link"
+                                href="https://github.com/dotnet/fsharp/blob/main/release-notes.md">Release
+            Notes</a></li>
+        <li class="repository-menu-item builtin-menu-item nav-item"><a class="nav-link" href="https://github.com/dotnet/fsharp/">Source
+            Repository</a></li>
+        <li class="nav-header ">
+  Compiler Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../reusing-typechecking-results.html">
+    Reusing typechecking results
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../overview.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../coding-standards.html">
+    Coding standards
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../diagnostics.html">
+    Diagnostics
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../debug-emit.html">
+    Debug emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../representations.html">
+    Representations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../names.html">
+    Display names, logical names and compiled names
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fsi-emit.html">
+    F# Interactive Emit
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../runtime-async.html">
+    Runtime async
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../optimizations.html">
+    Optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../optimizations-equality.html">
+    Equality optimizations
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../large-inputs-and-stack-overflows.html">
+    Large inputs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../memory-usage.html">
+    Memory usage
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../compiler-startup-performance.html">
+    Startup Performance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../changing-the-ast.html">
+    Changing the AST
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../regression-testing-pipeline.html">
+    Regression testing pipeline
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../labelops.html">
+    LabelOps
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../perf-discussions-archive.html">
+    Perf discussions archive
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../srtp-guide.html">
+    SRTP guide (draft)
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../running-documentation-locally.html">
+    Running the documentation locally
+  </a>
+</li>             
+<li class="nav-header ">
+  Language Service Internals
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../tooling-features.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../lsp.html">
+    F# LSP
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../project-builds.html">
+    Project builds
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/caches.html">
+    FSharpChecker caches
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/react.html">
+    Incrementality
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Compiler.Service
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/tokenizer.html">
+    Tutorial: Tokenizing
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/untypedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/untypedtree-apis.html">
+    Tutorial: AST APIs
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/symbols.html">
+    Tutorial: Symbols
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/typedtree.html">
+    Tutorial: Expressions
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/editor.html">
+    Tutorial: Editor services
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/project.html">
+    Tutorial: Project analysis
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/interactive.html">
+    Tutorial: Hosted execution
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/compiler.html">
+    Tutorial: Hosting the compiler
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/corelib.html">
+    Notes on FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fcs/filesystem.html">
+    IFileSystem
+  </a>
+</li>             
+<li class="nav-header ">
+  FSharp.Core
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../fsharp-core-notes.html">
+    Guidance
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../reflectionfree-printing.html">
+    Reflection-free printing
+  </a>
+</li>             
+<li class="nav-header ">
+  Postmortems
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/README.html">
+    Overview
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/regression-fs0229-bstream-misalignment.html">
+    FS0229 B-stream misalignment
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/regression-legacy-inline-metadata-dynamic-invocation.html">
+    Legacy inline metadata dynamic invocation
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/regression-sourcebuild-cpm-runtime-version-floor.html">
+    Source-build CPM runtime version floor
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/regression-parse-tree-fidelity-return-attributes.html">
+    Parse tree fidelity of return attributes
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/near-miss-core-language-feature-gate-skew.html">
+    Core language-feature gate skew
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../postmortems/regression-extension-srtp-evidence-across-files.html">
+    Extension SRTP evidence
+  </a>
+</li>             
+<li class="nav-header ">
+  Release Notes
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../release-notes/About.html">
+    About
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../release-notes/Language.html">
+    F# Language
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../release-notes/FSharp.Core.html">
+    FSharp.Core
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../release-notes/FSharp.Compiler.Service.html">
+    FSharp.Compiler.Service
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../release-notes/PENDING_BREAKING_CHANGES.html">
+    Pending breaking changes
+  </a>
+</li>             
+<li class="nav-header active">
+  Other
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../performance-improvement-review/evidence.html">
+    Performance-improvement review: evidence and rule contract
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../performance-improvement-review/validation.html">
+    Performance-improvement review: validation
+
+  </a>
+</li>             
+<li class="nav-item ">
+  <a class="nav-link" href="../../performance-improvement-review/corpus.html">
+    Performance-improvement review corpus
+
+  </a>
+</li>             
+<li class="nav-item active">
+  <a class="nav-link" href="../../performance-improvement-review/mining/README.html">
+    Frozen corpus inventory and scope
+
+  </a>
+</li>
+        <li class="nav-header">
+  <a href="../../reference/index.html">
+    API Reference
+  </a>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../../reference/fsharp-compiler.html">
+      FSharp.Compiler
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../../reference/internal-utilities-collections.html">
+      Internal.Utilities.Collections
+    </a>
+  </span>
+</li>             
+<li class="nav-item">
+  <span>
+    <a class="nav-link" href="../../reference/internal-utilities-library.html">
+      Internal.Utilities.Library
+    </a>
+  </span>
+</li>
+    </ul>
+</aside>
+<main>
+    <div id="content">
+        <h1 data-fsdocs-heading="1"><a name="Frozen-corpus-inventory-and-scope" class="anchor" href="#Frozen-corpus-inventory-and-scope">Frozen corpus inventory and scope</a></h1>
+<p>These are inventory and scope gates for the existing performance-improvement reviewer, not
+a new reviewer or a claim that the corpus has been inspected. The historical
+<a href="../corpus.html">corpus</a>, <a href="../evidence.html">evidence</a>, <a href="../validation.html">validation</a>,
+reviewer, integration skill and release-note entry are preserved. The corpus has
+only an additive current-status link; its historical text is unchanged.</p>
+<p><code>discovery.json</code> seals the original 485 PR identities: Q01-Q29 contributed 1,205
+occurrences and 475 unique PRs; saved linked expansion contributed ten more.
+Queries, their complete memberships, actual authors (including Copilot results
+from author:T-Gro searches), repository and exact historical bounds are frozen.
+No current search is used. The original acquisition head and the continuation's
+starting branch/head are recorded separately. SHA-256 identities cover the
+source manifests, query receipts, historical holdout ledgers and preserved
+repository files. Source <code>url</code> is null for machine-local manifests that have no
+published URL; <code>cache_path</code> locates them relative to a runtime archive root.
+Repository-file hashes normalize CRLF to LF and match the starting Git blobs;
+archive hashes cover the original bytes without normalization.
+The release-note hash preserves the original PR20619 entry under <code>### Added</code>,
+not later notes for unrelated changes. Frozen-file checks reject a missing,
+modified or duplicate entry. The entry must remain in the original section.
+Query URLs describe historical requests, not immutable responses: the saved
+response hashes are authoritative.</p>
+<p>The validator retains the original canonical SHA-256 of discovery (sorted JSON
+keys, ASCII escapes, compact separators, UTF-8). The sole additive field,
+<code>scope_freeze</code>, is sealed separately and pins the scope projection, source
+receipts, exposure and protocol. Original identities, memberships, historical
+partition receipts and bounds remain byte-for-byte equivalent JSON values.
+Editing discovery and the index together cannot silently substitute a
+same-sized universe. The production CLI has no alternate-seal option and
+requires the real 485-member manifest.
+Small injected seals are available only to Python unit tests.</p>
+<h2 data-fsdocs-heading="2"><a name="Index-contract-schema-version-2" class="anchor" href="#Index-contract-schema-version-2">Index contract (schema version 2)</a></h2>
+<p><code>work-index.jsonl</code> has one object per PR, sorted by PR number. Required fields:</p>
+<table>
+<thead>
+<tr class="header">
+<th><p>Fields</p></th>
+<th><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><p><code>schema_version</code>, <code>repository</code>, <code>pr</code>, <code>node_id</code>, <code>url</code>, <code>author</code></p></td>
+<td><p>Stable identity and actual captured author; must match discovery exactly.</p></td>
+</tr>
+<tr class="even">
+<td><p><code>discovery_ids</code></p></td>
+<td><p>Exact original query memberships, or <code>linked</code>.</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>ordinal</code>, <code>shard</code></p></td>
+<td><p>Sorted numeric position over <strong>all</strong> 485 PRs, zero-based <code>0..484</code>; <code>shard = ordinal % 6</code>. Six pairwise-disjoint shards have sizes <code>81,81,81,81,81,80</code> and union exactly to discovery. A connected family may span mining shards.</p></td>
+</tr>
+<tr class="even">
+<td><p><code>scope</code></p></td>
+<td><p>Explicit <code>in</code>/<code>out</code>, PR-specific content-based reason and exact excerpt, immutable description/path/event sources, historical identity, policy version and reconciliation against the preserved old decision. No workload or author-identity exclusions.</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>family</code>, <code>split</code></p></td>
+<td><p>Transitive connected-family identity and prospective development/control assignment. Historical aliases remain in the exposure ledger; all members share a split. None is certified as a fresh holdout. This does not grant training or inspection credit.</p></td>
+</tr>
+<tr class="even">
+<td><p><code>source_status</code></p></td>
+<td><p><code>pending</code>, <code>failed</code>, <code>stale</code>, or <code>acquired</code>. All start pending: receipt availability alone is not a new acquisition audit.</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>inspection_status</code></p></td>
+<td><p><code>pending</code>, <code>failed</code>, <code>stale</code>, or <code>inspected</code>. All 485 start pending. <code>acquired</code> is never an inspection status.</p></td>
+</tr>
+<tr class="even">
+<td><p><code>receipt</code>, <code>rule_links</code></p></td>
+<td><p>Null and empty initially. A future inspection receipt is a cache-relative identifier, not arbitrary prose. Schema checks alone cannot substantiate it.</p></td>
+</tr>
+<tr class="odd">
+<td><p><code>historical</code></p></td>
+<td><p>Original decision, available development counts, reserve metadata, holdout counts/statuses and source references. None grants inspection credit.</p></td>
+</tr>
+</tbody>
+</table>
+
+<p>Source references use manifest IDs and <code>#pr=N</code> selectors for PR scope receipts (select
+<code>number</code> or <code>pr</code> in the referenced array, not an array offset). All original
+decisions are preserved, including exclusions and controls. Earlier focused
+inspection/triage labels and channel counts remain historical. Raw discussions,
+patches and large archives are not committed.</p>
+<p>The collector still reconstructs the original schema-1 pending index and
+one-based/groups-of-25 partition receipts; it never overwrites this schema-2
+freeze. Both schemas are validated against their respective frozen provenance.</p>
+<p><code>inventory</code> validates the frozen set, uniqueness, repository, bounds, schema,
+memberships and index structure. <code>scope</code> additionally validates all adjudications,
+the modulo-six partition, immutable policies and connected-family exposure.
+Both explicitly report <code>final_corpus_complete: false</code>. The stages <code>red</code>,
+<code>acquisition</code>, <code>batch --batch N</code>, <code>training</code>, <code>rules</code>, <code>audit</code>, <code>sealed</code> and
+<code>complete</code> fail explicitly as not implemented, after checking inventory. They
+never fall back to an easier stage. Even fabricated status/receipt fields cannot
+make <code>complete</code> succeed. Neither implemented gate is an acquisition,
+inspection-completion or reviewer-quality certificate.</p>
+<h2 data-fsdocs-heading="3"><a name="Scope-and-exposure-freeze" class="anchor" href="#Scope-and-exposure-freeze">Scope and exposure freeze</a></h2>
+<p>All <strong>485</strong> PRs have evidence-backed decisions: <strong>141 in, 344 out</strong>. The
+freeze reconciles 35 changed decisions against the historical 122-in snapshot;
+27 enter scope and eight become explicit out-of-scope/context rows. Complete
+preserved description hashes, exact excerpts, labels, changed-path receipts and
+older-created activity events were checked against the original caches.
+The exposure boundary contains 277 connected original families and five
+unverified supplemental benchmark-path leads, outside the unchanged inventory.
+The additive correction receipt joins #20083 and #20084 as variants of the same
+central-package-management change, retaining both historical aliases and all
+access events. Prior freeze hashes remain recorded; scope decisions, partitions
+and the predeclared protocol are unchanged.</p>
+<p><a href="evaluation/protocol.json">Protocol</a> freezes the original eligibility rule,
+positive source-specific human-composition provenance, two-PR/two-independent-
+family recurrence, contrary-feedback accounting, required real-source strata,
+claim-scoped scoring fields and acceptance before any new rule changes or runs.
+All description-level authorship remains <strong>uncertain</strong>, not certified human;
+identity, original/quoted text, author rationale/independent review and
+missing/no-feedback are separate concepts.</p>
+<p><a href="evaluation/exposure.json">Exposure</a> records all original PRs and connected
+families, immutable prior report/run references, historical/final variants and
+the 36 C6-S <strong>replays</strong>. It distinguishes acquisition, metadata screening,
+semantic inspection, shared oracles, execution, scores, derivation and unknown
+access. Earlier reserve triage counts as exposure even when inspection was
+incomplete. Dates explicitly distinguish original run timestamps from audit
+timestamps where the original access time is unknown. Renaming families cannot
+erase their history.</p>
+<p>No original family has a positive untouched-access certificate. Supplemental
+benchmark-path leads remain separately labeled <strong>validation-only, unverified,
+not fresh</strong>; the 804-PR metadata screen neither qualifies them nor changes the
+485 denominator. Required real-source availability gaps are recorded by stratum
+and <strong>block evaluation acceptance</strong>. In particular, the old search found no
+real benchmark-only PR; synthetic BENCH-01 cannot fill that gap. No new review,
+oracle or output bodies were opened for potentially untouched candidates, and
+no reviewer rule or execution is part of this freeze.</p>
+<h2 data-fsdocs-heading="4"><a name="Commands" class="anchor" href="#Commands">Commands</a></h2>
+<p>From the repository root, using only the Python standard library:</p>
+<div class="fsdocs-snippet"><pre class="fssnip"><code lang="powershell">python -m unittest discover -s docs\performance-improvement-review\mining\tools -p "test_*.py"
+python -O -m unittest discover -s docs\performance-improvement-review\mining\tools -p "test_*.py"
+python docs\performance-improvement-review\mining\tools\validate.py --stage inventory
+python docs\performance-improvement-review\mining\tools\validate.py --stage scope
+python docs\performance-improvement-review\mining\tools\validate.py --stage complete
+</code></pre></div>
+<p>The last command <strong>must exit nonzero</strong> while the corpus is unfinished.
+<code>--discovery</code>, <code>--index</code>, <code>--protocol</code> and <code>--exposure</code> accept alternate file
+locations, not alternate production seals. Validation does not need the original
+machine's cache.</p>
+<p>To reproduce the import, set <code>$archiveRoot</code> to the directory containing the
+original session directories identified by <code>sources[*].cache_path</code>:</p>
+<div class="fsdocs-snippet"><pre class="fssnip"><code lang="powershell">python docs\performance-improvement-review\mining\tools\collect.py --source-root $archiveRoot --output &lt;empty-directory&gt;
+</code></pre></div>
+<p>The collector is offline and read-only toward source caches. It requires all
+named manifests, reconciles saved search pages and decisions against the
+original corpus table, and compares the result to the production seal. A
+missing, changed or malformed cache fails explicitly; it never redownloads or
+regenerates discovery. Identical output is reused. Different existing output is
+never overwritten; use <code>--output &lt;empty-directory&gt;</code> to reconstruct an initial
+index without discarding later work. LF/CRLF-only output differences are reused
+without rewriting the existing file.</p>
+<h2 data-fsdocs-heading="5"><a name="Recovery-checks" class="anchor" href="#Recovery-checks">Recovery checks</a></h2>
+<p>Tests were written and run before the implementation (missing-module failures).
+The regression suite exercises exact identity substitutions as well as 484/486
+rows, duplicate numbers/nodes, changed repository/cutoff, missing memberships,
+fabricated completion, malformed JSON, optimized execution, historical-status
+non-promotion and fail-closed stages. The original corpus table parser also
+distinguishes delimiters from their later reproduction-code quotation.
+Temporary archives exercise <code>recover()</code> and the collector entry point together:
+paginated and overlapping queries, empty queries, linked PRs, historical
+development/holdout receipts, source hashes and unchanged-cache/output reuse.
+Parameterized failures cover missing, malformed, ambiguous and inconsistent
+receipts. A byte-only source change must fail the frozen seal before creating
+outputs or modifying existing ones. These tests need no workstation archive.</p>
+<p>Initial recovery results: 16 tests passed normally and under <code>python -O</code>; inventory passed
+with exactly 485 rows; <code>complete</code> exits 1 with 485 pending inspections. Offline
+reproduction reuses identical outputs with zero network requests. Frozen-file
+hashes match the starting Git blobs after removing only the exact current-status
+addition in <code>corpus.md</code>. Scope mutation tests additionally reject undecided or
+source-less rows, identity-only exclusion, mutable temporal evidence, shifted
+ordinals, coordinated family renaming, unknown or semantic exposure presented as fresh,
+copied human provenance and changes to the predeclared protocol.
+Freshness tests first validate an isolated metadata-only holdout, then add
+each of the six disqualifying exposure categories or invalidate one audit at a
+time. A connected-variant regression also rejects separating #20083 and #20084
+even with consistent aliases. Family summaries and test-only seals stay
+consistent, so unrelated validation failures cannot satisfy these assertions.
+Authorship cases share one parameterized setup and assert distinct diagnostics
+for copied provenance and account identity, with consistent test-only seals.</p>
+
+        
+    </div>
+</main>
+<aside id="fsdocs-page-menu">
+    <p id="on-this-page">On this page</p>
+    <ul>
+  <li class="level-1" data-fsdocs-heading="1">
+    <a href="#Frozen-corpus-inventory-and-scope">
+      Frozen corpus inventory and scope
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="2">
+    <a href="#Index-contract-schema-version-2">
+      Index contract (schema version 2)
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="3">
+    <a href="#Scope-and-exposure-freeze">
+      Scope and exposure freeze
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="4">
+    <a href="#Commands">
+      Commands
+    </a>
+  </li>
+  <li class="level-2" data-fsdocs-heading="5">
+    <a href="#Recovery-checks">
+      Recovery checks
+    </a>
+  </li>
+</ul><style>
+body { timeline-scope: --fsdocs-heading-1, --fsdocs-heading-2, --fsdocs-heading-3, --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-main; }
+#content [data-fsdocs-heading="1"] { view-timeline-name: --fsdocs-heading-1; }
+#fsdocs-page-menu [data-fsdocs-heading="1"] { animation-timeline: --fsdocs-heading-1, --fsdocs-heading-2; }
+body:has(#content [data-fsdocs-heading="1"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="1"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="2"] { view-timeline-name: --fsdocs-heading-2; }
+#fsdocs-page-menu [data-fsdocs-heading="2"] { animation-timeline: --fsdocs-heading-2, --fsdocs-heading-3; }
+body:has(#content [data-fsdocs-heading="2"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="2"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="3"] { view-timeline-name: --fsdocs-heading-3; }
+#fsdocs-page-menu [data-fsdocs-heading="3"] { animation-timeline: --fsdocs-heading-3, --fsdocs-heading-4; }
+body:has(#content [data-fsdocs-heading="3"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="3"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="4"] { view-timeline-name: --fsdocs-heading-4; }
+#fsdocs-page-menu [data-fsdocs-heading="4"] { animation-timeline: --fsdocs-heading-4, --fsdocs-heading-5, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="4"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="4"] { --fsdocs-toc-focused: 1; }
+#content [data-fsdocs-heading="5"] { view-timeline-name: --fsdocs-heading-5; }
+#fsdocs-page-menu [data-fsdocs-heading="5"] { animation-timeline: --fsdocs-heading-5, --fsdocs-main; }
+body:has(#content [data-fsdocs-heading="5"]:is(:focus, .fsdocs-hotkey-focus)) #fsdocs-page-menu [data-fsdocs-heading="5"] { --fsdocs-toc-focused: 1; }
+</style>
+</aside>
+<dialog>
+    <input type="search" placeholder="Search docs" />
+    <div class="results">
+        <ul></ul>
+        <p class="empty">Type something to start searching.</p>
+    </div>
+</dialog>
+<script type="module" src="../../content/fsdocs-tips.js"></script>
+<script type="module" src="../../content/fsdocs-theme-toggle.js"></script>
+<script type="module" src="../../content/fsdocs-details-toggle.js"></script>
+<script type="module" src="../../content/fsdocs-theme.js"></script>
+<script type="module" src="../../content/fsdocs-search.js"></script>
+<script type="module" src="../../content/fsdocs-copy-button.js"></script>
+<script type="module" src="../../content/fsdocs-hotkeys.js"></script>
+
+</body>
+</html>
